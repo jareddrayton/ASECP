@@ -1,14 +1,14 @@
 # ASECP
 
-**A**rticulatory **S**ynthesis with **E**volutionary **C**omputing in **P**ython
+**A**rticulatory **S**ynthesis with **E**volutionary **C**omputing in **P**ython (ASECP) implements a Genetic Algorithm to find parameters for an articulatory synthesiser to recreate a given target sound. Currently it is only for use with vowel sounds as targets. 
 
-### Info
+### Features
 
-ASECP implements a Genetic Algorithm to find parameters for an articulatory synthesiser when given a target sound. Currently only static vowels are being investigated. 
+
 
 ### Usage
 
-The program requires PRAAT to run. http://www.fon.hum.uva.nl/praat/
+The program uses PRAAT for the articulatory synthesis and . http://www.fon.hum.uva.nl/praat/
 
 The script is run from the command line.
 ```
