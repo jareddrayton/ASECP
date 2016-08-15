@@ -10,3 +10,7 @@ ASECP implements a Genetic Algorithm to find parameters for an articulatory synt
 
 The program requires PRAAT to run. http://www.fon.hum.uva.nl/praat/
 
+The script is run from the command line.
+
+"""python main.py vowel-a.wav 20 75 0.15 0.15 P A1 EUC 01"""
+
