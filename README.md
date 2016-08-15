@@ -4,9 +4,9 @@
 
 ### Info
 
-ASECP is uses a Genetic Algorithm to find parameters for an articulatory synthesisiser 
+ASECP implements a Genetic Algorithm to find parameters for an articulatory synthesiser when given a target sound. Currently only static vowels are being investigated. 
 
 ### Usage
 
-The program requires PRAAT to run.
+The program requires PRAAT to run. http://www.fon.hum.uva.nl/praat/
 
