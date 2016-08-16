@@ -122,12 +122,14 @@ class Individual:
     def evaluate_fitness(self):
         
         if ff == "A1":
-            self.fitness = fitnessfunction.fitness_a1(self.name,directory,currentgeneration,targetfrequencies, metric)
+            self.fitness, = fitnessfunction.fitness_a1(self.name,directory,currentgeneration,targetfrequencies, metric)
         elif ff == "A2":
             self.fitness = fitnessfunction.fitness_a2(self.name,directory,currentgeneration,targetfrequencies, metric)
         elif ff == "A3":
-            self.fitness = fitnessfunction.fitness_a3(self.name,directory,currentgeneration,targetfrequencies, metric)
+            self.fitness, self.voiced = fitnessfunction.fitness_a3(self.name,directory,currentgeneration,targetfrequencies, metric)
+        
         print self.fitness
+        print self.voiced
 
 #################################################################################################################
 #################################################################################################################

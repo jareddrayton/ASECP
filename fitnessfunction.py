@@ -38,7 +38,7 @@ def fitness_a3(name, directory, currentgeneration, targetformants, metric):
 	:returns: a float representing fitness
 	"""
 
-	individualfrequencies = praatcontrol.get_individual_frequencies(name,directory,currentgeneration)
+	individualfrequencies,VUV = praatcontrol.get_individual_frequencies(name,directory,currentgeneration)
 	difference = []
 	
 	stats.write_formants(name, directory, currentgeneration, individualfrequencies)
@@ -48,7 +48,7 @@ def fitness_a3(name, directory, currentgeneration, targetformants, metric):
 	
 	targetformants = [0,0]
 	
-	return return_distance(difference, targetformants, metric)
+	return return_distance(difference, targetformants, metric), VUV
 
 def return_distance(x, y, metric):
 
