@@ -1,6 +1,6 @@
 # ASECP
 
-**A**rticulatory **S**ynthesis with **E**volutionary **C**omputing in **P**ython (ASECP) implements a Genetic Algorithm to find parameters for the PRAAT articulatory synthesiser, to recreate a given target sound. Currently it is only for use with vowel sounds as targets. 
+**A**rticulatory **S**ynthesis with **E**volutionary **C**omputing in **P**ython (ASECP) implements a Genetic Algorithm to find parameters for the PRAAT articulatory synthesiser, to recreate a given target sound. Currently it is only suitable for use with vowels as target sounds. 
 
 ## Features
 
@@ -19,10 +19,11 @@ The fitness function can use a configurable number of features for calculating a
 ## Usage
 
 #### Requirements
+
 The program uses PRAAT for the articulatory synthesis and signal processing. The PRAAT binaries can be downloaded [here](http://www.fon.hum.uva.nl/praat/).
 As well as Python 2.7, NumPy and MatPlotLib are required for 
 
-The script is run from the command line.
+The script is run from the command line with a number of required arguments.
 ```
 python main.py vowel-a.wav 5 20 0.2 0.2 P A4 EUC 01
 ```
