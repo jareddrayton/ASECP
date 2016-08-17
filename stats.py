@@ -60,7 +60,7 @@ def formant_plot_animated():
 	pass
 
 
-def write_formants(name, directory, currentgeneration, individualfrequencies):
+def write_formants(name, directory, currentgeneration, individualfrequencies, fitness):
 
 	with open('%s\\Generation%d\\Stats.csv' % (directory, currentgeneration), 'a') as csvfile:
 	

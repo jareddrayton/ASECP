@@ -117,7 +117,7 @@ def get_individual_frequencies(name, directory, currentgeneration):
 
 	with open("%s\Generation%d\\pitch%d.txt" % (directory, currentgeneration, (int(name))), "r") as pitch:
 		
-		# Sets the Class variable candpitch to a list containing the first line of the file and strips white space.
+		# Sets the canpitch variable to a list containing the first line of the file and strips white space.
 		candpitch = pitch.readline().strip()
 		candpitch = candpitch.strip('Hz')
 		candpitch = candpitch.strip()
@@ -143,16 +143,14 @@ def get_individual_frequencies(name, directory, currentgeneration):
 
 	if candpitch.islower() == True:
 		candpitch = 2000
-		candformants[1] = 4000
-		candformants[2] = 6000
+		candformants[1] = 10000
+		candformants[2] = 10000
 		candformants[3] = 8000
 		candformants[4] = 10000
 		candformants[5] = 12000
 		VUV = False
 
 	candformants[0] = candpitch
-	
-	print candformants
 
 	os.remove("%s\Generation%d\\pitch%d.txt" % (directory, currentgeneration, int(name)))
 	os.remove("%s\Generation%d\\formants%d.txt" % (directory, currentgeneration, int(name)))

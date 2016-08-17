@@ -3,52 +3,42 @@ import math, praatcontrol, pydistance, stats
 #################################################################################################################
 #################################################################################################################
 
-def fitness_a1(name, directory, currentgeneration, targetformants, metric):
+def fitness_a1(formants,voiced,targetfrequencies,metric):
 	"""Compares frequencies using Hz scale
 
 	:returns: a float representing fitness
 	"""
+	print(formants)
+	print(targetfrequencies)
 
-	individualfrequencies = praatcontrol.get_individual_frequencies(name,directory,currentgeneration)
-	
-	stats.write_formants(name, directory, currentgeneration, individualfrequencies)
-	
-	return return_distance(individualfrequencies, targetformants, metric)
+	return return_distance(formants, targetfrequencies, metric)
 
 
-def fitness_a2(name, directory, currentgeneration, targetformants, metric):
+def fitness_a2(formants,voiced,targetfrequencies,metric):
 	"""Compares frequencies using the Mel scale.
 
 	:returns: a float representing fitness
 	"""
 
-	individualfrequencies = praatcontrol.get_individual_frequencies(name,directory,currentgeneration)
+	targetfrequencies = praatcontrol.hz_to_mel(targetfrequencies)
+	formants = praatcontrol.hz_to_mel(formants)
 
-	stats.write_formants(name, directory, currentgeneration, individualfrequencies)
+	return return_distance(formants, targetfrequencies, metric)
 
-	targetformants = praatcontrol.hz_to_mel(targetformants)
-	individualfrequencies = praatcontrol.hz_to_mel(individualfrequencies)
-
-	return return_distance(individualfrequencies, targetformants, metric)
-
-
-def fitness_a3(name, directory, currentgeneration, targetformants, metric):
+def fitness_a3(formants,voiced,targetfrequencies,metric):
 	"""Compares frequencies using Cents
 
 	:returns: a float representing fitness
 	"""
 
-	individualfrequencies,VUV = praatcontrol.get_individual_frequencies(name,directory,currentgeneration)
 	difference = []
 	
-	stats.write_formants(name, directory, currentgeneration, individualfrequencies)
+	for i in range(len(targetfrequencies)):
+		difference.append(math.fabs(1200 * math.log(formants[i] / targetfrequencies[i], 2)))
 	
-	for i in range(len(targetformants)):
-		difference.append(math.fabs(1200 * math.log(individualfrequencies[i] / targetformants[i], 2)))
+	targetfrequencies = [0,0]
 	
-	targetformants = [0,0]
-	
-	return return_distance(difference, targetformants, metric), VUV
+	return return_distance(difference, targetfrequencies, metric)
 
 def return_distance(x, y, metric):
 

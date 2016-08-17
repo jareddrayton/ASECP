@@ -1,6 +1,6 @@
 import os, random, time, math
 import matplotlib.pyplot as plt
-import praatcontrol, fitnessfunction, genop
+import praatcontrol, fitnessfunction, genop, stats
 
 from operator import itemgetter 
 from sys import argv
@@ -119,18 +119,23 @@ class Individual:
         
         self.artword.close()
 
+
+
     def evaluate_fitness(self):
         
+        self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name,directory,currentgeneration)
+
         if ff == "A1":
-            self.fitness, = fitnessfunction.fitness_a1(self.name,directory,currentgeneration,targetfrequencies, metric)
+            self.fitness = fitnessfunction.fitness_a1(self.formants, self.voiced, targetfrequencies, metric)
         elif ff == "A2":
-            self.fitness = fitnessfunction.fitness_a2(self.name,directory,currentgeneration,targetfrequencies, metric)
+            self.fitness = fitnessfunction.fitness_a2(self.formants, self.voiced, targetfrequencies, metric)
         elif ff == "A3":
-            self.fitness, self.voiced = fitnessfunction.fitness_a3(self.name,directory,currentgeneration,targetfrequencies, metric)
-        
+            self.fitness = fitnessfunction.fitness_a3(self.formants, self.voiced, targetfrequencies, metric)
+
         print self.fitness
         print self.voiced
 
+        stats.write_formants(self.name, directory, currentgeneration, self.formants, self.fitness)
 #################################################################################################################
 #################################################################################################################
 
