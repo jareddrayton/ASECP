@@ -5,10 +5,16 @@
 ## Features
 
 #### Genetic Operators 
-Selection - Fitness Proportional, Linear Ranking
-Crossover - One Point Crossover, Two Point Crossover
-Mutation - Gaussian Distrubution
+- Selection - Fitness Proportional, Linear Ranking
+- Crossover - One Point Crossover, Two Point Crossover
+- Mutation - Gaussian Distrubution
 
+#### Fitness Function
+
+The fitness function can use a configurable number of features for calculating a individuals fitness. Currently these are
+
+1. Fundamental Frequency (As calculated by PRAAT)
+2. The first five formants.
 
 ## Usage
 
