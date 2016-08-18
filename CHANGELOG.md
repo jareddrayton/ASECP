@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/), and [Keep a C
 ## [Unreleased]
 ### [Added]
 - Voiced/Unvoiced variable attribute.
+- Added Intensity variable to Class Individual
 
 ### [Changed]
 - Refactored functions in fitnessfunction.py
