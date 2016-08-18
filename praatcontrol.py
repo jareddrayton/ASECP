@@ -1,5 +1,6 @@
 import subprocess, time, os, math
-
+import numpy as np
+from scipy.io import wavfile
 
 def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
 	""" Loops through all PRAAT script in a directory and opens them in the cmd line as separate processes"""
@@ -173,10 +174,12 @@ def get_individual_intensity(name, directory, currentgeneration,targetintensity)
 		
 	os.remove("%s\Generation%d\\intensity%d.txt" % (directory, currentgeneration, int(name)))
 
-	if intensity < targetintensity:
-		return targetintensity
-	else:
-		return intensity
+	return intensity
+
+def get_individual_RMS():
+
+	pass
+
 
 def hz_to_mel(frequencies):
 	""" Converts a list of frequencies to mel scale

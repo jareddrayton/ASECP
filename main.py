@@ -122,9 +122,10 @@ class Individual:
 
 
     def evaluate_fitness(self):
-        
+        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration,targetintensity)
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name,directory,currentgeneration)
-
+		
+        
         if ff == "A1":
             self.fitness = fitnessfunction.fitness_a1(self.formants, self.voiced, targetfrequencies, metric)
         elif ff == "A2":
@@ -134,8 +135,10 @@ class Individual:
 
         print self.fitness
         print self.voiced
+        print self.intensity
 
         stats.write_formants(self.name, directory, currentgeneration, self.formants, self.fitness)
+
 #################################################################################################################
 #################################################################################################################
 
