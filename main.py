@@ -122,10 +122,12 @@ class Individual:
 
 
     def evaluate_fitness(self):
+        
+
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration,targetintensity)
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name,directory,currentgeneration)
-		
-        
+        self.rms = praatcontrol.get_individual_RMS(self.name,directory,currentgeneration)
+
         if ff == "A1":
             self.fitness = fitnessfunction.fitness_a1(self.formants, self.voiced, targetfrequencies, metric)
         elif ff == "A2":
@@ -133,6 +135,7 @@ class Individual:
         elif ff == "A3":
             self.fitness = fitnessfunction.fitness_a3(self.formants, self.voiced, targetfrequencies, metric)
 
+        print self.rms
         print self.fitness
         print self.voiced
         print self.intensity

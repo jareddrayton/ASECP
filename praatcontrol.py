@@ -176,9 +176,22 @@ def get_individual_intensity(name, directory, currentgeneration,targetintensity)
 
 	return intensity
 
-def get_individual_RMS():
+def get_individual_RMS(name,directory,currentgeneration):
 
-	pass
+
+	t = "%s\Generation%d\\Individual%d.wav" % (directory, currentgeneration, (int(name)))
+	
+	rate,data = wavfile.read(t, mmap=False)
+
+	total = 0.0
+
+	for i in range(len(data)):
+
+		total += data[i] ** 2
+
+	total = total / len(data)
+	
+	return math.sqrt(total)
 
 
 def hz_to_mel(frequencies):
