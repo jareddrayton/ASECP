@@ -25,6 +25,6 @@ As well as Python 2.7, NumPy and MatPlotLib are required for
 
 The script is run from the command line with a number of required arguments.
 ```
-python main.py vowel-a.wav 5 20 0.2 0.2 P A4 EUC 01
+python main.py vowel-a-mono.wav 5 20 0.2 0.2 P A3 EUC 01
 ```
 
