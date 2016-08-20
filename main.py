@@ -33,6 +33,7 @@ os.mkdir(directory)
 targetlength = praatcontrol.get_time(soundfile)
 targetfrequencies = praatcontrol.get_target_frequencies(targetlength, soundfile)
 targetintensity = praatcontrol.get_target_intensity(soundfile)
+targetrms = praatcontrol.get_target_RMS(soundfile)
 
 length = "0.5"
 
@@ -125,7 +126,7 @@ class Individual:
         
 
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration,targetintensity)
-        self.rms = praatcontrol.get_individual_RMS(self.name,directory,currentgeneration)
+        self.rms = praatcontrol.get_individual_RMS(self.name,directory,currentgeneration,targetrms)
         
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name,directory,currentgeneration)
         
@@ -137,11 +138,15 @@ class Individual:
         elif ff == "A3":
             self.fitness = fitnessfunction.fitness_a3(self.formants, self.voiced, targetfrequencies, metric)
 
-        print self.rms
-        print self.fitness
-        print self.voiced
-        print self.intensity
-
+        print
+        print "Individual ", self.name
+        print "Voiced                :", self.voiced
+        print "Fitness               :", self.fitness
+        print "Intensity Coefficient :", self.intensity
+        print "Fitness * Intensity   :", self.fitness * self.intensity
+        print "RMS Coefficient       :", self.rms
+        print "Fitness * RMS         :", self.fitness * self.rms
+        print
         stats.write_formants(self.name, directory, currentgeneration, self.formants, self.fitness)
 
 #################################################################################################################
