@@ -170,9 +170,10 @@ def get_individual_intensity(name, directory, currentgeneration,targetintensity)
 		intensity = intensity.strip()
 		intensity = intensity.strip("dB")
 		intensity = float(intensity)
-		intensity = round(abs(targetintensity - intensity), 1)
-		
-	os.remove("%s\Generation%d\\intensity%d.txt" % (directory, currentgeneration, int(name)))
+	
+	os.remove("%s\Generation%d\\intensity%d.txt" % (directory, currentgeneration, int(name)))	
+	
+	intensity = abs((targetintensity / intensity) - 1) + 1
 
 	return intensity
 
