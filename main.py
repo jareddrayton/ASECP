@@ -147,6 +147,10 @@ class Individual:
         print "RMS Coefficient       :", self.rms
         print "Fitness * RMS         :", self.fitness * self.rms
         print
+
+        #self.fitness = self.fitness * self.intensity
+        self.fitness = self.fitness * self.rms
+        
         stats.write_formants(self.name, directory, currentgeneration, self.formants, self.fitness)
 
 #################################################################################################################
