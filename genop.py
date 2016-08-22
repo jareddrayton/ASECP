@@ -142,7 +142,10 @@ def uniform_crossover(population, keys, temppopulation):
 #################################################################################################################
 
 def mutation(population, keys, mutationprobability, standarddeviation):
-	""" Mutation function """
+	""" Mutation function 
+	If mutating a value results in it exceeding 
+
+	"""
 	
 	for name in keys:
 		for i in range(len(population[name].values)):

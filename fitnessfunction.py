@@ -36,15 +36,15 @@ def fitness_a3(formants,voiced,targetfrequencies,metric):
 	for i in range(len(targetfrequencies)):
 		difference.append(math.fabs(1200 * math.log(formants[i] / targetfrequencies[i], 2)))
 	
-	targetfrequencies = [0,0]
+	targetfrequencies = [0,0,0]
 	
 	return return_distance(difference, targetfrequencies, metric)
 
 def return_distance(x, y, metric):
 
-	coefficients = [2.0, 1.0]
+	coefficients = [3.5, 2.0, 1.0]
 	
-	use_coeff = False
+	use_coeff = True
 
 	if use_coeff == True:
 		for i in range(len(x)):
@@ -60,6 +60,8 @@ def return_distance(x, y, metric):
 		return pydistance.MSE(x,y)
 	elif metric == "EUC":
 		return pydistance.EUC(x,y)
+	elif metric == "CAN":
+		return pydistance.CAN(x,y)
 
 #################################################################################################################
 #################################################################################################################

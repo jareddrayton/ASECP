@@ -149,7 +149,7 @@ class Individual:
         print
 
         #self.fitness = self.fitness * self.intensity
-        self.fitness = self.fitness * self.rms
+        self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
         
         stats.write_formants(self.name, directory, currentgeneration, self.formants, self.fitness)
 
@@ -192,10 +192,12 @@ for i in range(generations):
     averagefitness.append(sum(listfitness)/len(listfitness))
     minimumfitness.append(min(listfitness))
 
-    if currentgeneration < 10:
-        genop.fitness_proportional(population, keys)
-    else:
-        genop.lin_rank(population,keys)
+    # if currentgeneration < 10:
+    #     genop.fitness_proportional(population, keys)
+    # else:
+    #     genop.lin_rank(population,keys)
+
+    genop.lin_rank(population,keys)        
     
     genop.mutation(population, keys,mutationprobability,standarddeviation)
 
