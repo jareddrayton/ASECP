@@ -57,7 +57,8 @@ def lin_rank(population,keys):
 	
 	print sum(probabilities)
 
-	uniform_crossover(population, keys, temppopulation)
+	# uniform_crossover(population, keys, temppopulation)
+	one_crossover(population, keys, temppopulation)
 
 
 def exp_rank():

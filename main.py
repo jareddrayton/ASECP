@@ -192,7 +192,11 @@ for i in range(generations):
     averagefitness.append(sum(listfitness)/len(listfitness))
     minimumfitness.append(min(listfitness))
 
-    genop.fitness_proportional(population, keys)
+    if currentgeneration < 10:
+        genop.fitness_proportional(population, keys)
+    else:
+        genop.lin_rank(population,keys)
+    
     genop.mutation(population, keys,mutationprobability,standarddeviation)
 
 #################################################################################################################
