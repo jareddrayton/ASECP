@@ -37,7 +37,7 @@ def SSD(x,y):
 	return sum(total)
 
 
-def MAE(x, y):
+def MAE(x,y):
 	""" Mean-Absolute Error
 	:input x: a one dimensional list containing integers or floats.
 	:input y: a one dimensional list containing integers or floats. 
