@@ -1,9 +1,11 @@
 import os, random, time, math
-import matplotlib.pyplot as plt
-import praatcontrol, fitnessfunction, genop, stats
-
 from operator import itemgetter 
 from sys import argv
+
+import matplotlib.pyplot as plt
+
+import praatcontrol, fitnessfunction, genop, stats
+
 
 # Key Word Arguments HERE
 
@@ -106,7 +108,7 @@ class Individual:
         self.artword.write('To Sound... 22500 25    0 0 0    0 0 0   0 0 0\r\n')
         self.artword.write('''nowarn do ("Save as WAV file...", "Individual''' + self.name + '''.wav")\r\n''')
         self.artword.write('''selectObject ("Sound Individual''' + self.name + '''_Robovox")\r\n''')
-        self.artword.write('To Formant (burg): 0, 5, 5500, %s, 50\r\n' % length)
+        self.artword.write('To Formant (burg): 0, 5, 5000, %s, 50\r\n' % length)
         self.artword.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\r\n')
         self.artword.write('''appendFile ("formants''' + self.name + '''.txt", info$ ())\r\n''')
         self.artword.write('''selectObject ("Sound Individual''' + self.name + '''_Robovox")\r\n''')
@@ -151,7 +153,8 @@ class Individual:
         #self.fitness = self.fitness * self.intensity
         self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
         
-        stats.write_formants(self.name, directory, currentgeneration, self.formants, self.fitness)
+        stats.write_formants(self.name, directory, currentgeneration, 
+        	self.formants, self.fitness, self.voiced)
 
 #################################################################################################################
 #################################################################################################################
@@ -192,12 +195,9 @@ for i in range(generations):
     averagefitness.append(sum(listfitness)/len(listfitness))
     minimumfitness.append(min(listfitness))
 
-    # if currentgeneration < 10:
-    #     genop.fitness_proportional(population, keys)
-    # else:
-    #     genop.lin_rank(population,keys)
-
-    genop.lin_rank(population,keys)        
+    # genop.lin_rank(population, keys)
+    
+    # genop.fitness_proportional(population, keys)        
     
     genop.mutation(population, keys,mutationprobability,standarddeviation)
 

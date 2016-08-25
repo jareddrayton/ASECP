@@ -1,4 +1,6 @@
-import math, praatcontrol, pydistance, stats
+import math, 
+
+import praatcontrol, pydistance, stats
 
 #################################################################################################################
 #################################################################################################################
@@ -42,15 +44,15 @@ def fitness_a3(formants,voiced,targetfrequencies,metric):
 
 def return_distance(x, y, metric):
 
-	coefficients = [3.5, 2.0, 1.0]
+	coefficients = [5.0, 3.0, 1.0]
 	
-	use_coeff = True
+	use_coeff = False
 
 	if use_coeff == True:
 		for i in range(len(x)):
 			x[i] = x[i] * coefficients[i]
 
-	if metric == "SAD":
+	if   metric == "SAD":
 		return pydistance.SAD(x,y)
 	elif metric == "SSD":
 		return pydistance.SSD(x,y)

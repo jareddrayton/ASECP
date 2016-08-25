@@ -162,18 +162,18 @@ def get_individual_frequencies(name, directory, currentgeneration):
 
 	Voiced = True
 
+	candformants[0] = candpitch
+
 	if candpitch.islower() == True:
 		Voiced = False
 
 		if VUV_Penalty == True:
 			candpitch = 2000
-			candformants[1] = 100000
-			candformants[2] = 100000
-			candformants[3] = 100000
-			candformants[4] = 100000
-			candformants[5] = 100000
-
-	candformants[0] = candpitch
+			candformants[1] = 11000
+			candformants[2] = 11000
+			candformants[3] = 11000
+			candformants[4] = 11000
+			candformants[5] = 11000
 
 	os.remove("%s\Generation%d\\pitch%d.txt" % (directory, currentgeneration, int(name)))
 	os.remove("%s\Generation%d\\formants%d.txt" % (directory, currentgeneration, int(name)))
