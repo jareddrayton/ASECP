@@ -1,4 +1,4 @@
-import math, 
+import math
 
 import praatcontrol, pydistance, stats
 
@@ -38,7 +38,7 @@ def fitness_a3(formants,voiced,targetfrequencies,metric):
 	for i in range(len(targetfrequencies)):
 		difference.append(math.fabs(1200 * math.log(formants[i] / targetfrequencies[i], 2)))
 	
-	targetfrequencies = [0,0,0]
+	targetfrequencies = [0,0]
 	
 	return return_distance(difference, targetfrequencies, metric)
 

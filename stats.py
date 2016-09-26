@@ -60,12 +60,13 @@ def formant_plot_animated():
 	pass
 
 
-def write_formants(name, directory, currentgeneration, individualfrequencies, fitness):
+def write_formants(name, directory, currentgeneration, individualfrequencies, fitness, voiced):
+
+	
 
 	with open('%s\\Generation%d\\Stats.csv' % (directory, currentgeneration), 'a') as csvfile:
 	
 		spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-		spamwriter.writerow(individualfrequencies)
 
 
 #################################################################################################################

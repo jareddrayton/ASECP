@@ -32,8 +32,7 @@ def read_all_csv(vowel,color):
 				plt.scatter(row[0],row[1], c=color, s=scale, alpha=0.5, edgecolors='none')
 
 def formant_all_plot():
-	""" Plots the F1 and F2 information of all individuals of a given 
-	generation from n runs"""
+	""" Plots the F1 and F2 information of all individuals of a given generation from n runs"""
 	
 	generation = "20"
 	

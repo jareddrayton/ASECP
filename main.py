@@ -129,7 +129,6 @@ class Individual:
 
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration,targetintensity)
         self.rms = praatcontrol.get_individual_RMS(self.name,directory,currentgeneration,targetrms)
-        
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name,directory,currentgeneration)
         
 
@@ -151,7 +150,7 @@ class Individual:
         print
 
         #self.fitness = self.fitness * self.intensity
-        self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
+        #self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
         
         stats.write_formants(self.name, directory, currentgeneration, 
         	self.formants, self.fitness, self.voiced)
