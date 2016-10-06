@@ -85,7 +85,7 @@ def get_target_frequencies(TargetLength, soundfile):
 	os.remove('formants.txt')
 	
 	print values
-	return values[1:4]
+	return values[1:3]
 
 def get_target_intensity(soundfile):
 

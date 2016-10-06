@@ -196,7 +196,7 @@ for i in range(generations):
 
     # genop.lin_rank(population, keys)
     
-    # genop.fitness_proportional(population, keys)        
+    genop.fitness_proportional(population, keys)        
     
     genop.mutation(population, keys,mutationprobability,standarddeviation)
 
