@@ -149,7 +149,8 @@ class Individual:
         print "Fitness * RMS         :", self.fitness * self.rms
         print
 
-        #self.fitness = self.fitness * self.intensity
+        #self.fitness = self.fitness * self.rms
+        self.fitness = self.fitness * self.intensity
         #self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
         
         stats.write_formants(self.name, directory, currentgeneration, 

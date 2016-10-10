@@ -44,7 +44,7 @@ def fitness_a3(formants,voiced,targetfrequencies,metric):
 
 def return_distance(x, y, metric):
 
-	coefficients = [5.0, 3.0, 1.0]
+	coefficients = [1.0, 2.0]
 	
 	use_coeff = False
 

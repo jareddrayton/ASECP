@@ -15,6 +15,8 @@ def performance_graph_animated():
 
 #################################################################################################################
 #################################################################################################################
+# F1 F2 Plots
+
 
 def read_all_csv(metric, ff, vowel, color):
 	
@@ -62,6 +64,7 @@ def formant_all_plot(metric, ff):
 
 #################################################################################################################
 #################################################################################################################
+# F1 F2 PLots
 
 def read_average_csv(metric, ff, vowel, color):
 	
@@ -131,18 +134,13 @@ def formant_average_plot(metric, ff):
 
 #################################################################################################################
 #################################################################################################################
+# Latex Table and .csv file
+
 
 metrics = ["EUC","SAD", "SSD"]
 ffs = ["A1", "A2", "A3"]
 vowels = ["a", "o", "e"]
 
-
-"""
-for metric in metrics:
-	for ff in ffs:
-		formant_average_plot(metric,ff)
-		formant_all_plot(metric,ff)
-"""
 
 def all(metric, ff, vowel):
 	# This function outputs a .csv
@@ -183,8 +181,8 @@ def all(metric, ff, vowel):
 		for i in range(len(uF1)):
 			oF1.append((uF1[i]-freq[0]) ** 2)
 		
-		oF1 = str(round(math.sqrt(sum(oF1)/len(oF1)),2))
-		uF1 = str(round(sum(uF1) / len(uF1), 2))
+		oF1 = str(round(math.sqrt(sum(oF1)/len(oF1)),1))
+		uF1 = str(round(sum(uF1) / len(uF1), 1))
 
 	if len(uF2) == 0:
 		uF2 = "N/A"
@@ -193,8 +191,8 @@ def all(metric, ff, vowel):
 		for i in range(len(uF2)):
 			oF2.append((uF2[i]-freq[1]) ** 2)
 		
-		oF2 = str(round(math.sqrt(sum(oF2)/len(oF2)),2))		
-		uF2 = str(round(sum(uF2) / len(uF2), 2))
+		oF2 = str(round(math.sqrt(sum(oF2)/len(oF2)),1))		
+		uF2 = str(round(sum(uF2) / len(uF2), 1))
 	
 	percentage.append(metric)
 	percentage.append(ff)
@@ -225,6 +223,12 @@ for ff in ffs:
 		#formant_all_plot(metric,ff)
 		for vowel in vowels:
 			all(metric, ff, vowel)
+
+#################################################################################################################
+#################################################################################################################
+# Informal listening tests
+
+
 
 
 def individual():
