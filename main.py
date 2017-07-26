@@ -145,22 +145,21 @@ class Individual:
         elif ff == "A3":
             self.fitness = fitnessfunction.fitness_a3(self.formants, self.voiced, targetfrequencies, metric)
 
-        print
-        print "Individual ", self.name
-        print "Voiced                :", self.voiced
-        print "Fitness               :", self.fitness
-        print "Intensity Coefficient :", self.intensity
-        print "Fitness * Intensity   :", self.fitness * self.intensity
-        print "RMS Coefficient       :", self.rms
-        print "Fitness * RMS         :", self.fitness * self.rms
-        print
+
+        print("Individual ", self.name)
+        print("Voiced                :", self.voiced)
+        print("Fitness               :", self.fitness)
+        print("Intensity Coefficient :", self.intensity)
+        print("Fitness * Intensity   :", self.fitness * self.intensity)
+        print("RMS Coefficient       :", self.rms)
+        print("Fitness * RMS         :", self.fitness * self.rms)
 
         #self.fitness = self.fitness * self.rms
         self.fitness = self.fitness * self.intensity
         #self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
         
         stats.write_formants(self.name, directory, currentgeneration, 
-        	self.formants, self.fitness, self.voiced)
+            self.formants, self.fitness, self.voiced)
 
 #################################################################################################################
 #################################################################################################################

@@ -45,17 +45,17 @@ def lin_rank(population,keys):
 	ranked = list(x)
 	ranked.reverse()
 	
-	print ranked
+	print(ranked)
 	
 	probabilities = []
 	
 	for i in range(len(ranked)):
 				
 		population[ranked[i]].fitnessscaled = (2 - s) / c + (2.0 * i * (s - 1)) / (c*(c-1))
-		print ranked[i], population[ranked[i]].fitnessscaled
+		print (ranked[i], population[ranked[i]].fitnessscaled)
 		probabilities.append(population[ranked[i]].fitnessscaled)
 	
-	print sum(probabilities)
+	print(sum(probabilities))
 
 	# uniform_crossover(population, keys, temppopulation)
 	one_crossover(population, keys, temppopulation)
@@ -127,14 +127,14 @@ def uniform_crossover(population, keys, temppopulation):
 	for name in keys:
 		ca = roulette_spin(population, keys)
 		cb = roulette_spin(population, keys)
-		print "Parent A", population[ca].values
-		print "Parent B", population[cb].values
+		print("Parent A", population[ca].values)
+		print("Parent B", population[cb].values)
 		for i in range(len(temppopulation[name].values)):
 			if random.random() < 0.5:
 				temppopulation[name].values[i] = population[ca].values[i]
 			else:
 				temppopulation[name].values[i] = population[cb].values[i]
-		print "Child", temppopulation[name].values 
+		print("Child", temppopulation[name].values)
 		population[name].values = temppopulation[name].values
 
 
