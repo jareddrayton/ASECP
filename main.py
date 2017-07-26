@@ -93,7 +93,7 @@ class Individual:
 
     def create_artword(self):
     
-        self.artword = open("%s\Generation%d\Individual%d.praat" % (directory, currentgeneration, int(self.name)), "wb")        
+        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, currentgeneration, self.name), "w")
         
         self.artword.write('Create Speaker... Robovox Male 2\r\n')
         self.artword.write('Create Artword... Individual'+ self.name + ' ' + length + '\r\n')
@@ -173,7 +173,7 @@ minimumfitness = []
 
 for i in range(generations):
     
-    os.mkdir(directory + "\Generation%d" % currentgeneration)
+    os.mkdir(directory + "/Generation%d" % currentgeneration)
     
     if currentgeneration == 0:
         for name in keys:
@@ -212,13 +212,13 @@ for i in range(generations):
 def statistics():
     """ Function for plotting performance graphs and saving run data"""
 
-    with open("%s\\Mean.txt" % directory, "wb") as mean:
+    with open("{}/Mean.txt".format(directory), "w") as mean:
         for item in averagefitness:
-            mean.write("%s\r\n" % item)
+            mean.write("{!s}\r\n".format(item))
     
-    with open("%s\\Minimum.txt" % directory, "wb") as minimum:
+    with open("{}/Minimum.txt".format(directory), "w") as minimum:
         for item in minimumfitness:
-            minimum.write("%s\r\n" % item)
+            minimum.write('{!s}\r\n'.format(item))
 
     plt.plot(averagefitness, 'k', label = 'Mean Fitness')
     plt.plot(minimumfitness, 'k--', label = 'Minimum Fitness')
@@ -226,11 +226,11 @@ def statistics():
     plt.xlabel('Generations')
     plt.ylabel('Fitness')
     plt.legend()
-    plt.savefig(directory + "\\Performance Graph")
+    plt.savefig("{}/Performance Graph".format(directory))
 
 statistics()
 
-with open("%s\\%sRuntime.txt" % (directory, directory), "wb") as run:
+with open("{}/{}Runtime.txt".format(directory, directory), "w") as run:
     run.write("--- %d seconds ---" % (time.time() - start_time))
     run.close
 
