@@ -1,5 +1,5 @@
-import os, random, time, math
-from operator import itemgetter 
+import os, random, time, argparse
+
 from sys import argv
 
 import matplotlib.pyplot as plt
@@ -49,28 +49,34 @@ class Individual:
         self.name = name
         
         self.values = []
-        
-        self.parameters = ['Interarytenoid','Cricothyroid', 'Vocalis', 'Thyroarytenoid', 
-        'PosteriorCricoarytenoid', 'LateralCricoarytenoid', 'Stylohyoid', 'Sternohyoid',
-        'Thyropharyngeus', 'LowerConstrictor', 'MiddleConstrictor', 'UpperConstrictor',
-        'Sphincter', 'Hyoglossus', 'Styloglossus', 'Genioglossus', 'UpperTongue',
-        'LowerTongue', 'TransverseTongue', 'VerticalTongue', 'Risorius', 'OrbicularisOris',
-        'TensorPalatini', 'Masseter', 'Mylohyoid', 'LateralPterygoid', 'Buccinator']
 
-        
-        """
-        self.parameters = ['Interarytenoid','Cricothyroid', 'Vocalis', 
-        'Thyroarytenoid', 'LateralCricoarytenoid', 'Stylohyoid', 'Sternohyoid',
-        'Hyoglossus', 'Styloglossus', 'Genioglossus', 'UpperTongue',
-        'LowerTongue', 'VerticalTongue', 'Risorius', 'OrbicularisOris',
-        'Masseter', 'Mylohyoid', 'Buccinator']
-        """
-        
-        """
-        self.parameters = ['Interarytenoid','Cricothyroid', 'Hyoglossus', 'Styloglossus', 
-        'Genioglossus', 'OrbicularisOris', 'LowerTongue', 'LevatorPalatini', 'Masseter', 
-        'Mylohyoid']
-        """
+        self.parameters = ['Interarytenoid',
+                      'Cricothyroid',
+                      'Vocalis',
+                      'Thyroarytenoid',
+                      'PosteriorCricoarytenoid',
+                      'LateralCricoarytenoid',
+                      'Stylohyoid',
+                      'Sternohyoid',
+                      'Thyropharyngeus',
+                      'LowerConstrictor',
+                      'MiddleConstrictor',
+                      'UpperConstrictor',
+                      'Sphincter',
+                      'Hyoglossus',
+                      'Styloglossus',
+                      'Genioglossus',
+                      'UpperTongue',
+                      'LowerTongue',
+                      'TransverseTongue',
+                      'VerticalTongue',
+                      'Risorius',
+                      'OrbicularisOris',
+                      'TensorPalatini',
+                      'Masseter',
+                      'Mylohyoid',
+                      'LateralPterygoid',
+                      'Buccinator']
 
         self.fitness = 0
         self.fitnessscaled = 0
