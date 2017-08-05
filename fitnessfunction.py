@@ -54,7 +54,7 @@ def fitness_a4(formants, targetformants, metric):
 def return_distance(x, y, metric):
 
     # a list comprhension for automatically generating co efficients
-    coefficients = [1.0 + x for x in range(len(x))]
+    coefficients = [1.0 + i for i in range(len(x))]
 
     use_coeff = False
 
