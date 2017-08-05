@@ -1,12 +1,12 @@
 import math
 
-import praatcontrol, pydistance, stats
+import pydistance
 
 
 #################################################################################################################
 #################################################################################################################
 
-def fitness_a1(formants, voiced, targetfrequencies, metric):
+def fitness_a1(formants, targetfrequencies, metric):
     """Compares frequencies using Hz scale
 
 	:returns: a float representing fitness
@@ -17,19 +17,19 @@ def fitness_a1(formants, voiced, targetfrequencies, metric):
     return return_distance(formants, targetfrequencies, metric)
 
 
-def fitness_a2(formants, voiced, targetfrequencies, metric):
+def fitness_a2(formants, targetfrequencies, metric):
     """Compares frequencies using the Mel scale.
 
 	:returns: a float representing fitness
 	"""
 
-    targetfrequencies = praatcontrol.hz_to_mel(targetfrequencies)
-    formants = praatcontrol.hz_to_mel(formants)
+    targetfrequencies = hz_to_mel(targetfrequencies)
+    formants = hz_to_mel(formants)
 
     return return_distance(formants, targetfrequencies, metric)
 
 
-def fitness_a3(formants, voiced, targetfrequencies, metric):
+def fitness_a3(formants, targetfrequencies, metric):
     """Compares frequencies using Cents
 
 	:returns: a float representing fitness
@@ -43,6 +43,10 @@ def fitness_a3(formants, voiced, targetfrequencies, metric):
     targetfrequencies = [0, 0]
 
     return return_distance(difference, targetfrequencies, metric)
+
+
+def fitness_a4(formants, targetfrequencies, metric):
+    return
 
 
 def return_distance(x, y, metric):
@@ -80,8 +84,7 @@ def fitness_c1():
 
     # obtain an array of the average mfcc features
 
-
-    return fitness
+    pass
 
 
 #################################################################################################################
@@ -92,7 +95,7 @@ def fitness_d():
 	Compare a cochleargram by using a Structural Similarity index
 	"""
 
-    return fitness
+    pass
 
 
 #################################################################################################################
@@ -103,4 +106,35 @@ def fitness_e():
 	Compare using Auto/Cross-correlation
 	"""
 
-    return fitness
+    pass
+
+
+#################################################################################################################
+#################################################################################################################
+
+def hz_to_mel(frequencies):
+    """ Converts a list of frequencies to mel scale
+
+    returns: a list of frequencies converted to mel
+    """
+
+    for i in range(len(frequencies)):
+        frequencies[i] = 2595 * math.log10(1 + (frequencies[i] / 700.0))
+
+    return frequencies
+
+
+def hz_to_cent(list1, list2):
+    """ Takes two lists of frequencies and returns their differences in cents
+
+    returns:
+    """
+
+    for i in range(len(frequencies)):
+        (math.fabs(1200 * math.log(list2[i] / list1[i], 2)))
+    return frequencies
+
+
+def hz_to_bark(f):
+    """ """
+    return ((26.81 * f) / (1960 + f)) - 0.53

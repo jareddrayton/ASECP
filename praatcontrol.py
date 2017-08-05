@@ -221,31 +221,3 @@ def get_individual_RMS(name,directory,currentgeneration,targetrms):
     rms = abs((targetrms / rms) - 1) + 1
 
     return round(rms, 2)
-
-
-def hz_to_mel(frequencies):
-    """ Converts a list of frequencies to mel scale
-
-    returns: a list of frequencies converted to mel
-    """
-
-    for i in range(len(frequencies)):
-        frequencies[i] = 2595 * math.log10(1+(frequencies[i]/700.0))
-
-    return frequencies
-
-
-def hz_to_cent(list1,list2):
-    """ Takes two lists of frequencies and returns their differences in cents
-
-    returns:
-    """
-
-    for i in range(len(frequencies)):
-        (math.fabs(1200 * math.log(list2[i] / list1[i], 2)))
-    return frequencies
-
-
-def hz_to_bark():
-    """ """
-    return
