@@ -6,52 +6,55 @@ import pydistance
 #################################################################################################################
 #################################################################################################################
 
-def fitness_a1(formants, targetfrequencies, metric):
+def fitness_a1(formants, targetformants, metric):
     """Compares frequencies using Hz scale
 
-	:returns: a float representing fitness
-	"""
+    :returns: a float representing fitness
+    """
 
-    return return_distance(formants, targetfrequencies, metric)
+    return return_distance(formants, targetformants, metric)
 
 
-def fitness_a2(formants, targetfrequencies, metric):
+def fitness_a2(formants, targetformants, metric):
     """Compares frequencies using the Mel scale.
 
-	:returns: a float representing fitness
-	"""
+    :returns: a float representing fitness
+    """
 
-    targetfrequencies = hz_to_mel(targetfrequencies)
-    formants = hz_to_mel(formants)
+    formants = list(map(hz_to_mel, formants))
+    targetformants = list(map(hz_to_mel, targetformants))
 
-    return return_distance(formants, targetfrequencies, metric)
+    return return_distance(formants, targetformants, metric)
 
 
-def fitness_a3(formants, targetfrequencies, metric):
+def fitness_a3(formants, targetformants, metric):
     """Compares frequencies using Cents
 
-	:returns: a float representing fitness
-	"""
+    :returns: a float representing fitness
+    """
 
-    difference = []
+    formants = list(map(hz_to_cent, formants, targetformants))
+    targetformants = [0 for x in formants]
 
-    for i in range(len(targetfrequencies)):
-        difference.append(math.fabs(1200 * math.log(formants[i] / targetfrequencies[i], 2)))
-
-    targetfrequencies = [0 for x in targetfrequencies]
-
-    return return_distance(difference, targetfrequencies, metric)
+    return return_distance(formants, targetformants, metric)
 
 
-def fitness_a4(formants, targetfrequencies, metric):
+def fitness_a4(formants, targetformants, metric):
+    """Compares frequencies using the bark scale
+
+    :returns: a float representing fitness
+    """
+
     formants = list(map(hz_to_bark, formants))
-    targetfrequencies = list(map(hz_to_bark, targetfrequencies))
+    targetformants = list(map(hz_to_bark, targetformants))
 
-    return return_distance(formants, targetfrequencies, metric)
+    return return_distance(formants, targetformants, metric)
 
 
 def return_distance(x, y, metric):
-    coefficients = [1.0, 2.0]
+
+    # a list comprhension for automatically generating co efficients
+    coefficients = [1.0 + x for x in range(len(x))]
 
     use_coeff = False
 
@@ -120,25 +123,25 @@ def fitness_e():
 def hz_to_mel(f):
     """ converts a frequency in hz to the mel scale
 
-    returns: a float mel
+    returns: a float
     """
 
     return 2595 * math.log10(1 + (f / 700.0))
 
 
 def hz_to_cent(f1, f2):
-    """ Takes two lists of frequencies and returns their differences in cents
+    """ takes two lists of frequencies in hz and returns the differences in cents
 
-    returns:
+    returns: a float
     """
 
     return math.fabs(1200 * math.log(f1 / f2, 2))
 
 
 def hz_to_bark(f):
-    """ converts a given frequency
+    """ converts a given frequency to the bark scale
 
-    returns a float value representing
+    returns a float
     """
 
     return ((26.81 * f) / (1960 + f)) - 0.53
