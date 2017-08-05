@@ -233,7 +233,6 @@ statistics()
 
 with open("{}/{}Runtime.txt".format(directory, directory), "w") as run:
     run.write("--- %d seconds ---" % (time.time() - start_time))
-    run.close
 
 time.sleep(2)
 
