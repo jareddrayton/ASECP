@@ -207,7 +207,7 @@ def get_individual_RMS(name,directory,currentgeneration,targetrms):
 
     t = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
 
-    rate,data = wavfile.read(t, mmap=False)
+    rate, data = wavfile.read(t, mmap=False)
 
     total = 0.0
 

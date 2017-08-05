@@ -46,7 +46,11 @@ def fitness_a3(formants, targetfrequencies, metric):
 
 
 def fitness_a4(formants, targetfrequencies, metric):
-    return
+
+    formants = list(map(hz_to_bark, formants))
+    targetfrequencies = list(map(hz_to_bark, targetfrequencies))
+
+    return return_distance(formants, targetfrequencies, metric)
 
 
 def return_distance(x, y, metric):

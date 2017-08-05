@@ -143,6 +143,8 @@ class Individual:
             self.fitness = fitnessfunction.fitness_a2(self.formants, targetfrequencies, metric)
         elif ff == "A3":
             self.fitness = fitnessfunction.fitness_a3(self.formants, targetfrequencies, metric)
+        elif ff = "A4":
+            self.fitness = fitnessfunction.fitness_a4(self.formants, targetfrequencies, metric)
 
         print("Individual ", self.name)
         print("Voiced                :", self.voiced)
