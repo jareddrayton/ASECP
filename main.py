@@ -1,10 +1,14 @@
-import os, random, time, argparse
+import os
+import random
+import time
+import matplotlib.pyplot as plt
 
 from sys import argv
 
-import matplotlib.pyplot as plt
-
-import praatcontrol, fitnessfunction, genop, stats
+import fitnessfunction
+import genop
+import praatcontrol
+import stats
 
 # Key Word Arguments HERE
 
@@ -33,7 +37,7 @@ directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s" % (soundfile, generations -
 os.mkdir(directory)
 
 targetlength = praatcontrol.get_time(soundfile)
-targetfrequencies = praatcontrol.get_target_frequencies(targetlength, soundfile)
+targetformants = praatcontrol.get_target_formants(targetlength, soundfile)
 targetintensity = praatcontrol.get_target_intensity(soundfile)
 targetrms = praatcontrol.get_target_RMS(soundfile)
 
@@ -131,20 +135,25 @@ class Individual:
 
     def evaluate_fitness(self):
 
-        #This method should pullin
+        # Maybe this method should pull in
 
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, targetrms)
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
 
-        if ff == "A1":
-            self.fitness = fitnessfunction.fitness_a1(self.formants, targetfrequencies, metric)
-        elif ff == "A2":
-            self.fitness = fitnessfunction.fitness_a2(self.formants, targetfrequencies, metric)
-        elif ff == "A3":
-            self.fitness = fitnessfunction.fitness_a3(self.formants, targetfrequencies, metric)
-        elif ff = "A4":
-            self.fitness = fitnessfunction.fitness_a4(self.formants, targetfrequencies, metric)
+        if ff == "hz":
+            self.fitness = fitnessfunction.fitness_a1(self.formants, targetformants, metric)
+        elif ff == "mel":
+            self.fitness = fitnessfunction.fitness_a2(self.formants, targetformants, metric)
+        elif ff == "cent":
+            self.fitness = fitnessfunction.fitness_a3(self.formants, targetformants, metric)
+        elif ff == "bark":
+            self.fitness = fitnessfunction.fitness_a4(self.formants, targetformants, metric)
+
+        # self.fitness = self.fitness * self.rms
+        self.fitness = self.fitness * self.intensity
+        # self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
+
 
         print("Individual ", self.name)
         print("Voiced                :", self.voiced)
@@ -154,9 +163,7 @@ class Individual:
         print("RMS Coefficient       :", self.rms)
         print("Fitness * RMS         :", self.fitness * self.rms)
 
-        # self.fitness = self.fitness * self.rms
-        self.fitness = self.fitness * self.intensity
-        # self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
+
 
         stats.write_formants(self.name,
                              directory,

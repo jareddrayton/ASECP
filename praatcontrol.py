@@ -44,7 +44,7 @@ def get_time(soundfile):
 
     return TargetLength
 
-def get_target_frequencies(TargetLength, soundfile):
+def get_target_formants(TargetLength, soundfile):
     """ Extract Pitch and Formants of the Target Sound"""
 
     script = open("GetPitch.praat", 'w')
