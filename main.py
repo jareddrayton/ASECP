@@ -135,9 +135,11 @@ class Individual:
 
     def evaluate_fitness(self):
 
-        # maybe this method should pull in
+        # maybe this method should pull
 
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
+        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
+        self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, targetrms)
 
         if ff == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, targetformants, metric)
@@ -147,10 +149,9 @@ class Individual:
             self.fitness = fitnessfunction.fitness_a3(self.formants, targetformants, metric)
         elif ff == "bark":
             self.fitness = fitnessfunction.fitness_a4(self.formants, targetformants, metric)
+        elif ff == "erb":
+            self.fitness = fitnessfunction.fitness_a5(self.formants, targetformants, metric)
 
-
-        # self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
-        # self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, targetrms)
         # self.fitness = self.fitness * self.rms
         # self.fitness = self.fitness * self.intensity
         # self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
@@ -163,7 +164,6 @@ class Individual:
         print("Fitness * Intensity   :", self.fitness * self.intensity)
         print("RMS Coefficient       :", self.rms)
         print("Fitness * RMS         :", self.fitness * self.rms)
-
 
 
         stats.write_formants(self.name,

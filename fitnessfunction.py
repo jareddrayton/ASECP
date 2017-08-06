@@ -51,6 +51,17 @@ def fitness_a4(formants, targetformants, metric):
     return return_distance(formants, targetformants, metric)
 
 
+def fitness_a5(formants, targetformants, metric):
+    """Compares frequencies using the bark scale
+
+    :returns: a float representing fitness
+    """
+
+    formants = list(map(hz_to_erb, formants))
+    targetformants = list(map(hz_to_erb, targetformants))
+
+    return return_distance(formants, targetformants, metric)
+
 def return_distance(x, y, metric):
 
     # a list comprhension for automatically generating co efficients
@@ -145,3 +156,11 @@ def hz_to_bark(f):
     """
 
     return ((26.81 * f) / (1960 + f)) - 0.53
+
+def hz_to_erb(f):
+    """ converts a given frequency to the erb scale
+
+    returns a float
+    """
+
+    return 0.108 * f + 24.7

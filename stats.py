@@ -11,7 +11,7 @@ def write_formants(name, directory, currentgeneration, individualfrequencies, fi
 	csvdata.append(voiced)
 	print(csvdata)
 
-	with open('%s\\Generation%d\\Stats.csv' % (directory, currentgeneration), 'a') as csvfile:
+	with open('{}/Generation{!s}/Stats.csv'.format(directory, currentgeneration), 'a') as csvfile:
 	
 		spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
 		spamwriter.writerow(csvdata)
