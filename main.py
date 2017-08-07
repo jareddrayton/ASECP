@@ -12,7 +12,7 @@ import stats
 
 # Key Word Arguments HERE
 
-script, soundfile, generations, generationsize, mutationprobability, standarddeviation, parallel, ff, metric, identifier = argv
+script, soundfile, generations, generationsize, mutationprobability, standarddeviation, parallel, ff, metric, lm, identifier = argv
 
 # Convert arguments from strings to integers and floats 
 
@@ -30,9 +30,15 @@ random.seed(int(identifier))
 
 currentgeneration = 0
 
-directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s" % (soundfile, generations - 1,
-                                                        generationsize, mutationprobability, standarddeviation, ff,
-                                                        metric, identifier)
+directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
+                                                        generations - 1,
+                                                        generationsize,
+                                                        mutationprobability,
+                                                        standarddeviation,
+                                                        ff,
+                                                        metric,
+                                                        lm,
+                                                        identifier)
 
 os.mkdir(directory)
 
@@ -141,6 +147,7 @@ class Individual:
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, targetrms)
 
+
         if ff == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, targetformants, metric)
         elif ff == "mel":
@@ -152,14 +159,18 @@ class Individual:
         elif ff == "erb":
             self.fitness = fitnessfunction.fitness_a5(self.formants, targetformants, metric)
 
-        # self.fitness = self.fitness * self.rms
-        # self.fitness = self.fitness * self.intensity
-        # self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
+
+        if lm == "rms":
+            self.fitness = self.fitness * self.rms
+        elif lm == "intensity":
+            self.fitness = self.fitness * self.intensity
+        elif lm == "both":
+            self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
 
 
         print("Individual ", self.name)
-        print("Voiced                :", self.voiced)
-        print("Fitness               :", self.fitness)
+        print("Is Voiced?            :", self.voiced)
+        print("Fitness Score         :", self.fitness)
         print("Intensity Coefficient :", self.intensity)
         print("Fitness * Intensity   :", self.fitness * self.intensity)
         print("RMS Coefficient       :", self.rms)
