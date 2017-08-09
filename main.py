@@ -97,7 +97,7 @@ class Individual:
     def initialise_values(self):
         """ Method for Initialising candidates with random values """
 
-        self.values = [round(random.uniform(-1, 1), 1) for x in range(len(self.parameters))]
+        self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
 
         return self.values
 
@@ -179,7 +179,8 @@ class Individual:
         print("RMS Coefficient       :", self.rms)
         print("Fitness * RMS         :", self.fitness * self.rms)
 
-        self.write_cntk()
+        if self.voiced:
+            self.write_cntk()
 
         stats.write_formants(self.name,
                              directory,
@@ -190,12 +191,14 @@ class Individual:
 
 
     def write_cntk(self):
-        """ This method adds data to a file for
+        """ This method adds writes features and labels to a file for use with CNTK
+        The format is as below.
+        |labels 0 0 0 0 0 0 0 1 0 0 |features 0 0 0 0 0 0 0 0 0 0 0
 
         :return:
         """
 
-        # |labels 0 0 0 0 0 0 0 1 0 0 |features 0 0 0 0 0 0 0 0 0 0 0
+        #
         with open('data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
             self.cntk.write('|labels {} '.format(" ".join(str(elm) for elm in self.values)))
