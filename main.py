@@ -147,6 +147,7 @@ class Individual:
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, targetrms)
 
+        print(self.formants)
 
         if ff == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, targetformants, metric)
@@ -159,6 +160,7 @@ class Individual:
         elif ff == "erb":
             self.fitness = fitnessfunction.fitness_a5(self.formants, targetformants, metric)
 
+        print(self.formants)
 
         if lm == "rms":
             self.fitness = self.fitness * self.rms
@@ -167,6 +169,7 @@ class Individual:
         elif lm == "both":
             self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
 
+        print(self.formants)
 
         print("Individual ", self.name)
         print("Is Voiced?            :", self.voiced)
@@ -176,6 +179,7 @@ class Individual:
         print("RMS Coefficient       :", self.rms)
         print("Fitness * RMS         :", self.fitness * self.rms)
 
+        self.write_cntk()
 
         stats.write_formants(self.name,
                              directory,
@@ -183,6 +187,19 @@ class Individual:
                              self.formants,
                              self.fitness,
                              self.voiced)
+
+
+    def write_cntk(self):
+        """ This method adds data to a file for
+
+        :return:
+        """
+
+        # |labels 0 0 0 0 0 0 0 1 0 0 |features 0 0 0 0 0 0 0 0 0 0 0
+        with open('data.txt', 'a') as self.cntk:
+            # append a new pair of features and labels
+            self.cntk.write('|labels {} '.format(" ".join(str(elm) for elm in self.values)))
+            self.cntk.write('|features {} \r\n'.format(" ".join(str(elm) for elm in self.formants)))
 
 
 #################################################################################################################

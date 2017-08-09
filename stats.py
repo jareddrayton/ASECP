@@ -9,7 +9,7 @@ def write_formants(name, directory, currentgeneration, individualfrequencies, fi
 	csvdata = individualfrequencies
 	csvdata.append(fitness)
 	csvdata.append(voiced)
-	print(csvdata)
+	# print(csvdata)
 
 	with open('{}/Generation{!s}/Stats.csv'.format(directory, currentgeneration), 'a') as csvfile:
 	
