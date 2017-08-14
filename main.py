@@ -245,8 +245,7 @@ for i in range(generations):
     averagefitness.append(sum(listfitness) / len(listfitness))
     minimumfitness.append(min(listfitness))
 
-    # total the number of voiced sounds in a generation and find the percentage
-
+    # total the number of voiced sounds in a generation
     voiced_total = 0
 
     for name in keys:
