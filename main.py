@@ -202,7 +202,7 @@ class Individual:
         with open('data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
             self.cntk.write('|labels {} '.format(" ".join(str(elm) for elm in self.values)))
-            self.cntk.write('|features {} \r\n'.format(" ".join(str(elm) for elm in self.formants)))
+            self.cntk.write('|features {} \n'.format(" ".join(str(elm) for elm in self.formants)))
 
 
 #################################################################################################################
@@ -217,6 +217,7 @@ minimumfitness = []
 
 for i in range(generations):
 
+    # creates
     os.mkdir(directory + "/Generation%d" % currentgeneration)
 
     if currentgeneration == 0:
@@ -244,9 +245,25 @@ for i in range(generations):
     averagefitness.append(sum(listfitness) / len(listfitness))
     minimumfitness.append(min(listfitness))
 
-    # genop.lin_rank(population, keys)
+    # total the number of voiced sounds in a generation and find the percentage
 
-    genop.fitness_proportional(population, keys)
+    voiced_total = 0
+
+    for name in keys:
+        if population[name].voiced:
+            voiced_total += 1
+
+    voiced_percentage = voiced_total / generationsize
+
+    if voiced_percentage < 0.5:
+        genop.fitness_proportional(population, keys)
+        print("FPS")
+    else:
+        genop.lin_rank(population, keys)
+        print("Linear")
+
+    #genop.lin_rank(population, keys)
+    #genop.fitness_proportional(population, keys)
 
     genop.mutation(population, keys, mutationprobability, standarddeviation)
 
