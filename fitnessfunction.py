@@ -104,18 +104,18 @@ def fitness_brito(formants, targetformants):
     for i in range(len(formants)):
         formant_distances.append(weights_oseven[i] * (abs(formants[i] - targetformants[i]) / formants[i]))
 
-    print(sum(formant_distancess))
+    print(sum(formant_distances))
 
     return sum(formant_distances)
 
 #################################################################################################################
 #################################################################################################################
 
-def fitness_mfcc()
+def fitness_mfcc():
     """
     Compare the MFCC features of target and candidate sound.
     """
-
+    pass
 
 
 #################################################################################################################
