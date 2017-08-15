@@ -102,7 +102,7 @@ def fitness_brito(formants, targetformants):
     formant_distances = []
 
     for i in range(len(formants)):
-        formant_distances.append(weights_oseven[i] * (abs(formants[i] - targetformants[i]) / formants[i]))
+        formant_distances.append(weights_oseven[i] * (abs(targetformants[i] - formants[i]) / targetformants[i]))
 
     print(sum(formant_distances))
 
