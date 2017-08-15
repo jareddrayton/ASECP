@@ -91,16 +91,31 @@ def return_distance(x, y, metric):
 #################################################################################################################
 
 
-def fitness_c1():
+def fitness_brito(formants, targetformants):
     """
-    Compare the MFCC features of the target and candidate sound.
+    Implements the distance measure as defined by Brito 2007 and 2006
     """
 
-    # DTW Dynamic Time Warping
+    weights_osix = [90, 60, 24, 12]
+    weights_oseven = [40, 30, 15, 10]
 
-    # obtain an array of the average mfcc features
+    formant_distances = []
 
-    pass
+    for i in range(len(formants)):
+        formant_distances.append(weights_oseven[i] * (abs(formants[i] - targetformants[i]) / formants[i]))
+
+    print(sum(formant_distancess))
+
+    return sum(formant_distances)
+
+#################################################################################################################
+#################################################################################################################
+
+def fitness_mfcc()
+    """
+    Compare the MFCC features of target and candidate sound.
+    """
+
 
 
 #################################################################################################################
@@ -130,6 +145,7 @@ def fitness_e():
 #################################################################################################################
 #################################################################################################################
 
+# Helper functions for value conversion
 
 def hz_to_mel(f):
     """ converts a frequency in hz to the mel scale

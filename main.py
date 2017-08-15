@@ -159,6 +159,8 @@ class Individual:
             self.fitness = fitnessfunction.fitness_a4(self.formants, targetformants, metric)
         elif ff == "erb":
             self.fitness = fitnessfunction.fitness_a5(self.formants, targetformants, metric)
+        elif ff = "brito":
+            self.fitness = fitnessfunction.fitness_brito(self.formants, targetformants)
 
         print(self.formants)
 
