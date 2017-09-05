@@ -74,17 +74,25 @@ def get_target_formants(TargetLength, soundfile):
     pitch = pitch[0:7]
     pitch = float(pitch)
 
+    os.remove('pitch.txt')
+
     with open("formants.txt", "r") as formants:
 
         lines = formants.readlines()
         values = lines[1].split("\t")
 
+    os.remove('formants.txt')
+
+    for i in range(len(values)):
+
+        values[i] = values[i].strip()
+
+        if values[i] == "--undefined--":
+            values[i] = 0
+
     values[0] = pitch
 
     values = list(map(float, values))
-
-    os.remove('pitch.txt')
-    os.remove('formants.txt')
 
     print(values)
 
