@@ -244,8 +244,21 @@ for i in range(generations):
     for name in keys:
         listfitness.append(population[name].fitness)
 
+    numbered_list = list(enumerate(listfitness))
+
     averagefitness.append(sum(listfitness) / len(listfitness))
     minimumfitness.append(min(listfitness))
+
+    # save the n number of best individuals
+    a, b = list(zip(*sorted((numbered_list), key=lambda student: student[1])[:5]))
+
+    elite = {}
+
+    print(a)
+    print(b)
+
+    for i in a:
+        elite[str(i)] = population[str(i)]
 
     # total the number of voiced sounds in a generation
     voiced_total = 0
@@ -255,6 +268,8 @@ for i in range(generations):
             voiced_total += 1
 
     voiced_percentage = voiced_total / generationsize
+
+    # GA behaviour
 
     if voiced_percentage < 0.5:
         genop.fitness_proportional(population, keys)
@@ -267,6 +282,12 @@ for i in range(generations):
     #genop.fitness_proportional(population, keys)
 
     genop.mutation(population, keys, mutationprobability, standarddeviation)
+
+    elitism = True
+
+    if elitism == True:
+        for i in a:
+            population[str(i)] = elite[str(i)]
 
 
 #################################################################################################################
