@@ -49,9 +49,12 @@ target_length = praatcontrol.get_time(soundfile)
 target_formants = praatcontrol.get_target_formants(target_length, soundfile)
 target_intensity = praatcontrol.get_target_intensity(soundfile)
 target_rms = praatcontrol.get_target_RMS(soundfile)
-target_fbank_average = praatcontrol.get_target_fbank_average(soundfile)
-target_fbank = praatcontrol.get_target_fbank(soundfile)
+
 target_mfcc_average = praatcontrol.get_target_mfcc_average(soundfile)
+target_logfbank_average = praatcontrol.get_target_logfbank_average(soundfile)
+target_mfcc = praatcontrol.get_target_mfcc(soundfile)
+target_logfbank = praatcontrol.get_target_logfbank(soundfile)
+
 
 # Sets the length of individuals to equal the target. Can be overwrriten with a string
 length = target_length  # "0.5"
@@ -159,13 +162,8 @@ class Individual:
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
 
         # Extract loudness features
-        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration,
-                                                               target_intensity)
+        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, target_intensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, target_rms)
-
-
-        self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
-        self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
 
 
         # Calls the relevant fitness function based on cmd line argument
@@ -181,17 +179,25 @@ class Individual:
             self.fitness = fitnessfunction.fitness_a5(self.formants, target_formants, metric)
         elif ff == "brito":
             self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
-        elif ff == "fbank_average":
-            self.fitness = fitnessfunction.fitness_fbank_average(target_fbank_average, self.fbank_average, metric)
-        elif ff == "fbank_sad":
-            self.fitness = fitnessfunction.fitness_fbank_sad(target_fbank, self.fbank)
 
-        elif ff == "fbank_ssd":
-            self.fitness = fitnessfunction.fitness_fbank_ssd(target_fbank, self.fbank)
 
         elif ff == "mfcc_average":
             self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
-            self.fitness = fitnessfunction.fitness_fbank_average(target_mfcc_average, self.mfcc_average, metric)
+            self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
+
+        elif ff == "logfbank_average":
+            self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, currentgeneration)
+            self.fitness = fitnessfunction.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, metric)
+
+        elif ff == "logfbank_sad":
+            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
+            self.fitness = fitnessfunction.fitness_twodim_sad(target_logfbank, self.logfbank)
+
+        elif ff == "logfbank_ssd":
+            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
+            self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
+
+
 
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:

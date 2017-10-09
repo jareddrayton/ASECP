@@ -142,27 +142,38 @@ def get_target_RMS(soundfile):
 
     return math.sqrt(total)
 
+#######################################################################################
+#######################################################################################
 
 def get_target_mfcc_average(soundfile):
     (rate, signal) = wav.read(soundfile)
 
-    mfcc_features = mfcc(signal, rate, winlen=0.025, winstep=0.025)
+    mfcc_features_target = mfcc(signal, rate, winlen=0.025, winstep=0.025)
 
-    return np.average(mfcc_features, axis=0)
+    return np.average(mfcc_features_target, axis=0)
 
 
-def get_target_fbank_average(soundfile):
+def get_target_logfbank_average(soundfile):
     (rate, signal) = wav.read(soundfile)
 
-    fbank_features_target = logfbank(signal, rate, winlen=0.025, winstep=0.025)
+    logfbank_features_target = logfbank(signal, rate, winlen=0.025, winstep=0.025)
 
-    return np.average(fbank_features_target, axis=0)
+    return np.average(logfbank_features_target, axis=0)
 
 
-def get_target_fbank(soundfile):
+def get_target_mfcc(soundfile):
+    (rate, signal) = wav.read(soundfile)
+
+    return mfcc(signal, rate, winlen=0.025, winstep=0.025)
+
+
+def get_target_logfbank(soundfile):
     (rate, signal) = wav.read(soundfile)
 
     return logfbank(signal, rate, winlen=0.025, winstep=0.025)
+
+#######################################################################################
+#######################################################################################
 
 
 def get_individual_frequencies(name, directory, currentgeneration):
@@ -255,6 +266,8 @@ def get_individual_RMS(name, directory, currentgeneration, targetrms):
 
     return round(rms, 2)
 
+#######################################################################################
+#######################################################################################
 
 def get_individual_mfcc_average(name, directory, currentgeneration):
     soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
@@ -266,19 +279,30 @@ def get_individual_mfcc_average(name, directory, currentgeneration):
     return np.average(mfcc_features, axis=0)
 
 
-def get_individual_fbank_average(name, directory, currentgeneration):
+def get_individual_logfbank_average(name, directory, currentgeneration):
     soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
 
     (rate, signal) = wav.read(soundfile)
 
-    fbank_features_individual = logfbank(signal, rate, winlen=0.025, winstep=0.025)
+    logfbank_features_individual = logfbank(signal, rate, winlen=0.025, winstep=0.025)
 
-    return np.average(fbank_features_individual, axis=0)
+    return np.average(logfbank_features_individual, axis=0)
 
 
-def get_individual_fbank(name, directory, currentgeneration):
+def get_individual_mfcc(name, directory, currentgeneration):
+    soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
+
+    (rate, signal) = wav.read(soundfile)
+
+    return mfcc(signal, rate, winlen=0.025, winstep=0.025)
+
+
+def get_individual_logfbank(name, directory, currentgeneration):
     soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
 
     (rate, signal) = wav.read(soundfile)
 
     return logfbank(signal, rate, winlen=0.025, winstep=0.025)
+
+#######################################################################################
+#######################################################################################

@@ -124,14 +124,14 @@ def fitness_mfcc_average(x, y, metric):
     return return_distance(x, y, metric)
 
 
-def fitness_fbank_average(x, y, metric):
+def fitness_logfbank_average(x, y, metric):
     """
     Compare the average of the filterbank features
     """
     return return_distance(x, y, metric)
 
 
-def fitness_fbank_sad(x, y):
+def fitness_twodim_sad(x, y):
     """
     Compare the MFCC features of target and candidate sound.
     """
@@ -145,7 +145,7 @@ def fitness_fbank_sad(x, y):
     return s
 
 
-def fitness_fbank_ssd(x, y):
+def fitness_twodim_ssd(x, y):
     """
     Compare the MFCC features of target and candidate sound.
     """
