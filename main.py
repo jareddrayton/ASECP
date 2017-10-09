@@ -10,10 +10,9 @@ import genop
 import praatcontrol
 import stats
 
-
 # Variables given at the cmd line, unpacked using argv
 script, soundfile, generations, generationsize, mutationprobability, \
-standarddeviation, parallel, ff, metric, lm, identifier = argv
+    standarddeviation, parallel, ff, metric, lm, identifier = argv
 
 # Convert variable arguments from strings to integers and floats
 generations = int(generations) + 1
@@ -156,10 +155,15 @@ class Individual:
     # Method for calculating an individuals fitness
     def evaluate_fitness(self):
 
-        # Extract individual features
+        # Extract formant features
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
-        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, target_intensity)
+
+        # Extract loudness features
+        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration,
+                                                               target_intensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, target_rms)
+
+
         self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
         self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
         self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
@@ -249,7 +253,7 @@ population = {}
 averagefitness = []
 minimumfitness = []
 
-# Main loop for the Genetic Algorithm logic
+# Main loop for Genetic Algorithm logic
 for i in range(generations):
 
     # Creates a folder for the current generation
@@ -275,8 +279,11 @@ for i in range(generations):
     for name in keys:
         population[name].evaluate_fitness()
 
-    # Increment the
+    # Increment the generation index
     currentgeneration += 1
+
+    ######################################################################################################
+    ######################################################################################################
 
     listfitness = []
 
@@ -293,9 +300,6 @@ for i in range(generations):
 
     elite = []
 
-    # print(a)
-    # print(b)
-
     print("\n")
 
     for i in range(len(a)):
@@ -309,6 +313,9 @@ for i in range(generations):
 
     # print(elite)
     # print(population)
+
+    ######################################################################################################
+    ######################################################################################################
 
     # total the number of voiced sounds in a generation
     voiced_total = 0

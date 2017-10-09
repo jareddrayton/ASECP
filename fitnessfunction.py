@@ -117,9 +117,16 @@ def fitness_brito(formants, targetformants):
 #################################################################################################################
 #################################################################################################################
 
+def fitness_mfcc_average(x, y, metric):
+    """
+    Compare the averages of the mfcc features
+    """
+    return return_distance(x, y, metric)
+
+
 def fitness_fbank_average(x, y, metric):
     """
-    Compare the MFCC features of target and candidate sound.
+    Compare the average of the filterbank features
     """
     return return_distance(x, y, metric)
 
