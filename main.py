@@ -24,7 +24,7 @@ standarddeviation = float(standarddeviation)
 start_time = time.time()
 
 # If True, the identifier variable is used as a seed for random number generation
-if True:
+if False:
     random.seed(int(identifier))
 
 # Initialises the generation index as 0

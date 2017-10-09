@@ -13,13 +13,13 @@ vowels = os.listdir(path)
 # identify number of formants from each 
 
 
-# choose from hz, mel, cents, bark, erb, brito
-features = ["hz", "mel"]  # "cents", "bark", "erb", "brito"]
+# choose from hz, mel, cents, bark, erb, brito, mfcc_average, logfbank_average
+features = ["mfcc_average"]# "logfbank_average"]  # "cents", "bark", "erb", "brito"]
 
-# choose from "SSD", "SAD", "EUC"
-distance_metrics = ["SSD"]
+# choose from "SSD", "SAD", "EUC", "MSE", "MAE"
+distance_metrics = ["SSD"] # "MSE", "MAE"]
 
-# choose from "both", "rms", "intensity",
+# choose from "both", "rms", "intensity", "none"
 loudness = ["both"]
 
 # specify the ga parameters
