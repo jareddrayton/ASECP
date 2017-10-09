@@ -1,7 +1,6 @@
 import os
 import random
 import time
-import copy
 import matplotlib.pyplot as plt
 
 from sys import argv
@@ -11,26 +10,28 @@ import genop
 import praatcontrol
 import stats
 
-# Key Word Arguments HERE
 
-script, soundfile, generations, generationsize, mutationprobability, standarddeviation, parallel, ff, metric, lm, identifier = argv
+# Variables given at the cmd line, unpacked using argv
+script, soundfile, generations, generationsize, mutationprobability, \
+standarddeviation, parallel, ff, metric, lm, identifier = argv
 
-# Convert arguments from strings to integers and floats
-
+# Convert variable arguments from strings to integers and floats
 generations = int(generations) + 1
 generationsize = int(generationsize)
 mutationprobability = float(mutationprobability)
 standarddeviation = float(standarddeviation)
 
-#################################################################################################################
-#################################################################################################################
-
+# Set the time to measure the length of a run
 start_time = time.time()
 
-random.seed(int(identifier))
+# If True, the identifier variable is used as a seed for random number generation
+if True:
+    random.seed(int(identifier))
 
+# Initialises the generation index as 0
 currentgeneration = 0
 
+# Creates the directory string
 directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
                                                            generations - 1,
                                                            generationsize,
@@ -41,16 +42,19 @@ directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
                                                            lm,
                                                            identifier)
 
+# Makes the directory for all subsequent files
 os.mkdir(directory)
 
+# Call the "praatcontrol" module to get target sound features
 targetlength = praatcontrol.get_time(soundfile)
 targetformants = praatcontrol.get_target_formants(targetlength, soundfile)
 targetintensity = praatcontrol.get_target_intensity(soundfile)
-targetrms = praatcontrol.get_target_RMS(soundfile)
+target_rms = praatcontrol.get_target_RMS(soundfile)
 target_fbank_average = praatcontrol.get_target_fbank_average(soundfile)
 target_fbank = praatcontrol.get_target_fbank(soundfile)
 target_mfcc_average = praatcontrol.get_target_mfcc_average(soundfile)
 
+# Sets the length of individuals to equal the target. Can be overwrriten with a string
 length = targetlength  # "0.5"
 
 
@@ -149,7 +153,7 @@ class Individual:
 
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
-        self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, targetrms)
+        self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, target_rms)
         # self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
         # self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
         self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
