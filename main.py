@@ -166,7 +166,7 @@ class Individual:
 
         self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
         self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
-        self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
+
 
         # Calls the relevant fitness function based on cmd line argument
         if ff == "hz":
@@ -185,9 +185,12 @@ class Individual:
             self.fitness = fitnessfunction.fitness_fbank_average(target_fbank_average, self.fbank_average, metric)
         elif ff == "fbank_sad":
             self.fitness = fitnessfunction.fitness_fbank_sad(target_fbank, self.fbank)
+
         elif ff == "fbank_ssd":
             self.fitness = fitnessfunction.fitness_fbank_ssd(target_fbank, self.fbank)
+
         elif ff == "mfcc_average":
+            self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
             self.fitness = fitnessfunction.fitness_fbank_average(target_mfcc_average, self.mfcc_average, metric)
 
         # Apply a penalty of the sound is not voiced
