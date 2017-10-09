@@ -46,16 +46,16 @@ directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
 os.mkdir(directory)
 
 # Call the "praatcontrol" module to get target sound features
-targetlength = praatcontrol.get_time(soundfile)
-targetformants = praatcontrol.get_target_formants(targetlength, soundfile)
-targetintensity = praatcontrol.get_target_intensity(soundfile)
+target_length = praatcontrol.get_time(soundfile)
+target_formants = praatcontrol.get_target_formants(target_length, soundfile)
+target_intensity = praatcontrol.get_target_intensity(soundfile)
 target_rms = praatcontrol.get_target_RMS(soundfile)
 target_fbank_average = praatcontrol.get_target_fbank_average(soundfile)
 target_fbank = praatcontrol.get_target_fbank(soundfile)
 target_mfcc_average = praatcontrol.get_target_mfcc_average(soundfile)
 
 # Sets the length of individuals to equal the target. Can be overwrriten with a string
-length = targetlength  # "0.5"
+length = target_length  # "0.5"
 
 
 #################################################################################################################
@@ -66,8 +66,10 @@ class Individual:
 
         self.name = name
 
+        # List containing the real valued genotype
         self.values = []
 
+        # List of the muscle parameters associated with the genotype
         self.parameters = ['Interarytenoid',
                            'Cricothyroid',
                            'Vocalis',
@@ -96,24 +98,22 @@ class Individual:
                            'LateralPterygoid',
                            'Buccinator']
 
+        # Initialise the fitness cores to one
         self.fitness = 0
         self.fitnessscaled = 0
 
+        # Initialise the genotype with values for the first generation
         if currentgeneration == 0:
-            self.initialise_values()
+            self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
 
-    def initialise_values(self):
-        """ Method for Initialising candidates with random values """
-
-        self.values = [round(random.uniform(-1, 1), 1) for x in range(len(self.parameters))]
-
-        return self.values
-
+    # Method for creating the Praat .artword file
     def create_artword(self):
 
+        # Create the file
         self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, currentgeneration, self.name),
                             "w")
 
+        #
         self.artword.write('Create Speaker... Robovox Male 2\r\n')
         self.artword.write('Create Artword... Individual' + self.name + ' ' + length + '\r\n')
         self.artword.write('Set target... 0.0  0.07  Lungs\r\n')
@@ -152,7 +152,7 @@ class Individual:
         # maybe this method should pull
 
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
-        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
+        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, target_intensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, target_rms)
         # self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
         # self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
@@ -162,17 +162,17 @@ class Individual:
         print(self.mfcc_average)
 
         if ff == "hz":
-            self.fitness = fitnessfunction.fitness_a1(self.formants, targetformants, metric)
+            self.fitness = fitnessfunction.fitness_a1(self.formants, target_formants, metric)
         elif ff == "mel":
-            self.fitness = fitnessfunction.fitness_a2(self.formants, targetformants, metric)
+            self.fitness = fitnessfunction.fitness_a2(self.formants, target_formants, metric)
         elif ff == "cent":
-            self.fitness = fitnessfunction.fitness_a3(self.formants, targetformants, metric)
+            self.fitness = fitnessfunction.fitness_a3(self.formants, target_formants, metric)
         elif ff == "bark":
-            self.fitness = fitnessfunction.fitness_a4(self.formants, targetformants, metric)
+            self.fitness = fitnessfunction.fitness_a4(self.formants, target_formants, metric)
         elif ff == "erb":
-            self.fitness = fitnessfunction.fitness_a5(self.formants, targetformants, metric)
+            self.fitness = fitnessfunction.fitness_a5(self.formants, target_formants, metric)
         elif ff == "brito":
-            self.fitness = fitnessfunction.fitness_brito(self.formants, targetformants)
+            self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
         elif ff == "fbank_average":
             self.fitness = fitnessfunction.fitness_fbank_average(target_fbank_average, self.fbank_average, metric)
         elif ff == "fbank_sad":
