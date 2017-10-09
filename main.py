@@ -113,25 +113,31 @@ class Individual:
         self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, currentgeneration, self.name),
                             "w")
 
-        #
+        # Configure speaker type and sound length
         self.artword.write('Create Speaker... Robovox Male 2\r\n')
         self.artword.write('Create Artword... Individual' + self.name + ' ' + length + '\r\n')
+
+        # Specify Lungs and LevatorPalatini parameter values
         self.artword.write('Set target... 0.0  0.07  Lungs\r\n')
         self.artword.write('Set target... 0.04  0.0  Lungs\r\n')
         self.artword.write('Set target... %s   0.0  Lungs\r\n' % length)
         self.artword.write('Set target... 0.00 1 LevatorPalatini\r\n')
         self.artword.write('Set target... ' + length + ' 1 LevatorPalatini\r\n')
 
+        # Loop through the parameters and values lists and write these to the artword
         for i in range(len(self.parameters)):
             self.artword.seek(0, 2)
             self.artword.write('Set target... 0.0 ' + str(self.values[i]) + ' ' + self.parameters[i] + '\r\n')
             self.artword.write(
                 'Set target... ' + length + ' ' + str(self.values[i]) + ' ' + self.parameters[i] + '\r\n')
 
+        # Set sample rate and synthesise audio
         self.artword.write('select Artword Individual' + self.name + '\r\n')
         self.artword.write('plus Speaker Robovox\r\n')
         self.artword.write('To Sound... 22050 25    0 0 0    0 0 0   0 0 0\r\n')
         self.artword.write('''nowarn do ("Save as WAV file...", "Individual''' + self.name + '''.wav")\r\n''')
+
+        # Extract formants, pitch, and intensity
         self.artword.write('''selectObject ("Sound Individual''' + self.name + '''_Robovox")\r\n''')
         self.artword.write('To Formant (burg): 0, 5, 5000, %s, 50\r\n' % length)
         self.artword.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\r\n')
@@ -147,9 +153,8 @@ class Individual:
 
         self.artword.close()
 
+    # Method for calculating an individuals fitness
     def evaluate_fitness(self):
-
-        # maybe this method should pull
 
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, target_intensity)
