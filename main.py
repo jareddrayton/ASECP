@@ -156,16 +156,15 @@ class Individual:
     # Method for calculating an individuals fitness
     def evaluate_fitness(self):
 
+        # Extract individual features
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, target_intensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, target_rms)
-        # self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
-        # self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
+        self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
+        self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
         self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
 
-        print(self.formants)
-        print(self.mfcc_average)
-
+        # Calls the relevant fitness function based on cmd line argument
         if ff == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, target_formants, metric)
         elif ff == "mel":
@@ -187,9 +186,11 @@ class Individual:
         elif ff == "mfcc_average":
             self.fitness = fitnessfunction.fitness_fbank_average(target_mfcc_average, self.mfcc_average, metric)
 
+        # Apply a penalty of the sound is not voiced
         if self.voiced == False:
             self.fitness = self.fitness * 10
 
+        # Create loudness co-efficents
         if lm == "rms":
             self.fitness = self.fitness * self.rms
         elif lm == "intensity":
@@ -199,6 +200,7 @@ class Individual:
         elif lm == "none":
             pass
 
+        # Print
         print("Individual ", self.name)
         print("Is Voiced?            :", self.voiced)
         print("Fitness Score         :", self.fitness)
@@ -207,9 +209,11 @@ class Individual:
         print("RMS Coefficient       :", self.rms)
         print("Fitness * RMS         :", self.fitness * self.rms)
 
+        # Call the write_cntk method if a sound is voiced
         if self.voiced:
             self.write_cntk()
 
+        # Write feature information to a csv file
         stats.write_formants(self.name,
                              directory,
                              currentgeneration,
@@ -235,33 +239,43 @@ class Individual:
 #################################################################################################################
 #################################################################################################################
 
+# Creates a list of strings for use as keys in a dictionary
 keys = [str(x) for x in range(generationsize)]
 
+# Create an empty dictionary for storing Individual instances
 population = {}
 
+# Lists to hold fitness stats
 averagefitness = []
 minimumfitness = []
 
+# Main loop for the Genetic Algorithm logic
 for i in range(generations):
 
-    # creates
+    # Creates a folder for the current generation
     os.mkdir(directory + "/Generation%d" % currentgeneration)
 
+    # If it is the first generation, instantiate the Indiviudal class and associate it with
+    # a key in the population dictionary
     if currentgeneration == 0:
         for name in keys:
             population[name] = Individual(name)
 
+    # Call the artword method for object in the population dictionary
     for name in keys:
         population[name].create_artword()
 
+    # Synthesise artwords and run a single or multiple instances of Praat
     if parallel == "P":
         praatcontrol.synthesise_artwords_parallel(currentgeneration, generationsize, directory)
     elif parallel == "S":
         praatcontrol.synthesise_artwords_serial(currentgeneration, generationsize, directory)
 
+    # Calculate fitness scores by calling the evaluate_fitness method
     for name in keys:
         population[name].evaluate_fitness()
 
+    # Increment the
     currentgeneration += 1
 
     listfitness = []
