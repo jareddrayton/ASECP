@@ -1,6 +1,7 @@
 import os
 import random
 import time
+import copy
 import matplotlib.pyplot as plt
 
 from sys import argv
@@ -14,7 +15,7 @@ import stats
 
 script, soundfile, generations, generationsize, mutationprobability, standarddeviation, parallel, ff, metric, lm, identifier = argv
 
-# Convert arguments from strings to integers and floats 
+# Convert arguments from strings to integers and floats
 
 generations = int(generations) + 1
 generationsize = int(generationsize)
@@ -31,14 +32,14 @@ random.seed(int(identifier))
 currentgeneration = 0
 
 directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
-                                                        generations - 1,
-                                                        generationsize,
-                                                        mutationprobability,
-                                                        standarddeviation,
-                                                        ff,
-                                                        metric,
-                                                        lm,
-                                                        identifier)
+                                                           generations - 1,
+                                                           generationsize,
+                                                           mutationprobability,
+                                                           standarddeviation,
+                                                           ff,
+                                                           metric,
+                                                           lm,
+                                                           identifier)
 
 os.mkdir(directory)
 
@@ -46,8 +47,11 @@ targetlength = praatcontrol.get_time(soundfile)
 targetformants = praatcontrol.get_target_formants(targetlength, soundfile)
 targetintensity = praatcontrol.get_target_intensity(soundfile)
 targetrms = praatcontrol.get_target_RMS(soundfile)
+target_fbank_average = praatcontrol.get_target_fbank_average(soundfile)
+target_fbank = praatcontrol.get_target_fbank(soundfile)
+target_mfcc_average = praatcontrol.get_target_mfcc_average(soundfile)
 
-length = "0.5"
+length = targetlength  # "0.5"
 
 
 #################################################################################################################
@@ -97,7 +101,7 @@ class Individual:
     def initialise_values(self):
         """ Method for Initialising candidates with random values """
 
-        self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
+        self.values = [round(random.uniform(-1, 1), 1) for x in range(len(self.parameters))]
 
         return self.values
 
@@ -122,7 +126,7 @@ class Individual:
 
         self.artword.write('select Artword Individual' + self.name + '\r\n')
         self.artword.write('plus Speaker Robovox\r\n')
-        self.artword.write('To Sound... 22500 25    0 0 0    0 0 0   0 0 0\r\n')
+        self.artword.write('To Sound... 22050 25    0 0 0    0 0 0   0 0 0\r\n')
         self.artword.write('''nowarn do ("Save as WAV file...", "Individual''' + self.name + '''.wav")\r\n''')
         self.artword.write('''selectObject ("Sound Individual''' + self.name + '''_Robovox")\r\n''')
         self.artword.write('To Formant (burg): 0, 5, 5000, %s, 50\r\n' % length)
@@ -146,8 +150,12 @@ class Individual:
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, targetintensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, targetrms)
+        # self.fbank_average = praatcontrol.get_individual_fbank_average(self.name, directory, currentgeneration)
+        # self.fbank = praatcontrol.get_individual_fbank(self.name, directory, currentgeneration)
+        self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
 
         print(self.formants)
+        print(self.mfcc_average)
 
         if ff == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, targetformants, metric)
@@ -161,8 +169,17 @@ class Individual:
             self.fitness = fitnessfunction.fitness_a5(self.formants, targetformants, metric)
         elif ff == "brito":
             self.fitness = fitnessfunction.fitness_brito(self.formants, targetformants)
+        elif ff == "fbank_average":
+            self.fitness = fitnessfunction.fitness_fbank_average(target_fbank_average, self.fbank_average, metric)
+        elif ff == "fbank_sad":
+            self.fitness = fitnessfunction.fitness_fbank_sad(target_fbank, self.fbank)
+        elif ff == "fbank_ssd":
+            self.fitness = fitnessfunction.fitness_fbank_ssd(target_fbank, self.fbank)
+        elif ff == "mfcc_average":
+            self.fitness = fitnessfunction.fitness_fbank_average(target_mfcc_average, self.mfcc_average, metric)
 
-        print(self.formants)
+        if self.voiced == False:
+            self.fitness = self.fitness * 10
 
         if lm == "rms":
             self.fitness = self.fitness * self.rms
@@ -170,8 +187,8 @@ class Individual:
             self.fitness = self.fitness * self.intensity
         elif lm == "both":
             self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
-
-        print(self.formants)
+        elif lm == "none":
+            pass
 
         print("Individual ", self.name)
         print("Is Voiced?            :", self.voiced)
@@ -190,7 +207,6 @@ class Individual:
                              self.formants,
                              self.fitness,
                              self.voiced)
-
 
     def write_cntk(self):
         """ This method adds writes features and labels to a file for use with CNTK
@@ -252,13 +268,24 @@ for i in range(generations):
     # save the n number of best individuals
     a, b = list(zip(*sorted((numbered_list), key=lambda student: student[1])[:5]))
 
-    elite = {}
+    elite = []
 
-    print(a)
-    print(b)
+    # print(a)
+    # print(b)
 
-    for i in a:
-        elite[str(i)] = population[str(i)]
+    print("\n")
+
+    for i in range(len(a)):
+        elite.append(population[str(a[i])].values)
+        print(i, elite[i])
+
+    print("\n")
+
+    for i in keys:
+        print(i, population[i].values)
+
+    # print(elite)
+    # print(population)
 
     # total the number of voiced sounds in a generation
     voiced_total = 0
@@ -273,21 +300,34 @@ for i in range(generations):
 
     if voiced_percentage < 0.5:
         genop.fitness_proportional(population, keys)
-        print("FPS")
+        # print("FPS")
     else:
         genop.lin_rank(population, keys)
-        print("Linear")
+        # print("Linear")
 
-    #genop.lin_rank(population, keys)
-    #genop.fitness_proportional(population, keys)
+    # genop.lin_rank(population, keys)
+    # genop.fitness_proportional(population, keys)
 
     genop.mutation(population, keys, mutationprobability, standarddeviation)
 
     elitism = True
 
+    print("\n")
+
     if elitism == True:
-        for i in a:
-            population[str(i)] = elite[str(i)]
+        for i in range(len(a)):
+            print(elite[i])
+
+            print(i, population[str(a[i])].values)
+
+            population[str(a[i])].values = elite[i]
+
+            print(i, population[str(a[i])].values)
+
+    print("\n")
+
+    for i in keys:
+        print(i, population[i].values)
 
 
 #################################################################################################################

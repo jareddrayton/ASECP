@@ -1,6 +1,11 @@
 import math
-
 import pydistance
+import scipy.io.wavfile as wav
+import numpy as np
+
+from python_speech_features import mfcc
+from python_speech_features import delta
+from python_speech_features import logfbank
 
 
 #################################################################################################################
@@ -62,8 +67,8 @@ def fitness_a5(formants, targetformants, metric):
 
     return return_distance(formants, targetformants, metric)
 
-def return_distance(x, y, metric):
 
+def return_distance(x, y, metric):
     # a list comprhension for automatically generating co efficients
     coefficients = [1.0 + i for i in range(len(x))]
 
@@ -108,14 +113,43 @@ def fitness_brito(formants, targetformants):
 
     return sum(formant_distances)
 
+
 #################################################################################################################
 #################################################################################################################
 
-def fitness_mfcc():
+def fitness_fbank_average(x, y, metric):
     """
     Compare the MFCC features of target and candidate sound.
     """
-    pass
+    return return_distance(x, y, metric)
+
+
+def fitness_fbank_sad(x, y):
+    """
+    Compare the MFCC features of target and candidate sound.
+    """
+
+    s = 0
+
+    for i in range(len(x)):
+        for j in range(len(x[i])):
+            s += abs(x[i][j] - y[i][j])
+
+    return s
+
+
+def fitness_fbank_ssd(x, y):
+    """
+    Compare the MFCC features of target and candidate sound.
+    """
+
+    s = 0
+
+    for i in range(len(x)):
+        for j in range(len(x[i])):
+            s += abs(x[i][j] - y[i][j]) ** 2
+
+    return s
 
 
 #################################################################################################################
@@ -172,6 +206,7 @@ def hz_to_bark(f):
     """
 
     return ((26.81 * f) / (1960 + f)) - 0.53
+
 
 def hz_to_erb(f):
     """ converts a given frequency to the erb scale
