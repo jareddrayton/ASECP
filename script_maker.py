@@ -1,5 +1,4 @@
 import os
-import itertools
 
 # scan this directory for sounds
 path = 'vowels'
@@ -13,8 +12,9 @@ vowels = os.listdir(path)
 # identify number of formants from each 
 
 
-# choose from hz, mel, cents, bark, erb, brito, mfcc_average, logfbank_average
-features = ["mfcc_average"]# "logfbank_average"]  # "cents", "bark", "erb", "brito"]
+# choose hz, mel, cents, bark, erb, brito,
+# choose mfcc_average, logfbank_average, mfcc_sad, mfcc_ssd, logfbank_sad, logfbank_ssd
+features = ["mfcc_average", "logfbank_average"]
 
 # choose from "SSD", "SAD", "EUC", "MSE", "MAE"
 distance_metrics = ["SSD"] # "MSE", "MAE"]
