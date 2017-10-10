@@ -46,6 +46,7 @@ os.mkdir(directory)
 
 # Call the "praatcontrol" module to get target sound features
 target_length = praatcontrol.get_time(soundfile)
+target_sample_rate = praatcontrol.get_sample_rate(soundfile)
 target_formants = praatcontrol.get_target_formants(target_length, soundfile)
 target_intensity = praatcontrol.get_target_intensity(soundfile)
 target_rms = praatcontrol.get_target_RMS(soundfile)
@@ -136,7 +137,7 @@ class Individual:
         # Set sample rate and synthesise audio
         self.artword.write('select Artword Individual' + self.name + '\r\n')
         self.artword.write('plus Speaker Robovox\r\n')
-        self.artword.write('To Sound... 22050 25    0 0 0    0 0 0   0 0 0\r\n')
+        self.artword.write('To Sound... {} 25    0 0 0    0 0 0   0 0 0\r\n'.format(target_sample_rate))
         self.artword.write('''nowarn do ("Save as WAV file...", "Individual''' + self.name + '''.wav")\r\n''')
 
         # Extract formants, pitch, and intensity
@@ -180,7 +181,7 @@ class Individual:
         elif ff == "brito":
             self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
 
-
+        # MFCC based fitness functions
         elif ff == "mfcc_average":
             self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
             self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
@@ -189,6 +190,14 @@ class Individual:
             self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, currentgeneration)
             self.fitness = fitnessfunction.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, metric)
 
+        elif ff == "mfcc_sad":
+            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, currentgeneration)
+            self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.logfbank)
+
+        elif ff == "mfcc_ssd":
+            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, currentgeneration)
+            self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.logfbank)
+
         elif ff == "logfbank_sad":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
             self.fitness = fitnessfunction.fitness_twodim_sad(target_logfbank, self.logfbank)
@@ -196,7 +205,6 @@ class Individual:
         elif ff == "logfbank_ssd":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
-
 
 
         # Apply a penalty of the sound is not voiced

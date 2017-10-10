@@ -51,6 +51,13 @@ def get_time(soundfile):
     return TargetLength
 
 
+def get_sample_rate(soundfile):
+
+    (rate, signal) = wav.read(soundfile)
+
+    return rate
+
+
 def get_target_formants(TargetLength, soundfile):
     """ Extract Pitch and Formants of the Target Sound"""
 
