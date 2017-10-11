@@ -109,6 +109,7 @@ class Individual:
         if currentgeneration == 0:
             self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
 
+
     # Method for creating the Praat .artword file
     def create_artword(self):
 
@@ -192,11 +193,11 @@ class Individual:
 
         elif ff == "mfcc_sad":
             self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, currentgeneration)
-            self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.logfbank)
+            self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.mfcc)
 
         elif ff == "mfcc_ssd":
             self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, currentgeneration)
-            self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.logfbank)
+            self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.mfcc)
 
         elif ff == "logfbank_sad":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
