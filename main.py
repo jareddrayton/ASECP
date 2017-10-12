@@ -10,6 +10,8 @@ import genop
 import praatcontrol
 import stats
 
+# python main.py Target[a].wav 5 10 0.2 0.2 P mfcc_ssd MSE both 0
+
 # Variables given at the cmd line, unpacked using argv
 script, soundfile, generations, generationsize, mutationprobability, \
     standarddeviation, parallel, ff, metric, lm, identifier = argv
@@ -136,7 +138,7 @@ class Individual:
 
         # Configure speaker type and sound length
         self.artword.write('Create Speaker... Robovox Male 2\r\n')
-        self.artword.write('Create Artword... Individual {} {}\r\n'.format(self.name, length))
+        self.artword.write('Create Artword... Individual{} {}\r\n'.format(self.name, length))
 
         # Specify Lungs and LevatorPalatini parameter values
         self.artword.write('Set target... 0.0  0.07  Lungs\r\n')
