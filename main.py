@@ -132,21 +132,20 @@ class Individual:
 
 
         # Create the file
-        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, currentgeneration, self.name),
-                            "w")
+        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, currentgeneration, self.name), "w")
 
         # Configure speaker type and sound length
         self.artword.write('Create Speaker... Robovox Male 2\r\n')
-        self.artword.write('Create Artword... Individual' + self.name + ' ' + length + '\r\n')
+        self.artword.write('Create Artword... Individual {} {}\r\n'.format(self.name, length))
 
         # Specify Lungs and LevatorPalatini parameter values
         self.artword.write('Set target... 0.0  0.07  Lungs\r\n')
         self.artword.write('Set target... 0.04  0.0  Lungs\r\n')
-        self.artword.write('Set target... %s   0.0  Lungs\r\n' % length)
-        self.artword.write('Set target... 0.00 1 LevatorPalatini\r\n')
-        self.artword.write('Set target... {} 1 LevatorPalatini\r\n'.format(length))
-        self.artword.write('Set target... 0.0 0.5 Interarytenoid\r\n')
-        self.artword.write('Set target... {} 0.5 Interarytenoid\r\n'.format(length))
+        self.artword.write('Set target... {}  0.0  Lungs\r\n'.format(length))
+        self.artword.write('Set target... 0.00  1 LevatorPalatini\r\n')
+        self.artword.write('Set target... {}  1 LevatorPalatini\r\n'.format(length))
+        self.artword.write('Set target... 0.0  0.5 Interarytenoid\r\n')
+        self.artword.write('Set target... {}  0.5 Interarytenoid\r\n'.format(length))
 
         # Loop through the parameters and values lists and write these to the artword
         for i in range(len(self.parameters)):
