@@ -73,7 +73,7 @@ class Individual:
         self.values = []
 
         # List of the muscle parameters associated with the genotype
-        self.parameters = ['Interarytenoid',
+        self.full = ['Interarytenoid',
                            'Cricothyroid',
                            'Vocalis',
                            'Thyroarytenoid',
@@ -101,6 +101,23 @@ class Individual:
                            'LateralPterygoid',
                            'Buccinator']
 
+        self.constrained = ['Hyoglossus',
+                              'Styloglossus',
+                              'Genioglossus',
+                              'UpperTongue',
+                              'LowerTongue',
+                              'TransverseTongue',
+                              'VerticalTongue',
+                              'Risorius',
+                              'OrbicularisOris',
+                              'TensorPalatini',
+                              'Masseter',
+                              'Mylohyoid',
+                              'LateralPterygoid',
+                              'Buccinator']
+
+        self.parameters = self.constrained
+
         # Initialise the fitness cores to one
         self.fitness = 0
         self.fitnessscaled = 0
@@ -112,6 +129,7 @@ class Individual:
 
     # Method for creating the Praat .artword file
     def create_artword(self):
+
 
         # Create the file
         self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, currentgeneration, self.name),
@@ -126,7 +144,9 @@ class Individual:
         self.artword.write('Set target... 0.04  0.0  Lungs\r\n')
         self.artword.write('Set target... %s   0.0  Lungs\r\n' % length)
         self.artword.write('Set target... 0.00 1 LevatorPalatini\r\n')
-        self.artword.write('Set target... ' + length + ' 1 LevatorPalatini\r\n')
+        self.artword.write('Set target... {} 1 LevatorPalatini\r\n'.format(length))
+        self.artword.write('Set target... 0.0 0.5 Interarytenoid\r\n')
+        self.artword.write('Set target... {} 0.5 Interarytenoid\r\n'.format(length))
 
         # Loop through the parameters and values lists and write these to the artword
         for i in range(len(self.parameters)):
