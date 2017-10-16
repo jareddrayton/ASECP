@@ -75,15 +75,6 @@ def exp_rank():
 
 ################################################################
 
-def roulette_spin(population, keys):
-    roulettespin = random.uniform(0, 1)
-    currentcumulative = 0
-
-    for name in keys:
-        currentcumulative += population[name].fitnessscaled
-        if currentcumulative > roulettespin:
-            return name
-
 
 def stochastic_u_sampling():
     """ Stochastic Universal Sampling Selection """
@@ -102,6 +93,17 @@ def tournament_selection():
 #################################################################################################################
 #################################################################################################################
 
+
+def roulette_spin(population, keys):
+
+    roulettespin = random.uniform(0, 1)
+    currentcumulative = 0
+
+    for name in keys:
+        currentcumulative += population[name].fitnessscaled
+        if currentcumulative > roulettespin:
+            return name
+
 def one_crossover(population, keys, temppopulation):
     """ One Point Crossover """
 
@@ -109,9 +111,11 @@ def one_crossover(population, keys, temppopulation):
         ca = roulette_spin(population, keys)
         cb = roulette_spin(population, keys)
 
-        crossoverpoint = random.randint(0, 27)
+        limit = len(population[ca].values)
 
-        temppopulation[name].values = population[ca].values[0:crossoverpoint] + population[cb].values[crossoverpoint:27]
+        cross_point = random.randint(0, limit)
+
+        temppopulation[name].values = population[ca].values[0:cross_point] + population[cb].values[cross_point:limit]
 
         population[name].values = temppopulation[name].values
 
@@ -128,6 +132,7 @@ def uniform_crossover(population, keys, temppopulation):
     for name in keys:
         ca = roulette_spin(population, keys)
         cb = roulette_spin(population, keys)
+
         print("Parent A", population[ca].values)
         print("Parent B", population[cb].values)
         for i in range(len(temppopulation[name].values)):
