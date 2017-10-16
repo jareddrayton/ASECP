@@ -152,10 +152,11 @@ def mutation(population, keys, mutationprobability, standarddeviation):
         for i in range(len(population[name].values)):
 
             mutationthresh = random.random()
+            perturb = round(random.gauss(0, standarddeviation), 1)
 
-            if mutationprobability > mutationthresh:
-                population[name].values[i] = round(population[name].values[i] + random.gauss(0, standarddeviation), 1)
-                if population[name].values[i] > 1.0:
+            if mutationprobability >= mutationthresh:
+                population[name].values[i] += perturb
+                if population[name].values[i] > 1:
                     population[name].values[i] = 1.0
                 elif population[name].values[i] < 0:
-                    population[name].values[i] = -0.0
+                    population[name].values[i] = 0.0
