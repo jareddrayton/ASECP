@@ -144,7 +144,7 @@ def uniform_crossover(population, keys, temppopulation):
 
 def mutation(population, keys, mutationprobability, standarddeviation):
     """ Mutation function
-	If mutating a value results in it exceeding 
+	A value is taken from a gaussian distribution and added to an alelle value.
 
 	"""
 
