@@ -136,11 +136,12 @@ def uniform_crossover(population, keys, temppopulation):
         print("Parent A", population[ca].values)
         print("Parent B", population[cb].values)
         for i in range(len(temppopulation[name].values)):
-            if random.random() < 0.5:
+            if random.random() <= 0.5:
                 temppopulation[name].values[i] = population[ca].values[i]
             else:
                 temppopulation[name].values[i] = population[cb].values[i]
         print("Child", temppopulation[name].values)
+
         population[name].values = temppopulation[name].values
 
 
@@ -157,10 +158,10 @@ def mutation(population, keys, mutationprobability, standarddeviation):
         for i in range(len(population[name].values)):
 
             mutationthresh = random.random()
-            perturb = round(random.gauss(0, standarddeviation), 1)
+            perturb = random.gauss(0, standarddeviation)
 
             if mutationprobability >= mutationthresh:
-                population[name].values[i] += perturb
+                round(population[name].values[i] += perturb, 1)
                 if population[name].values[i] > 1:
                     population[name].values[i] = 1.0
                 elif population[name].values[i] < 0:

@@ -188,7 +188,6 @@ class Individual:
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, target_intensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, target_rms)
 
-
         # Calls the relevant fitness function based on cmd line argument
         if ff == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, target_formants, metric)
@@ -227,7 +226,6 @@ class Individual:
         elif ff == "logfbank_ssd":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
-
 
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:
