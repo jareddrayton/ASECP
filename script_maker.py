@@ -14,13 +14,13 @@ vowels = os.listdir(path)
 
 # choose hz, mel, cents, bark, erb, brito,
 # choose mfcc_average, logfbank_average, mfcc_sad, mfcc_ssd, logfbank_sad, logfbank_ssd
-features = ["mfcc_average", "logfbank_average"]
+features = ["mfcc_average"]
 
 # choose from "SSD", "SAD", "EUC", "MSE", "MAE"
 distance_metrics = ["SSD"] # "MSE", "MAE"]
 
 # choose from "both", "rms", "intensity", "none"
-loudness = ["both"]
+loudness = ["RMS"]
 
 # specify the ga parameters
 
@@ -39,4 +39,4 @@ for v in vowels:
             for l in loudness:
                 for n in range(no_of_runs):
                     with open('batch.cmd', 'a') as t:
-                        t.write("python main.py Vowels\{!s} {!s} P {!s} {!s} {!s} {!s}\n".format(v, GA_params, f, d, l, n))
+                        t.write("python main.py {!s} {!s} P {!s} {!s} {!s} {!s}\n".format(v, GA_params, f, d, l, n))

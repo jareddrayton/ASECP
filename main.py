@@ -46,6 +46,8 @@ directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
 # Makes the directory for all subsequent files
 os.mkdir(directory)
 
+soundfile = 'Vowels\{}'.format(soundfile)
+
 # Call the "praatcontrol" module to get target sound features
 target_length = praatcontrol.get_time(soundfile)
 target_sample_rate = praatcontrol.get_sample_rate(soundfile)
@@ -271,7 +273,7 @@ class Individual:
         """
 
         #
-        with open('data.txt', 'a') as self.cntk:
+        with open('cntk_data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
             self.cntk.write('|labels {} '.format(" ".join(str(elm) for elm in self.values)))
             self.cntk.write('|features {} \n'.format(" ".join(str(elm) for elm in self.formants)))
