@@ -1,6 +1,7 @@
 import os
 import random
 import time
+import csv
 import matplotlib.pyplot as plt
 
 from sys import argv
@@ -64,9 +65,8 @@ target_logfbank = praatcontrol.get_target_logfbank(soundfile)
 # Sets the length of individuals to equal the target. Can be overwrriten with a string
 length = target_length  # "0.5"
 
-
-#################################################################################################################
-#################################################################################################################
+###################################################################################################
+###################################################################################################
 
 class Individual:
     def __init__(self, name):
@@ -78,7 +78,7 @@ class Individual:
 
         # List of the muscle parameters associated with the genotype
         self.full = ['Interarytenoid',
-                           'Cricothyroid',
+                     'Cricothyroid',
                            'Vocalis',
                            'Thyroarytenoid',
                            'PosteriorCricoarytenoid',
@@ -106,19 +106,19 @@ class Individual:
                            'Buccinator']
 
         self.constrained = ['Hyoglossus',
-                              'Styloglossus',
-                              'Genioglossus',
-                              'UpperTongue',
-                              'LowerTongue',
-                              'TransverseTongue',
-                              'VerticalTongue',
-                              'Risorius',
-                              'OrbicularisOris',
-                              'TensorPalatini',
-                              'Masseter',
-                              'Mylohyoid',
-                              'LateralPterygoid',
-                              'Buccinator']
+                            'Styloglossus',
+                            'Genioglossus',
+                            'UpperTongue',
+                            'LowerTongue',
+                            'TransverseTongue',
+                            'VerticalTongue',
+                            'Risorius',
+                            'OrbicularisOris',
+                            'TensorPalatini',
+                            'Masseter',
+                            'Mylohyoid',
+                            'LateralPterygoid',
+                            'Buccinator']
 
         self.parameters = self.constrained
 
@@ -279,8 +279,8 @@ class Individual:
             self.cntk.write('|features {} \n'.format(" ".join(str(elm) for elm in self.formants)))
 
 
-#################################################################################################################
-#################################################################################################################
+###################################################################################################
+###################################################################################################
 
 # Creates a list of strings for use as keys in a dictionary
 keys = [str(x) for x in range(generationsize)]
@@ -321,8 +321,8 @@ for i in range(generations):
     # Increment the generation index
     currentgeneration += 1
 
-    ######################################################################################################
-    ######################################################################################################
+    ###############################################################################################
+    ###############################################################################################
 
     listfitness = []
 
@@ -353,8 +353,8 @@ for i in range(generations):
     # print(elite)
     # print(population)
 
-    ######################################################################################################
-    ######################################################################################################
+    ###############################################################################################
+    ###############################################################################################
 
     # total the number of voiced sounds in a generation
     voiced_total = 0
@@ -399,8 +399,9 @@ for i in range(generations):
         print(i, population[i].values)
 
 
-#################################################################################################################
-#################################################################################################################
+###################################################################################################
+###################################################################################################
+# Stats stuff
 
 def statistics():
     """ Function for plotting performance graphs and saving run data"""
@@ -421,13 +422,22 @@ def statistics():
     plt.legend()
     plt.savefig("{}/Performance Graph".format(directory))
 
+def csv_file():
+    with open('{}/Stats.csv'.format(directory), 'a') as csvfile:
+        for i in range(len(averagefitness)):
+            csvdata = (averagefitness[i], minimumfitness[i])
+            spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            spamwriter.writerow(csvdata)
+
+def runtime():
+    with open("{}/{}Runtime.txt".format(directory, directory), "w") as run:
+        run.write("--- %d seconds ---" % (time.time() - start_time))
 
 statistics()
-
-with open("{}/{}Runtime.txt".format(directory, directory), "w") as run:
-    run.write("--- %d seconds ---" % (time.time() - start_time))
+csv_file()
+runtime()
 
 time.sleep(2)
 
-#################################################################################################################
-#################################################################################################################
+###################################################################################################
+###################################################################################################
