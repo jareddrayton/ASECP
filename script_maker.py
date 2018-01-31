@@ -39,4 +39,4 @@ for v in vowels:
             for l in loudness:
                 for n in range(no_of_runs):
                     with open('batch.cmd', 'a') as t:
-                        t.write("python main.py {!s} {!s} P {!s} {!s} {!s} {!s}\n".format(v, GA_params, f, d, l, n))
+                        t.write("python main.py Vowels\{!s} {!s} P {!s} {!s} {!s} {!s}\n".format(v, GA_params, f, d, l, n))

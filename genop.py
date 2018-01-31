@@ -161,7 +161,7 @@ def mutation(population, keys, mutationprobability, standarddeviation):
             perturb = random.gauss(0, standarddeviation)
 
             if mutationprobability >= mutationthresh:
-                round(population[name].values[i] += perturb, 1)
+                round(population[name].values[i] + perturb, 1)
                 if population[name].values[i] > 1:
                     population[name].values[i] = 1.0
                 elif population[name].values[i] < 0:
