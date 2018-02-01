@@ -31,7 +31,7 @@ if False:
     random.seed(int(identifier))
 
 # Initialises the generation index as 0
-currentgeneration = 0
+CURRENT_GEN = 0
 
 # Creates the directory string
 directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
@@ -79,31 +79,31 @@ class Individual:
         # List of the muscle parameters associated with the genotype
         self.full = ['Interarytenoid',
                      'Cricothyroid',
-                           'Vocalis',
-                           'Thyroarytenoid',
-                           'PosteriorCricoarytenoid',
-                           'LateralCricoarytenoid',
-                           'Stylohyoid',
-                           'Sternohyoid',
-                           'Thyropharyngeus',
-                           'LowerConstrictor',
-                           'MiddleConstrictor',
-                           'UpperConstrictor',
-                           'Sphincter',
-                           'Hyoglossus',
-                           'Styloglossus',
-                           'Genioglossus',
-                           'UpperTongue',
-                           'LowerTongue',
-                           'TransverseTongue',
-                           'VerticalTongue',
-                           'Risorius',
-                           'OrbicularisOris',
-                           'TensorPalatini',
-                           'Masseter',
-                           'Mylohyoid',
-                           'LateralPterygoid',
-                           'Buccinator']
+                     'Vocalis',
+                     'Thyroarytenoid',
+                     'PosteriorCricoarytenoid',
+                     'LateralCricoarytenoid',
+                     'Stylohyoid',
+                     'Sternohyoid',
+                     'Thyropharyngeus',
+                     'LowerConstrictor',
+                     'MiddleConstrictor',
+                     'UpperConstrictor',
+                     'Sphincter',
+                     'Hyoglossus',
+                     'Styloglossus',
+                     'Genioglossus',
+                     'UpperTongue',
+                     'LowerTongue',
+                     'TransverseTongue',
+                     'VerticalTongue',
+                     'Risorius',
+                     'OrbicularisOris',
+                     'TensorPalatini',
+                     'Masseter',
+                     'Mylohyoid',
+                     'LateralPterygoid',
+                     'Buccinator']
 
         self.constrained = ['Hyoglossus',
                             'Styloglossus',
@@ -122,21 +122,20 @@ class Individual:
 
         self.parameters = self.constrained
 
-        # Initialise the fitness cores to one
+        # Initialise the fitness scores to one
         self.fitness = 0
         self.fitnessscaled = 0
 
-        # Initialise the genotype with values for the first generation
-        if currentgeneration == 0:
+        # Initialise the genotype with random values for the first generation
+        if CURRENT_GEN == 0:
             self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
 
 
     # Method for creating the Praat .artword file
     def create_artword(self):
 
-
         # Create the file
-        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, currentgeneration, self.name), "w")
+        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, CURRENT_GEN, self.name), "w")
 
         # Configure speaker type and sound length
         self.artword.write('Create Speaker... Robovox Male 2\r\n')
@@ -184,11 +183,11 @@ class Individual:
     def evaluate_fitness(self):
 
         # Extract formant features
-        self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, currentgeneration)
+        self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, CURRENT_GEN)
 
         # Extract loudness features
-        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, currentgeneration, target_intensity)
-        self.rms = praatcontrol.get_individual_RMS(self.name, directory, currentgeneration, target_rms)
+        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, CURRENT_GEN, target_intensity)
+        self.rms = praatcontrol.get_individual_RMS(self.name, directory, CURRENT_GEN, target_rms)
 
         # Calls the relevant fitness function based on cmd line argument
         if ff == "hz":
@@ -206,27 +205,27 @@ class Individual:
 
         # MFCC based fitness functions
         elif ff == "mfcc_average":
-            self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, currentgeneration)
+            self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
 
         elif ff == "logfbank_average":
-            self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, currentgeneration)
+            self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, metric)
 
         elif ff == "mfcc_sad":
-            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, currentgeneration)
+            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.mfcc)
 
         elif ff == "mfcc_ssd":
-            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, currentgeneration)
+            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.mfcc)
 
         elif ff == "logfbank_sad":
-            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
+            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_sad(target_logfbank, self.logfbank)
 
         elif ff == "logfbank_ssd":
-            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, currentgeneration)
+            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
 
         # Apply a penalty of the sound is not voiced
@@ -252,6 +251,7 @@ class Individual:
         print("RMS Coefficient       :", self.rms)
         print("Fitness * RMS         :", self.fitness * self.rms)
 
+        ###########################################################################################
         # Call the write_cntk method if a sound is voiced
         if self.voiced:
             self.write_cntk()
@@ -259,10 +259,12 @@ class Individual:
         # Write feature information to a csv file
         stats.write_formants(self.name,
                              directory,
-                             currentgeneration,
+                             CURRENT_GEN,
                              self.formants,
                              self.fitness,
                              self.voiced)
+
+    ###############################################################################################
 
     def write_cntk(self):
         """ This method adds writes features and labels to a file for use with CNTK
@@ -272,7 +274,6 @@ class Individual:
         :return:
         """
 
-        #
         with open('cntk_data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
             self.cntk.write('|labels {} '.format(" ".join(str(elm) for elm in self.values)))
@@ -296,11 +297,11 @@ minimumfitness = []
 for i in range(generations):
 
     # Creates a folder for the current generation
-    os.mkdir(directory + "/Generation%d" % currentgeneration)
+    os.mkdir(directory + "/Generation%d" % CURRENT_GEN)
 
     # If it is the first generation, instantiate the Indiviudal class and associate it with
     # a key in the population dictionary
-    if currentgeneration == 0:
+    if CURRENT_GEN == 0:
         for name in keys:
             population[name] = Individual(name)
 
@@ -310,16 +311,16 @@ for i in range(generations):
 
     # Synthesise artwords and run a single or multiple instances of Praat
     if parallel == "P":
-        praatcontrol.synthesise_artwords_parallel(currentgeneration, generationsize, directory)
+        praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, generationsize, directory)
     elif parallel == "S":
-        praatcontrol.synthesise_artwords_serial(currentgeneration, generationsize, directory)
+        praatcontrol.synthesise_artwords_serial(CURRENT_GEN, generationsize, directory)
 
     # Calculate fitness scores by calling the evaluate_fitness method
     for name in keys:
         population[name].evaluate_fitness()
 
     # Increment the generation index
-    currentgeneration += 1
+    CURRENT_GEN += 1
 
     ###############################################################################################
     ###############################################################################################
@@ -350,14 +351,11 @@ for i in range(generations):
     for i in keys:
         print(i, population[i].values)
 
-    # print(elite)
-    # print(population)
-
     ###############################################################################################
     ###############################################################################################
 
     # total the number of voiced sounds in a generation
-    voiced_total = 0
+    voiced_total = 0.0
 
     for name in keys:
         if population[name].voiced:
@@ -381,16 +379,12 @@ for i in range(generations):
 
     elitism = True
 
-    print("\n")
-
     if elitism == True:
         for i in range(len(a)):
             print(elite[i])
 
             print(i, population[str(a[i])].values)
-
             population[str(a[i])].values = elite[i]
-
             print(i, population[str(a[i])].values)
 
     print("\n")
@@ -422,6 +416,8 @@ def statistics():
     plt.legend()
     plt.savefig("{}/Performance Graph".format(directory))
 
+statistics()
+
 def csv_file():
     with open('{}/Stats.csv'.format(directory), 'a') as csvfile:
         for i in range(len(averagefitness)):
@@ -429,12 +425,12 @@ def csv_file():
             spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             spamwriter.writerow(csvdata)
 
+csv_file()
+
 def runtime():
     with open("{}/{}Runtime.txt".format(directory, directory), "w") as run:
         run.write("--- %d seconds ---" % (time.time() - start_time))
 
-statistics()
-csv_file()
 runtime()
 
 time.sleep(2)

@@ -14,20 +14,20 @@ vowels = os.listdir(path)
 
 # choose hz, mel, cents, bark, erb, brito,
 # choose mfcc_average, logfbank_average, mfcc_sad, mfcc_ssd, logfbank_sad, logfbank_ssd
-features = ["mfcc_average"]
+features = ["cents"]
 
 # choose from "SSD", "SAD", "EUC", "MSE", "MAE"
 distance_metrics = ["SSD"] # "MSE", "MAE"]
 
 # choose from "both", "rms", "intensity", "none"
-loudness = ["RMS"]
+loudness = ["both"]
 
 # specify the ga parameters
 
-no_of_runs = 2
+no_of_runs = 10
 
-gen_size = '4 '
-pop_size = '10 '
+gen_size = '10 '
+pop_size = '75 '
 mutation = '0.2 '
 standard_dev = '0.2'
 
