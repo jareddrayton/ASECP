@@ -292,12 +292,13 @@ population = {}
 # Lists to hold fitness stats
 averagefitness = []
 minimumfitness = []
+AVERAGE_VOICED = []
 
 # Main loop for Genetic Algorithm logic
 for i in range(generations):
 
     # Creates a folder for the current generation
-    os.mkdir(directory + "/Generation%d" % CURRENT_GEN)
+    os.mkdir(directory + "/Generation{!s}" % CURRENT_GEN)
 
     # If it is the first generation, instantiate the Indiviudal class and associate it with
     # a key in the population dictionary
@@ -318,9 +319,6 @@ for i in range(generations):
     # Calculate fitness scores by calling the evaluate_fitness method
     for name in keys:
         population[name].evaluate_fitness()
-
-    # Increment the generation index
-    CURRENT_GEN += 1
 
     ###############################################################################################
     ###############################################################################################
@@ -352,50 +350,53 @@ for i in range(generations):
         print(i, population[i].values)
 
     ###############################################################################################
-    ###############################################################################################
-
-    # total the number of voiced sounds in a generation
-    voiced_total = 0.0
+    # Total the number of voiced sounds in a generation
+    VOICED_TOTAL = 0.0
 
     for name in keys:
         if population[name].voiced:
-            voiced_total += 1
+            VOICED_TOTAL += 1
 
-    voiced_percentage = voiced_total / generationsize
+    VOICED_PERCENTAGE = VOICED_TOTAL / generationsize
+    AVERAGE_VOICED.append(VOICED_PERCENTAGE)
 
-    # GA behaviour
+    ###############################################################################################
+    ###############################################################################################
+    # Choose the GA selectioin behaviour
+    SELECTION = "linear"
 
-    if voiced_percentage < 0.5:
-        genop.fitness_proportional(population, keys)
-        # print("FPS")
-    else:
+    if SELECTION == "linear":
         genop.lin_rank(population, keys)
-        # print("Linear")
+    elif SELECTION == "proportional"
+        genop.fitness_proportional(population, keys)
+    elif SELECTION == "hybrid":
+        if VOICED_PERCENTAGE < 0.5:
+            genop.fitness_proportional(population, keys)
+        else:
+            genop.lin_rank(population, keys)
 
-    # genop.lin_rank(population, keys)
-    # genop.fitness_proportional(population, keys)
-
+    # The mutation function
     genop.mutation(population, keys, mutationprobability, standarddeviation)
 
-    elitism = True
+    # Activate elitism 
+    ELITISM = True
 
-    if elitism == True:
+    if ELITISM == True:
         for i in range(len(a)):
             print(elite[i])
 
             print(i, population[str(a[i])].values)
             population[str(a[i])].values = elite[i]
             print(i, population[str(a[i])].values)
-
-    print("\n")
-
-    for i in keys:
-        print(i, population[i].values)
-
+    
+    ###############################################################################################
+    ###############################################################################################
+    # Finish loop by incrementing the generation counter by 1
+    CURRENT_GEN += 1
 
 ###################################################################################################
 ###################################################################################################
-# Stats stuff
+# Statisticss stuff
 
 def statistics():
     """ Function for plotting performance graphs and saving run data"""
