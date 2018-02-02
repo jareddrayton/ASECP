@@ -14,21 +14,23 @@ import stats
 
 ###################################################################################################
 
-parser = argparse.ArgumentParser()
 
 
 ###################################################################################################
 # Variables given at the cmd line, unpacked using argv
-script, soundfile, generations, populationsize, mutationrate, \
-    standarddev, parallel, ff, metric, lm, identifier = argv
+"""
 
-mode = "filterbank"
+script, soundfile, generations, populationsize, mutationrate, \
+    standarddev, parallel, ff, metric, loudnessmeasure, identifier = argv
+
+fitnesstype = "filterbank"
 
 # Convert variable arguments from strings to integers and floats
 generations = int(generations) + 1
 populationsize = int(populationsize)
 mutationrate = float(mutationrate)
 standarddev = float(standarddev)
+"""
 
 # Set the time to measure the length of a run
 start_time = time.time()
@@ -48,7 +50,7 @@ directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
                                                            standarddev,
                                                            ff,
                                                            metric,
-                                                           lm,
+                                                           loudnessmeasure,
                                                            identifier)
 
 # Makes the directory for all subsequent files
@@ -215,13 +217,13 @@ class Individual:
             self.fitness = self.fitness * 10
 
         # Apply loudness co-efficents
-        if lm == "rms":
+        if loudnessmeasure == "rms":
             self.fitness = self.fitness * self.rms
-        elif lm == "intensity":
+        elif loudnessmeasure == "intensity":
             self.fitness = self.fitness * self.intensity
-        elif lm == "both":
+        elif loudnessmeasure == "both":
             self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
-        elif lm == "none":
+        elif loudnessmeasure == "none":
             pass
 
         # Print
@@ -287,8 +289,8 @@ class Individual:
 
         with open('cntk_data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
-            self.cntk.write('|labels {} '.format(" ".join(str(elm) for elm in self.values)))
-            self.cntk.write('|features {} \n'.format(" ".join(str(elm) for elm in self.formants)))
+            self.cntk.write('|labels {} '.format(" ".join(str(eloudnessmeasure) for eloudnessmeasure in self.values)))
+            self.cntk.write('|features {} \n'.format(" ".join(str(eloudnessmeasure) for eloudnessmeasure in self.formants)))
 
 
 ###################################################################################################
@@ -329,9 +331,9 @@ for i in range(generations):
 
     # Calculate fitness scores by calling the evaluate_formants method
     for name in keys:
-        if mode == "formant":
+        if fitnesstype == "formant":
             population[name].evaluate_formant()
-        elif mode == "filterbank":
+        elif fitnesstype == "filterbank":
             population[name].evaluate_filterbank()
 
     ###############################################################################################
