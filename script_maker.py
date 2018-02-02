@@ -1,12 +1,12 @@
 import os
 
 # scan this directory for sounds
-path = 'vowels'
+path = 'Vowels'
 
 # creates a list containing the filenames contained in the given 
 vowels = os.listdir(path)
 
-# print(vowels)
+print(vowels)
 
 
 # identify number of formants from each 
@@ -24,10 +24,11 @@ loudness = ["both"]
 
 # specify the ga parameters
 
-no_of_runs = 10
 
+
+no_of_runs = 1
 gen_size = '10 '
-pop_size = '75 '
+pop_size = '4 '
 mutation = '0.2 '
 standard_dev = '0.2'
 

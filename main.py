@@ -2,6 +2,7 @@ import os
 import random
 import time
 import csv
+import argparse
 import matplotlib.pyplot as plt
 
 from sys import argv
@@ -11,17 +12,23 @@ import genop
 import praatcontrol
 import stats
 
-# python main.py Target[a].wav 5 10 0.2 0.2 P mfcc_ssd MSE both 0
+###################################################################################################
 
+parser = argparse.ArgumentParser()
+
+
+###################################################################################################
 # Variables given at the cmd line, unpacked using argv
-script, soundfile, generations, generationsize, mutationprobability, \
-    standarddeviation, parallel, ff, metric, lm, identifier = argv
+script, soundfile, generations, populationsize, mutationrate, \
+    standarddev, parallel, ff, metric, lm, identifier = argv
+
+mode = "filterbank"
 
 # Convert variable arguments from strings to integers and floats
 generations = int(generations) + 1
-generationsize = int(generationsize)
-mutationprobability = float(mutationprobability)
-standarddeviation = float(standarddeviation)
+populationsize = int(populationsize)
+mutationrate = float(mutationrate)
+standarddev = float(standarddev)
 
 # Set the time to measure the length of a run
 start_time = time.time()
@@ -36,9 +43,9 @@ CURRENT_GEN = 0
 # Creates the directory string
 directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
                                                            generations - 1,
-                                                           generationsize,
-                                                           mutationprobability,
-                                                           standarddeviation,
+                                                           populationsize,
+                                                           mutationrate,
+                                                           standarddev,
                                                            ff,
                                                            metric,
                                                            lm,
@@ -180,7 +187,7 @@ class Individual:
         self.artword.close()
 
     # Method for calculating an individuals fitness
-    def evaluate_fitness(self):
+    def evaluate_formant(self):
 
         # Extract formant features
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, CURRENT_GEN)
@@ -203,36 +210,11 @@ class Individual:
         elif ff == "brito":
             self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
 
-        # MFCC based fitness functions
-        elif ff == "mfcc_average":
-            self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
-
-        elif ff == "logfbank_average":
-            self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, metric)
-
-        elif ff == "mfcc_sad":
-            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.mfcc)
-
-        elif ff == "mfcc_ssd":
-            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.mfcc)
-
-        elif ff == "logfbank_sad":
-            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_sad(target_logfbank, self.logfbank)
-
-        elif ff == "logfbank_ssd":
-            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
-
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:
             self.fitness = self.fitness * 10
 
-        # Create loudness co-efficents
+        # Apply loudness co-efficents
         if lm == "rms":
             self.fitness = self.fitness * self.rms
         elif lm == "intensity":
@@ -264,6 +246,35 @@ class Individual:
                              self.fitness,
                              self.voiced)
 
+    def evaluate_filterbank(self):
+        
+        # MFCC based fitness functions
+        
+        if ff == "mfcc_average":
+            self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
+            self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
+
+        elif ff == "logfbank_average":
+            self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, CURRENT_GEN)
+            self.fitness = fitnessfunction.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, metric)
+
+        elif ff == "mfcc_sad":
+            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
+            self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.mfcc)
+
+        elif ff == "mfcc_ssd":
+            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
+            self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.mfcc)
+
+        elif ff == "logfbank_sad":
+            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
+            self.fitness = fitnessfunction.fitness_twodim_sad(target_logfbank, self.logfbank)
+
+        elif ff == "logfbank_ssd":
+            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
+            self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
+
+
     ###############################################################################################
 
     def write_cntk(self):
@@ -284,7 +295,7 @@ class Individual:
 ###################################################################################################
 
 # Creates a list of strings for use as keys in a dictionary
-keys = [str(x) for x in range(generationsize)]
+keys = [str(x) for x in range(populationsize)]
 
 # Create an empty dictionary for storing Individual instances
 population = {}
@@ -298,7 +309,7 @@ AVERAGE_VOICED = []
 for i in range(generations):
 
     # Creates a folder for the current generation
-    os.mkdir(directory + "/Generation{!s}" % CURRENT_GEN)
+    os.mkdir(directory + "/Generation{!s}".format(CURRENT_GEN))
 
     # If it is the first generation, instantiate the Indiviudal class and associate it with
     # a key in the population dictionary
@@ -312,15 +323,17 @@ for i in range(generations):
 
     # Synthesise artwords and run a single or multiple instances of Praat
     if parallel == "P":
-        praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, generationsize, directory)
+        praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, populationsize, directory)
     elif parallel == "S":
-        praatcontrol.synthesise_artwords_serial(CURRENT_GEN, generationsize, directory)
+        praatcontrol.synthesise_artwords_serial(CURRENT_GEN, populationsize, directory)
 
-    # Calculate fitness scores by calling the evaluate_fitness method
+    # Calculate fitness scores by calling the evaluate_formants method
     for name in keys:
-        population[name].evaluate_fitness()
+        if mode == "formant":
+            population[name].evaluate_formant()
+        elif mode == "filterbank":
+            population[name].evaluate_filterbank()
 
-    ###############################################################################################
     ###############################################################################################
 
     listfitness = []
@@ -357,17 +370,16 @@ for i in range(generations):
         if population[name].voiced:
             VOICED_TOTAL += 1
 
-    VOICED_PERCENTAGE = VOICED_TOTAL / generationsize
+    VOICED_PERCENTAGE = VOICED_TOTAL / populationsize
     AVERAGE_VOICED.append(VOICED_PERCENTAGE)
 
     ###############################################################################################
-    ###############################################################################################
-    # Choose the GA selectioin behaviour
+    # Choose GA selection behaviour
     SELECTION = "linear"
 
     if SELECTION == "linear":
         genop.lin_rank(population, keys)
-    elif SELECTION == "proportional"
+    elif SELECTION == "proportional":
         genop.fitness_proportional(population, keys)
     elif SELECTION == "hybrid":
         if VOICED_PERCENTAGE < 0.5:
@@ -376,7 +388,7 @@ for i in range(generations):
             genop.lin_rank(population, keys)
 
     # The mutation function
-    genop.mutation(population, keys, mutationprobability, standarddeviation)
+    genop.mutation(population, keys, mutationrate, standarddev)
 
     # Activate elitism 
     ELITISM = True
@@ -389,7 +401,6 @@ for i in range(generations):
             population[str(a[i])].values = elite[i]
             print(i, population[str(a[i])].values)
     
-    ###############################################################################################
     ###############################################################################################
     # Finish loop by incrementing the generation counter by 1
     CURRENT_GEN += 1
