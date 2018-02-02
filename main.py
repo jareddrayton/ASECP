@@ -5,33 +5,92 @@ import csv
 import argparse
 import matplotlib.pyplot as plt
 
-from sys import argv
-
 import fitnessfunction
 import genop
 import praatcontrol
 import stats
 
 ###################################################################################################
+# Variables provided at the cmd line, unpacked using argparse
 
+parser = argparse.ArgumentParser()
 
+parser.add_argument("soundfile",
+                    type=str,
+                    default='Target',
+                    help="sets the filename of the target sound")
+
+parser.add_argument("-ps", "--populationsize", 
+					type=int,
+					default=10,
+                    help="sets the population size")
+
+parser.add_argument("-g", "--generations",
+					type=int, 
+					default=2,
+                    help="sets the number of generations")
+
+parser.add_argument("-mr", "--mutationrate",
+					type=float, 
+					default=0.2,
+                    help="sets the rate of mutation")
+
+parser.add_argument("-sd", "--standarddev",
+					type=float, 
+					default=0.2,
+                    help="sets the gaussian standard deviation")
+
+parser.add_argument("-ft", "--fitnesstype",
+					type=str,
+					default='formant',
+					help="choose between formant or filterbank")
+
+parser.add_argument("-fff", "--ffformants",
+					type=str,
+					default='hz',
+					help="Choose the type of formant fitness function")
+
+parser.add_argument("-dm", "--distancemetric",
+					type=str,
+					default='SSD',
+					help="Choose the type of distance metrics")
+
+parser.add_argument("-lm", "--loudnessmeasure",
+					type=str,
+					default='rms',
+					help="Choose the type of loudness co-efficent")
+
+parser.add_argument("-ffb", "--fffilterbank",
+					type=str,
+					default='mfcc_average',
+					help="Choose the type of formant fitness function")
+
+parser.add_argument("-id", "--identifier", 
+					type=str,
+					default='01',
+					help="used as random() seed")
+
+parser.add_argument("-pl","--parallel", 
+					type=bool,
+					default=True,
+					help="used to enable multiple praat processes")
+
+args = parser.parse_args()
+
+soundfile = args.soundfile
+populationsize = args.populationsize
+generations = args.generations + 1
+mutationrate = args.mutationrate
+standarddev = args.standarddev
+fitnesstype = args.fitnesstype
+ffformants = args.ffformants
+metric = args.distancemetric
+loudnessmeasure = args.loudnessmeasure
+fffilterbank = args.fffilterbank
+identifier = args.identifier
+parallel = args.parallel
 
 ###################################################################################################
-# Variables given at the cmd line, unpacked using argv
-"""
-
-script, soundfile, generations, populationsize, mutationrate, \
-    standarddev, parallel, ff, metric, loudnessmeasure, identifier = argv
-
-fitnesstype = "filterbank"
-
-# Convert variable arguments from strings to integers and floats
-generations = int(generations) + 1
-populationsize = int(populationsize)
-mutationrate = float(mutationrate)
-standarddev = float(standarddev)
-"""
-
 # Set the time to measure the length of a run
 start_time = time.time()
 
@@ -43,15 +102,21 @@ if False:
 CURRENT_GEN = 0
 
 # Creates the directory string
-directory = "%s Gen %d Pop %d Mut %g SD %g %s %s %s %s" % (soundfile,
-                                                           generations - 1,
-                                                           populationsize,
-                                                           mutationrate,
-                                                           standarddev,
-                                                           ff,
-                                                           metric,
-                                                           loudnessmeasure,
-                                                           identifier)
+
+prefix = "{} Gen {} Pop {} Mut {} Sd {} ".format(soundfile,
+                                                 generations-1,
+                                                 populationsize,
+                                                 mutationrate,
+                                                 standarddev)
+
+print(prefix)
+
+if fitnesstype == 'formant':
+    directory = prefix + "{} {} {} {}".format(ffformants, metric, loudnessmeasure, identifier)
+elif fitnesstype == 'filterbank':
+    directory = prefix + "{} {}".format(fffilterbank, identifier)
+
+print(directory)
 
 # Makes the directory for all subsequent files
 os.mkdir(directory)
@@ -199,17 +264,17 @@ class Individual:
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, CURRENT_GEN, target_rms)
 
         # Calls the relevant fitness function based on cmd line argument
-        if ff == "hz":
+        if ffformants == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, target_formants, metric)
-        elif ff == "mel":
+        elif ffformants == "mel":
             self.fitness = fitnessfunction.fitness_a2(self.formants, target_formants, metric)
-        elif ff == "cent":
+        elif ffformants == "cent":
             self.fitness = fitnessfunction.fitness_a3(self.formants, target_formants, metric)
-        elif ff == "bark":
+        elif ffformants == "bark":
             self.fitness = fitnessfunction.fitness_a4(self.formants, target_formants, metric)
-        elif ff == "erb":
+        elif ffformants == "erb":
             self.fitness = fitnessfunction.fitness_a5(self.formants, target_formants, metric)
-        elif ff == "brito":
+        elif ffformants == "brito":
             self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
 
         # Apply a penalty of the sound is not voiced
@@ -252,27 +317,27 @@ class Individual:
         
         # MFCC based fitness functions
         
-        if ff == "mfcc_average":
+        if fffilterbank == "mfcc_average":
             self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
 
-        elif ff == "logfbank_average":
+        elif fffilterbank == "logfbank_average":
             self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, metric)
 
-        elif ff == "mfcc_sad":
+        elif fffilterbank == "mfcc_sad":
             self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.mfcc)
 
-        elif ff == "mfcc_ssd":
+        elif fffilterbank == "mfcc_ssd":
             self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.mfcc)
 
-        elif ff == "logfbank_sad":
+        elif fffilterbank == "logfbank_sad":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_sad(target_logfbank, self.logfbank)
 
-        elif ff == "logfbank_ssd":
+        elif fffilterbank == "logfbank_ssd":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
 
@@ -324,9 +389,9 @@ for i in range(generations):
         population[name].create_artword()
 
     # Synthesise artwords and run a single or multiple instances of Praat
-    if parallel == "P":
+    if parallel == True:
         praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, populationsize, directory)
-    elif parallel == "S":
+    elif parallel == False:
         praatcontrol.synthesise_artwords_serial(CURRENT_GEN, populationsize, directory)
 
     # Calculate fitness scores by calling the evaluate_formants method
