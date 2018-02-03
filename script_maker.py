@@ -17,36 +17,68 @@ mutationrate = '0.2'
 standard_dev = '0.2'
 selection = 'linear'
 
-GA_PARAMS = ' -g={} -ps={} -mr={} -sd={}'.format(gen_size,
+GA_PARAMS = '-gs={} -ps={} -mr={} -sd={}'.format(gen_size,
                                                  pop_size,
                                                  mutationrate,
                                                  standard_dev)
 
-sounds_path = 'python main.py' + GA_PARAMS
+prefix = 'python main.py'
 
-print(sounds_path)
-
-# specify fitness type 'formant' or 'filterbank'
+# specify fitness type ['formant' or 'filterbank']
 fitnesstype = 'formant'
 
+########################################################################
+# Options for formant based fitness function
+
 # choose from ["hz", "mel", "cents", "bark", "erb", "brito"]
-features = ["cents"]
+features = ["cents"]# "mel", "cents", "bark", "erb", "brito"]
 
 # choose from ["SSD", "SAD", "EUC", "MSE", "MAE"]
-distance_metrics = ["SSD"] # "MSE", "MAE"]
+distance_metrics = ["SSD", "SAD"]# "EUC", "MSE", "MAE"]
 
 # choose from ["both", "rms", "intensity", "none"]
-loudness = ["both"]
+loudness = ["both"] # "rms", "intensity", "none"]
 
-# choose mfcc_average, logfbank_average, mfcc_sad, mfcc_ssd, logfbank_sad, logfbank_ssd
+#########################################################################
+# options for filterbank fitness function
 
-for v in vowels:
-    for f in features:
-        for d in distance_metrics:
-            for l in loudness:
-                for n in range(no_of_runs):
-                    with open('batch.cmd', 'a') as t:
-                        t.write("python main.py {!s} {!s} {!s} {!s} {!s}\n".format(v, f, d, l, n))
+# choose from ["mfcc_average", "logfbank_average", "mfcc_sad", "mfcc_ssd", "logfbank_sad", "logfbank_ssd"]
+filterbank_type = ["mfcc_average", "logfbank_average", "mfcc_sad", "mfcc_ssd", "logfbank_sad", "logfbank_ssd"]
 
+#########################################################################
 
-# choose mfcc_average, logfbank_average, mfcc_sad, mfcc_ssd, logfbank_sad, logfbank_ssd
+if fitnesstype == 'formant':
+    for vowel in vowels:
+        for f in features:
+            if f == 'brito':
+                for l in loudness:
+                    for n in range(no_of_runs):
+                        with open('batch.cmd', 'a') as t:
+                            t.write("{} {} {} -fff={} -lm={} -id={!s} \n".format(prefix,
+                                                                    vowel,
+                                                                    GA_PARAMS,
+                                                                    f,
+                                                                    l,
+                                                                    n))
+            else:
+                for d in distance_metrics:
+                    for l in loudness:
+                        for n in range(no_of_runs):
+                            with open('batch.cmd', 'a') as t:
+                                t.write("{} {} {} -fff={} -dm={} -lm={} -id={!s} \n".format(prefix,
+                                                                        vowel,
+                                                                        GA_PARAMS,
+                                                                        f,
+                                                                        d,
+                                                                        l,
+                                                                        n))
+elif fitnesstype == 'filterbank':
+    for vowel in vowels:
+        for f in filterbank_type:
+            for n in range(no_of_runs):
+                with open('batch.cmd', 'a') as t:                      
+                    t.write("{} {} {} -ffb{} -id={!s} \n".format(prefix,
+                                                         vowel,
+                                                         GA_PARAMS,
+                                                         f,
+                                                         n))

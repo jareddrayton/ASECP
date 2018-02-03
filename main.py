@@ -25,7 +25,7 @@ parser.add_argument("-ps", "--populationsize",
 					default=10,
                     help="sets the population size")
 
-parser.add_argument("-g", "--generations",
+parser.add_argument("-gs", "--generations",
 					type=int, 
 					default=2,
                     help="sets the number of generations")
