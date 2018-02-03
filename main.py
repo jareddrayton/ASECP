@@ -22,7 +22,7 @@ parser.add_argument("soundfile",
 
 parser.add_argument("-ps", "--populationsize", 
 					type=int,
-					default=10,
+					default=5,
                     help="sets the population size")
 
 parser.add_argument("-gs", "--generations",
@@ -300,9 +300,9 @@ class Individual:
         print("Fitness * RMS         :", self.fitness * self.rms)
 
         ###########################################################################################
-        # Call the write_cntk method if a sound is voiced
+        # Call the write_formants_cntk method if a sound is voiced
         if self.voiced:
-            self.write_cntk()
+            self.write_formants_cntk()
 
         # Write feature information to a csv file
         stats.write_formants(self.name,
@@ -343,7 +343,7 @@ class Individual:
 
     ###############################################################################################
 
-    def write_cntk(self):
+    def write_formants_cntk(self):
         """ This method adds writes features and labels to a file for use with CNTK
         The format is as below.
         |labels 0 0 0 0 0 0 0 1 0 0 |features 0 0 0 0 0 0 0 0 0 0 0
@@ -389,7 +389,8 @@ for i in range(generations):
 
     # Synthesise artwords and run a single or multiple instances of Praat
     if parallel == True:
-        praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, populationsize, directory)
+        #praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, populationsize, directory)
+        praatcontrol.synthesise_artwords_parallela(directory, CURRENT_GEN, populationsize)
     elif parallel == False:
         praatcontrol.synthesise_artwords_serial(CURRENT_GEN, populationsize, directory)
 

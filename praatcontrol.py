@@ -1,6 +1,11 @@
+import multiprocessing
+from concurrent import futures
+
 import subprocess, time, os, math
 import scipy.io.wavfile as wav
 import numpy as np
+
+from itertools import repeat
 
 from python_speech_features import mfcc
 from python_speech_features import logfbank
@@ -9,14 +14,27 @@ from python_speech_features import logfbank
 def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
     """ Loops through all PRAAT script in a directory and opens them in the cmd line as separate processes"""
 
+    
     for i in range(generationsize):
         p = subprocess.Popen(['./praat',
                               '--run',
                               '{}/Generation{!s}/Individual{!s}.praat'.format(directory, currentgeneration, i)])
 
-    p.communicate()
+    p.wait()
 
     time.sleep(3)
+
+
+def running(directory, CURRENT_GEN, i):    
+    subprocess.call(['./praat', '--run', '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
+
+def synthesise_artwords_parallela(directory, CURRENT_GEN, populationsize):
+
+    ex = futures.ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
+    ex.map(running, repeat(directory), repeat(CURRENT_GEN), [i for i in range(populationsize)])
+    ex.shutdown()
+    print("fef")
 
 
 def synthesise_artwords_serial(currentgeneration, generationsize, directory):
