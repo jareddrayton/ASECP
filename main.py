@@ -109,7 +109,6 @@ prefix = "{} Gen {} Pop {} Mut {} Sd {} ".format(soundfile,
                                                  mutationrate,
                                                  standarddev)
 
-print(prefix)
 
 if fitnesstype == 'formant':
     directory = prefix + "{} {} {} {}".format(ffformants, metric, loudnessmeasure, identifier)
