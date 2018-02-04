@@ -390,7 +390,7 @@ for i in range(generations):
     # Synthesise artwords and run a single or multiple instances of Praat
     if parallel == True:
         #praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, populationsize, directory)
-        praatcontrol.synthesise_artwords_parallela(directory, CURRENT_GEN, populationsize)
+        praatcontrol.synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize)
     elif parallel == False:
         praatcontrol.synthesise_artwords_serial(CURRENT_GEN, populationsize, directory)
 

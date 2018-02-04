@@ -11,8 +11,8 @@ print(vowels)
 
 # Specify the Genetic Algorithm parameters
 no_of_runs = 1
-gen_size = '10'
-pop_size = '4'
+gen_size = '2'
+pop_size = '10'
 mutationrate = '0.2'
 standard_dev = '0.2'
 selection = 'linear'
@@ -31,13 +31,13 @@ fitnesstype = 'formant'
 # Options for formant based fitness function
 
 # choose from ["hz", "mel", "cents", "bark", "erb", "brito"]
-features = ["cents"]# "mel", "cents", "bark", "erb", "brito"]
+features = ["cents", "mel", "cents", "bark", "erb", "brito"]
 
 # choose from ["SSD", "SAD", "EUC", "MSE", "MAE"]
-distance_metrics = ["SSD", "SAD"]# "EUC", "MSE", "MAE"]
+distance_metrics = ["SSD"] # "SAD" "EUC", "MSE", "MAE"]
 
 # choose from ["both", "rms", "intensity", "none"]
-loudness = ["both"] # "rms", "intensity", "none"]
+loudness = ["both", "rms", "intensity", "none"]
 
 #########################################################################
 # options for filterbank fitness function

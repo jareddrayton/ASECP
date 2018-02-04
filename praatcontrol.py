@@ -1,11 +1,12 @@
-import multiprocessing
-from concurrent import futures
+import sys
 
 import subprocess, time, os, math
+import multiprocessing as mp
 import scipy.io.wavfile as wav
 import numpy as np
 
 from itertools import repeat
+from concurrent import futures
 
 from python_speech_features import mfcc
 from python_speech_features import logfbank
@@ -14,27 +15,32 @@ from python_speech_features import logfbank
 def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
     """ Loops through all PRAAT script in a directory and opens them in the cmd line as separate processes"""
 
-    
     for i in range(generationsize):
         p = subprocess.Popen(['./praat',
                               '--run',
                               '{}/Generation{!s}/Individual{!s}.praat'.format(directory, currentgeneration, i)])
 
     p.wait()
-
     time.sleep(3)
 
 
-def running(directory, CURRENT_GEN, i):    
-    subprocess.call(['./praat', '--run', '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
+def worker(directory, CURRENT_GEN, i):
+    if sys.platform.startswith('win32'):
+        subprocess.call(['./praat', 
+                        '--run',
+                        '--ansi',
+                        '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.DEVNULL)
+    else:
+        subprocess.call(['./praat', 
+                        '--run',
+                        '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.DEVNULL)
 
-def synthesise_artwords_parallela(directory, CURRENT_GEN, populationsize):
+def synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize):
 
-    ex = futures.ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
-    ex.map(running, repeat(directory), repeat(CURRENT_GEN), [i for i in range(populationsize)])
+    ex = futures.ThreadPoolExecutor(max_workers=mp.cpu_count()-1)
+    ex.map(worker, repeat(directory), repeat(CURRENT_GEN), [i for i in range(populationsize)])
     ex.shutdown()
-    print("fef")
+    print("ThreadPoolCompleted")
 
 
 def synthesise_artwords_serial(currentgeneration, generationsize, directory):
@@ -58,7 +64,7 @@ def get_time(soundfile):
     script.write('writeFileLine: "time.txt", time\r\n')
     script.close()
 
-    subprocess.call(['./praat', '--run', 'AnalyseTargetSound.praat'])
+    subprocess.call(['./praat', '--run', 'AnalyseTargetSound.praat'],stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL )
 
     os.remove('AnalyseTargetSound.praat')
 
@@ -96,7 +102,7 @@ def get_target_formants(TargetLength, soundfile):
     script.write('appendFile ("formants.txt", info$ ())')
     script.close()
 
-    subprocess.call(['./praat', '--run', 'GetFormants.praat'])
+    subprocess.call(['./praat', '--run', 'GetFormants.praat'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     os.remove('GetFormants.praat')
 
     with open("pitch.txt", "r") as pitch:
