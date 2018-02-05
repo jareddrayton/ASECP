@@ -45,7 +45,7 @@ def lin_rank(population, keys):
     x, y = zip(*sortedlist)
     ranked = list(x)
     ranked.reverse()
-
+    print("ranking")
     print(ranked)
 
     probabilities = []
@@ -55,7 +55,7 @@ def lin_rank(population, keys):
         print(ranked[i], population[ranked[i]].fitnessscaled)
         probabilities.append(population[ranked[i]].fitnessscaled)
 
-    print(sum(probabilities))
+    print("Sum of probabilities", sum(probabilities))
 
     # uniform_crossover(population, keys, temppopulation)
     one_crossover(population, keys, temppopulation)

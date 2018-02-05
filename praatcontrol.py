@@ -1,6 +1,5 @@
-import sys
+import subprocess, time, os, math, sys
 
-import subprocess, time, os, math
 import multiprocessing as mp
 import scipy.io.wavfile as wav
 import numpy as np
@@ -8,8 +7,7 @@ import numpy as np
 from itertools import repeat
 from concurrent import futures
 
-from python_speech_features import mfcc
-from python_speech_features import logfbank
+from python_speech_features import mfcc, logfbank
 
 
 def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
@@ -27,13 +25,13 @@ def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
 def worker(directory, CURRENT_GEN, i):
     if sys.platform.startswith('win32'):
         subprocess.call(['./praat', 
-                        '--run',
-                        '--ansi',
-                        '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.DEVNULL)
+                         '--run',
+                         '--ansi',
+                         '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.DEVNULL)
     else:
         subprocess.call(['./praat', 
-                        '--run',
-                        '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.DEVNULL)
+                         '--run',
+                         '{}/Generation{!s}/Individual{!s}.praat'.format(directory, CURRENT_GEN, i)], stdout=subprocess.DEVNULL)
 
 def synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize):
 

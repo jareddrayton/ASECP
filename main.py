@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("soundfile",
                     type=str,
-                    default='Target',
+                    default='vowel-01.wav',
                     help="sets the filename of the target sound")
 
 parser.add_argument("-ps", "--populationsize", 
@@ -75,6 +75,11 @@ parser.add_argument("-pl","--parallel",
 					default=True,
 					help="used to enable multiple praat processes")
 
+parser.add_argument("-sl", "--selection",
+                    type=str,
+                    default='linear',
+                    help="use to specify GA selection type. Choose from linear, proportional")
+
 args = parser.parse_args()
 
 soundfile = args.soundfile
@@ -89,6 +94,7 @@ loudnessmeasure = args.loudnessmeasure
 fffilterbank = args.fffilterbank
 identifier = args.identifier
 parallel = args.parallel
+SELECTION = args.selection
 
 ###################################################################################################
 # Set the time to measure the length of a run
@@ -290,7 +296,7 @@ class Individual:
         elif loudnessmeasure == "none":
             pass
 
-        # Print
+        """
         print("Individual ", self.name)
         print("Is Voiced?            :", self.voiced)
         print("Fitness Score         :", self.fitness)
@@ -298,6 +304,7 @@ class Individual:
         print("Fitness * Intensity   :", self.fitness * self.intensity)
         print("RMS Coefficient       :", self.rms)
         print("Fitness * RMS         :", self.fitness * self.rms)
+        """
 
         ###########################################################################################
         # Call the write_formants_cntk method if a sound is voiced
@@ -389,7 +396,6 @@ for i in range(generations):
 
     # Synthesise artwords and run a single or multiple instances of Praat
     if parallel == True:
-        #praatcontrol.synthesise_artwords_parallel(CURRENT_GEN, populationsize, directory)
         praatcontrol.synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize)
     elif parallel == False:
         praatcontrol.synthesise_artwords_serial(CURRENT_GEN, populationsize, directory)
@@ -419,7 +425,7 @@ for i in range(generations):
     elite = []
 
     print("\n")
-
+    print("elitism")
     for i in range(len(a)):
         elite.append(population[str(a[i])].values)
         print(i, elite[i])
@@ -442,7 +448,6 @@ for i in range(generations):
 
     ###############################################################################################
     # Choose GA selection behaviour
-    SELECTION = "linear"
 
     if SELECTION == "linear":
         genop.lin_rank(population, keys)
@@ -458,7 +463,7 @@ for i in range(generations):
     genop.mutation(population, keys, mutationrate, standarddev)
 
     # Activate elitism 
-    ELITISM = True
+    ELITISM = False
 
     if ELITISM == True:
         for i in range(len(a)):
