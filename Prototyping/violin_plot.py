@@ -1,51 +1,29 @@
-"""
-===================================
-Box plot vs. violin plot comparison
-===================================
-
-Note that although violin plots are closely related to Tukey's (1977)
-box plots, they add useful information such as the distribution of the
-sample data (density trace).
-
-By default, box plots show data points outside 1.5 * the inter-quartile
-range as outliers above or below the whiskers whereas violin plots show
-the whole range of the data.
-
-A good general reference on boxplots and their history can be found
-here: http://vita.had.co.nz/papers/boxplots.pdf
-
-Violin plots require matplotlib >= 1.4.
-
-For more information on violin plots, the scikit-learn docs have a great
-section: http://scikit-learn.org/stable/modules/density.html
-"""
+import csv
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(9, 4))
+# https://matplotlib.org/devdocs/api/_as_gen/matplotlib.axes.Axes.violinplot.html
+# read in the mean fitness of each generation for each run and average it.
 
-# generate some random test data
-all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
+my_data = []
 
-# plot violin plot
-axes[0].violinplot(all_data,
-                   showmeans=True,
-                   showmedians=True)
-axes[0].set_title('violin plot')
+for i in range(4):
+    
+    directory = "vowel-01.wav Gen 10 Pop 20 Mut 0.2 Sd 0.2 cent SSD none {!s}".format(i)
 
-# plot box plot
-axes[1].boxplot(all_data)
-axes[1].set_title('box plot')
+    column = []
+    
+    with open('{}/Stats.csv'.format(directory)) as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in spamreader:
+            print(row[0])
+            column.append(float(row[0]))
 
-# adding horizontal grid lines
-for ax in axes:
-    ax.yaxis.grid(True)
-    ax.set_xticks([y+1 for y in range(len(all_data))])
-    ax.set_xlabel('xlabel')
-    ax.set_ylabel('ylabel')
+    my_data.append(column)   
+    print(my_data)
 
-# add x-tick labels
-plt.setp(axes, xticks=[y+1 for y in range(len(all_data))],
-         xticklabels=['x1', 'x2', 'x3', 'x4'])
+plt.violinplot(my_data,
+               showmeans=False,
+               showmedians=False)
 plt.show()

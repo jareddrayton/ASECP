@@ -67,7 +67,7 @@ parser.add_argument("-ffb", "--fffilterbank",
 
 parser.add_argument("-id", "--identifier", 
 					type=str,
-					default='01',
+					default='2',
 					help="used as random() seed")
 
 parser.add_argument("-pl","--parallel", 
@@ -522,7 +522,7 @@ def statistics():
 statistics()
 
 def csv_file():
-    with open('{}/Stats.csv'.format(directory), 'a') as csvfile:
+    with open('{}/Stats.csv'.format(directory), 'w', newline='') as csvfile:
         for i in range(len(averagefitness)):
             csvdata = (averagefitness[i], minimumfitness[i])
             spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
