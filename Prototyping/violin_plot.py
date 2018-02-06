@@ -30,7 +30,7 @@ all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
 
 # plot violin plot
 axes[0].violinplot(all_data,
-                   showmeans=False,
+                   showmeans=True,
                    showmedians=True)
 axes[0].set_title('violin plot')
 

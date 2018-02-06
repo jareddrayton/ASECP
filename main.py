@@ -22,7 +22,7 @@ parser.add_argument("soundfile",
 
 parser.add_argument("-ps", "--populationsize", 
 					type=int,
-					default=5,
+					default=10,
                     help="sets the population size")
 
 parser.add_argument("-gs", "--generations",
@@ -80,6 +80,11 @@ parser.add_argument("-sl", "--selection",
                     default='linear',
                     help="use to specify GA selection type. Choose from linear, proportional")
 
+parser.add_argument("-cntk", "--cntk",
+                    type=bool,
+                    default=True,
+                    help="write a csv file for use with the CNTK machine learning library")
+
 args = parser.parse_args()
 
 soundfile = args.soundfile
@@ -95,6 +100,7 @@ fffilterbank = args.fffilterbank
 identifier = args.identifier
 parallel = args.parallel
 SELECTION = args.selection
+CNTK = args.cntk
 
 ###################################################################################################
 # Set the time to measure the length of a run
@@ -108,7 +114,6 @@ if False:
 CURRENT_GEN = 0
 
 # Creates the directory string
-
 prefix = "{} Gen {} Pop {} Mut {} Sd {} ".format(soundfile,
                                                  generations-1,
                                                  populationsize,
@@ -209,7 +214,6 @@ class Individual:
         if CURRENT_GEN == 0:
             self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
 
-
     # Method for creating the Praat .artword file
     def create_artword(self):
 
@@ -263,7 +267,8 @@ class Individual:
 
         # Extract formant features
         self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, CURRENT_GEN)
-
+        
+        print(self.formants)
         # Extract loudness features
         self.intensity = praatcontrol.get_individual_intensity(self.name, directory, CURRENT_GEN, target_intensity)
         self.rms = praatcontrol.get_individual_RMS(self.name, directory, CURRENT_GEN, target_rms)
@@ -281,7 +286,7 @@ class Individual:
             self.fitness = fitnessfunction.fitness_a5(self.formants, target_formants, metric)
         elif ffformants == "brito":
             self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
-
+        print(self.formants)
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:
             self.fitness = self.fitness * 10
@@ -295,7 +300,7 @@ class Individual:
             self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
         elif loudnessmeasure == "none":
             pass
-
+        print(self.formants)
         """
         print("Individual ", self.name)
         print("Is Voiced?            :", self.voiced)
@@ -307,9 +312,6 @@ class Individual:
         """
 
         ###########################################################################################
-        # Call the write_formants_cntk method if a sound is voiced
-        if self.voiced:
-            self.write_formants_cntk()
 
         # Write feature information to a csv file
         stats.write_formants(self.name,
@@ -318,11 +320,18 @@ class Individual:
                              self.formants,
                              self.fitness,
                              self.voiced)
+        print(self.formants)
+        ###########################################################################################
+        # Call the write_formants_cntk method if a sound is voiced
 
+        if self.voiced and CNTK:
+            self.write_formants_cntk()
+        print(self.formants)
     def evaluate_filterbank(self):
+        # MFCC and filterbank based fitness functions
         
-        # MFCC based fitness functions
-        
+        self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, CURRENT_GEN)
+
         if fffilterbank == "mfcc_average":
             self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
@@ -346,23 +355,33 @@ class Individual:
         elif fffilterbank == "logfbank_ssd":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
-
+        
+        if self.voiced and CNTK:
+            self.write_filterbank_cntk()
 
     ###############################################################################################
 
     def write_formants_cntk(self):
-        """ This method adds writes features and labels to a file for use with CNTK
-        The format is as below.
+        """ writes features and labels to a file for use with CNTK in the following format
         |labels 0 0 0 0 0 0 0 1 0 0 |features 0 0 0 0 0 0 0 0 0 0 0
 
         :return:
         """
 
-        with open('cntk_data.txt', 'a') as self.cntk:
+        with open('cntk_formant_data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
-            self.cntk.write('|labels {} '.format(" ".join(str(eloudnessmeasure) for eloudnessmeasure in self.values)))
-            self.cntk.write('|features {} \n'.format(" ".join(str(eloudnessmeasure) for eloudnessmeasure in self.formants)))
+            self.cntk.write('|labels {} '.format(" ".join(str(x) for x in self.values)))
+            self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.formants)))
 
+    def write_filterbank_cntk(self):
+        
+        self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
+
+        with open('cntk_mfcc_data.txt', 'a') as self.cntk:
+            # append a new pair of features and labels
+            self.cntk.write('|labels {} '.format(" ".join(str(x) for x in self.values)))
+            self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.mfcc_average)))
+        
 
 ###################################################################################################
 ###################################################################################################

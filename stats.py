@@ -4,7 +4,7 @@ import csv
 ###################################################################################################
 
 def write_formants(name, directory, currentgeneration, individualfrequencies, fitness, voiced):
-    csvdata = individualfrequencies
+    csvdata = list(individualfrequencies)
     csvdata.append(fitness)
     csvdata.append(voiced)
 
