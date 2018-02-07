@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # https://matplotlib.org/devdocs/api/_as_gen/matplotlib.axes.Axes.violinplot.html
-# read in the mean fitness of each generation for each run and average it.
+# 
 
 my_data = []
 

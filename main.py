@@ -45,7 +45,12 @@ parser.add_argument("-ft", "--fitnesstype",
 					default='formant',
 					help="choose between formant or filterbank")
 
-parser.add_argument("-fff", "--ffformants",
+parser.add_argument("-nf", "--noformants",
+                    type=int,
+                    default=3,
+                    help="sets the number of formants used for analysis")
+
+parser.add_argument("-fr", "--formantrepresentation",
 					type=str,
 					default='hz',
 					help="Choose the type of formant fitness function")
@@ -93,7 +98,8 @@ generations = args.generations + 1
 mutationrate = args.mutationrate
 standarddev = args.standarddev
 fitnesstype = args.fitnesstype
-ffformants = args.ffformants
+NO_FORMANTS = args.noformants
+formantrepresentation = args.formantrepresentation
 metric = args.distancemetric
 loudnessmeasure = args.loudnessmeasure
 fffilterbank = args.fffilterbank
@@ -122,7 +128,7 @@ prefix = "{} Gen {} Pop {} Mut {} Sd {} ".format(soundfile,
 
 
 if fitnesstype == 'formant':
-    directory = prefix + "{} {} {} {}".format(ffformants, metric, loudnessmeasure, identifier)
+    directory = prefix + "{} {} {} {}".format(formantrepresentation, metric, loudnessmeasure, identifier)
 elif fitnesstype == 'filterbank':
     directory = prefix + "{} {}".format(fffilterbank, identifier)
 
@@ -136,7 +142,7 @@ soundfile = 'Vowels\{}'.format(soundfile)
 # Call the "praatcontrol" module to get target sound features
 target_length = praatcontrol.get_time(soundfile)
 target_sample_rate = praatcontrol.get_sample_rate(soundfile)
-target_formants = praatcontrol.get_target_formants(target_length, soundfile)
+target_formants = praatcontrol.get_target_formants(target_length, soundfile, NO_FORMANTS)
 target_intensity = praatcontrol.get_target_intensity(soundfile)
 target_rms = praatcontrol.get_target_RMS(soundfile)
 
@@ -262,34 +268,47 @@ class Individual:
 
         self.artword.close()
 
+    def universal(self):
+        
+        self.voiced = praatcontrol.get_individual_pitch(self.name, directory, CURRENT_GEN)
+        
+        if self.voiced == True:
+            self.formants = praatcontrol.get_individual_formants(self.name, directory, CURRENT_GEN)
+        else:
+            self.formants = [target_sample_rate/2 for x in range(5)]
+        
+        self.formants = self.formants[0:NO_FORMANTS]
+    
+    
     # Method for calculating an individuals fitness
     def evaluate_formant(self):
-
-        # Extract formant features
-        self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, CURRENT_GEN)
         
+        self.universal()
+        print(self.voiced)
         print(self.formants)
-        # Extract loudness features
-        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, CURRENT_GEN, target_intensity)
-        self.rms = praatcontrol.get_individual_RMS(self.name, directory, CURRENT_GEN, target_rms)
-
-        # Calls the relevant fitness function based on cmd line argument
-        if ffformants == "hz":
+        print(target_formants)
+       
+       # Calls the relevant fitness function based on cmd line argument
+        if formantrepresentation == "hz":
             self.fitness = fitnessfunction.fitness_a1(self.formants, target_formants, metric)
-        elif ffformants == "mel":
+        elif formantrepresentation == "mel":
             self.fitness = fitnessfunction.fitness_a2(self.formants, target_formants, metric)
-        elif ffformants == "cent":
+        elif formantrepresentation == "cent":
             self.fitness = fitnessfunction.fitness_a3(self.formants, target_formants, metric)
-        elif ffformants == "bark":
+        elif formantrepresentation == "bark":
             self.fitness = fitnessfunction.fitness_a4(self.formants, target_formants, metric)
-        elif ffformants == "erb":
+        elif formantrepresentation == "erb":
             self.fitness = fitnessfunction.fitness_a5(self.formants, target_formants, metric)
-        elif ffformants == "brito":
+        elif formantrepresentation == "brito":
             self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
-        print(self.formants)
+        
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:
             self.fitness = self.fitness * 10
+
+        # Extract loudness features
+        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, CURRENT_GEN, target_intensity)
+        self.rms = praatcontrol.get_individual_RMS(self.name, directory, CURRENT_GEN, target_rms)
 
         # Apply loudness co-efficents
         if loudnessmeasure == "rms":
@@ -300,16 +319,6 @@ class Individual:
             self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
         elif loudnessmeasure == "none":
             pass
-        print(self.formants)
-        """
-        print("Individual ", self.name)
-        print("Is Voiced?            :", self.voiced)
-        print("Fitness Score         :", self.fitness)
-        print("Intensity Coefficient :", self.intensity)
-        print("Fitness * Intensity   :", self.fitness * self.intensity)
-        print("RMS Coefficient       :", self.rms)
-        print("Fitness * RMS         :", self.fitness * self.rms)
-        """
 
         ###########################################################################################
 
@@ -320,18 +329,17 @@ class Individual:
                              self.formants,
                              self.fitness,
                              self.voiced)
-        print(self.formants)
         ###########################################################################################
         # Call the write_formants_cntk method if a sound is voiced
 
         if self.voiced and CNTK:
             self.write_formants_cntk()
-        print(self.formants)
-        
+
+    
     def evaluate_filterbank(self):
         # MFCC and filterbank based fitness functions
         
-        self.formants, self.voiced = praatcontrol.get_individual_frequencies(self.name, directory, CURRENT_GEN)
+        self.universal()
 
         if fffilterbank == "mfcc_average":
             self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)

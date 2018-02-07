@@ -10,9 +10,9 @@ vowels = os.listdir(sounds_path)
 print(vowels)
 
 # Specify the Genetic Algorithm parameters
-no_of_runs = 4
-gen_size = '10'
-pop_size = '20'
+no_of_runs = 1
+gen_size = '4'
+pop_size = '10'
 mutationrate = '0.2'
 standard_dev = '0.2'
 selection = 'linear'
@@ -31,7 +31,7 @@ fitnesstype = 'formant'
 # Options for formant based fitness function
 
 # choose from ["hz", "mel", "cents", "bark", "erb", "brito"]
-features = ["cent"] # ["hz", "mel", "cents", "bark", "erb", "brito"]
+features = ["hz", "mel", "cents", "bark", "erb", "brito"]
 
 # choose from ["SSD", "SAD", "EUC", "MSE", "MAE"]
 distance_metrics = ["SSD"] # "SAD" "EUC", "MSE", "MAE"]
@@ -54,7 +54,7 @@ if fitnesstype == 'formant':
                 for l in loudness:
                     for n in range(no_of_runs):
                         with open('batch.cmd', 'a') as t:
-                            t.write("{} {} {} -fff={} -lm={} -id={!s} \n".format(prefix,
+                            t.write("{} {} {} -fr={} -lm={} -id={!s} \n".format(prefix,
                                                                     vowel,
                                                                     GA_PARAMS,
                                                                     f,
@@ -65,7 +65,7 @@ if fitnesstype == 'formant':
                     for l in loudness:
                         for n in range(no_of_runs):
                             with open('batch.cmd', 'a') as t:
-                                t.write("{} {} {} -fff={} -dm={} -lm={} -id={!s} \n".format(prefix,
+                                t.write("{} {} {} -fr={} -dm={} -lm={} -id={!s} \n".format(prefix,
                                                                         vowel,
                                                                         GA_PARAMS,
                                                                         f,
