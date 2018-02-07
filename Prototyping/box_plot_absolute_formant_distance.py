@@ -34,7 +34,5 @@ blah = np.array(my_data)
 print(np.shape(my_data))
 
 
-plt.violinplot(my_data,
-               showmeans=True,
-               showmedians=True)
+plt.boxplot(my_data)
 plt.show()
