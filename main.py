@@ -327,6 +327,7 @@ class Individual:
         if self.voiced and CNTK:
             self.write_formants_cntk()
         print(self.formants)
+        
     def evaluate_filterbank(self):
         # MFCC and filterbank based fitness functions
         
@@ -502,7 +503,6 @@ for i in range(generations):
 
 def statistics():
     """ Function for plotting performance graphs and saving run data"""
-
     with open("{}/Mean.txt".format(directory), "w") as mean:
         for item in averagefitness:
             mean.write("{!s}\r\n".format(item))
@@ -510,7 +510,9 @@ def statistics():
     with open("{}/Minimum.txt".format(directory), "w") as minimum:
         for item in minimumfitness:
             minimum.write('{!s}\r\n'.format(item))
+statistics()
 
+def performance_graph():
     plt.plot(averagefitness, 'k', label='Mean Fitness')
     plt.plot(minimumfitness, 'k--', label='Minimum Fitness')
     plt.axis([0, generations - 1, 0, max(averagefitness)])
@@ -518,8 +520,8 @@ def statistics():
     plt.ylabel('Fitness')
     plt.legend()
     plt.savefig("{}/Performance Graph".format(directory))
+performance_graph()
 
-statistics()
 
 def csv_file():
     with open('{}/Stats.csv'.format(directory), 'w', newline='') as csvfile:
@@ -527,13 +529,11 @@ def csv_file():
             csvdata = (averagefitness[i], minimumfitness[i])
             spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             spamwriter.writerow(csvdata)
-
 csv_file()
 
 def runtime():
     with open("{}/{}Runtime.txt".format(directory, directory), "w") as run:
         run.write("--- %d seconds ---" % (time.time() - start_time))
-
 runtime()
 
 time.sleep(2)
