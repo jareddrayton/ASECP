@@ -62,7 +62,7 @@ parser.add_argument("-dm", "--distancemetric",
 
 parser.add_argument("-lm", "--loudnessmeasure",
 					type=str,
-					default='rms',
+					default='none',
 					help="Choose the type of loudness co-efficent")
 
 parser.add_argument("-ffb", "--fffilterbank",
@@ -87,7 +87,7 @@ parser.add_argument("-sl", "--selection",
 
 parser.add_argument("-cntk", "--cntk",
                     type=bool,
-                    default=True,
+                    default=False,
                     help="write a csv file for use with the CNTK machine learning library")
 
 args = parser.parse_args()
@@ -278,7 +278,9 @@ class Individual:
             self.formants = [target_sample_rate/2 for x in range(5)]
         
         self.formants = self.formants[0:NO_FORMANTS]
-    
+
+        self.absolutefitness = fitnessfunction.fitness_a1(self.formants, target_formants, "SAD")
+        print("absolute fitness", self.absolutefitness)
     
     # Method for calculating an individuals fitness
     def evaluate_formant(self):
@@ -321,14 +323,15 @@ class Individual:
             pass
 
         ###########################################################################################
-
         # Write feature information to a csv file
+        
         stats.write_formants(self.name,
                              directory,
                              CURRENT_GEN,
                              self.formants,
                              self.fitness,
-                             self.voiced)
+                             self.voiced,
+                             self.absolutefitness)
         ###########################################################################################
         # Call the write_formants_cntk method if a sound is voiced
 

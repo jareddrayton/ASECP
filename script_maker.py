@@ -10,9 +10,9 @@ vowels = os.listdir(sounds_path)
 print(vowels)
 
 # Specify the Genetic Algorithm parameters
-no_of_runs = 1
-gen_size = '4'
-pop_size = '10'
+no_of_runs = 5
+gen_size = '5'
+pop_size = '20'
 mutationrate = '0.2'
 standard_dev = '0.2'
 selection = 'linear'
@@ -31,7 +31,7 @@ fitnesstype = 'formant'
 # Options for formant based fitness function
 
 # choose from ["hz", "mel", "cents", "bark", "erb", "brito"]
-features = ["hz", "mel", "cents", "bark", "erb", "brito"]
+features = ["hz"]# "mel", "cents", "bark", "erb", "brito"]
 
 # choose from ["SSD", "SAD", "EUC", "MSE", "MAE"]
 distance_metrics = ["SSD"] # "SAD" "EUC", "MSE", "MAE"]
@@ -82,3 +82,5 @@ elif fitnesstype == 'filterbank':
                                                          GA_PARAMS,
                                                          f,
                                                          n))
+
+# Add optional arguments here

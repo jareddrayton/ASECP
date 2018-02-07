@@ -8,20 +8,25 @@ import numpy as np
 
 my_data = []
 
-for i in range(4):
-    
-    directory = "vowel-01.wav Gen 10 Pop 20 Mut 0.2 Sd 0.2 cent SSD none {!s}".format(i)
+# no of runs
 
-    column = []
     
-    with open('{}/Stats.csv'.format(directory)) as csvfile:
+directory = "vowel-05.wav Gen 5 Pop 20 Mut 0.2 Sd 0.2 hz SSD none {!s}".format(i)
+
+column = []
+
+#Generations
+for r in range(6):
+    
+    for g in range()
+        with open('{}/Generation{!s}/Stats.csv'.format(directory,r)) as csvfile:
         spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
         for row in spamreader:
             #print(row[0])
-            column.append(float(row[0]))
+            column.append(float(row[5]))
 
     my_data.append(column)   
-    #print(my_data)
+#print(my_data)
 
 print(my_data)
 
@@ -50,3 +55,4 @@ plt.violinplot(shifted,
                showmeans=False,
                showmedians=False)
 plt.show()
+
