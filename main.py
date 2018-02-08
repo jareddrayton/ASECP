@@ -273,13 +273,14 @@ class Individual:
         self.voiced = praatcontrol.get_individual_pitch(self.name, directory, CURRENT_GEN)
         
         if self.voiced == True:
-            self.formants = praatcontrol.get_individual_formants(self.name, directory, CURRENT_GEN)
+            self.formants = praatcontrol.get_individual_formants(self.name, directory, CURRENT_GEN, target_sample_rate)
         else:
             self.formants = [target_sample_rate/2 for x in range(5)]
         
         self.formants = self.formants[0:NO_FORMANTS]
 
         self.absolutefitness = fitnessfunction.fitness_a1(self.formants, target_formants, "SAD")
+        
         print("absolute fitness", self.absolutefitness)
     
     # Method for calculating an individuals fitness

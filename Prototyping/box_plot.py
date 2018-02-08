@@ -8,9 +8,9 @@ import numpy as np
 
 my_data = []
 
-for i in range(4):
+for i in range(5):
     
-    directory = "vowel-01.wav Gen 10 Pop 20 Mut 0.2 Sd 0.2 cent SSD none {!s}".format(i)
+    directory = "vowel-05.wav Gen 5 Pop 20 Mut 0.2 Sd 0.2 hz SSD none {!s}".format(i)
 
     column = []
     
