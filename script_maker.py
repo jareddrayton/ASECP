@@ -10,22 +10,23 @@ vowels = os.listdir(sounds_path)
 print(vowels)
 
 # Specify the Genetic Algorithm parameters
-no_of_runs = 5
-gen_size = '5'
-pop_size = '20'
+no_of_runs = 1
+gen_size = '4'
+pop_size = '10'
 mutationrate = '0.2'
 standard_dev = '0.2'
 selection = 'linear'
 
-GA_PARAMS = '-gs={} -ps={} -mr={} -sd={}'.format(gen_size,
-                                                 pop_size,
-                                                 mutationrate,
-                                                 standard_dev)
+# specify fitness type ['formant' or 'filterbank']
+fitnesstype = 'filterbank'
+
+GA_PARAMS = '-gs={} -ps={} -mr={} -sd={} -ft={}'.format(gen_size,
+                                                        pop_size,
+                                                        mutationrate,
+                                                        standard_dev,
+                                                        fitnesstype)
 
 prefix = 'python main.py'
-
-# specify fitness type ['formant' or 'filterbank']
-fitnesstype = 'formant'
 
 ########################################################################
 # Options for formant based fitness function
@@ -77,7 +78,7 @@ elif fitnesstype == 'filterbank':
         for f in filterbank_type:
             for n in range(no_of_runs):
                 with open('batch.cmd', 'a') as t:                      
-                    t.write("{} {} {} -ffb{} -id={!s} \n".format(prefix,
+                    t.write("{} {} {} -fb={} -id={!s} \n".format(prefix,
                                                          vowel,
                                                          GA_PARAMS,
                                                          f,

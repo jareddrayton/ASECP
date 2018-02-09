@@ -65,7 +65,7 @@ parser.add_argument("-lm", "--loudnessmeasure",
 					default='none',
 					help="Choose the type of loudness co-efficent")
 
-parser.add_argument("-ffb", "--fffilterbank",
+parser.add_argument("-fb", "--fffilterbank",
 					type=str,
 					default='mfcc_average',
 					help="Choose the type of formant fitness function")
@@ -368,6 +368,14 @@ class Individual:
         elif fffilterbank == "logfbank_ssd":
             self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
             self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
+        
+        stats.write_formants(self.name,
+                             directory,
+                             CURRENT_GEN,
+                             self.formants,
+                             self.fitness,
+                             self.voiced,
+                             self.absolutefitness)
         
         if self.voiced and CNTK:
             self.write_filterbank_cntk()

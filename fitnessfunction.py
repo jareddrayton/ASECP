@@ -101,13 +101,13 @@ def fitness_brito(formants, targetformants):
     Implements the distance measure as defined by Brito 2007 and 2006
     """
 
-    weights_osix = [90, 60, 24, 12]
-    weights_oseven = [40, 30, 15, 10]
+    weights_osix = [90, 60, 24, 12, 1]
+    weights_oseven = [40, 30, 15, 10, 1]
 
     formant_distances = []
 
     for i in range(len(formants)):
-        formant_distances.append(weights_oseven[i] * (abs(targetformants[i] - formants[i]) / targetformants[i]))
+        formant_distances.append(weights_oseven[i] * (abs((targetformants[i] - formants[i])) / targetformants[i]))
 
     print(sum(formant_distances))
 
