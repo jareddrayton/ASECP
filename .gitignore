@@ -56,6 +56,7 @@ Temporary Items
 *.csv
 *.png
 *.cmd
+*.pdf
 
 # Python files
 *.pyc
