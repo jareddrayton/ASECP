@@ -242,29 +242,28 @@ class Individual:
         # Loop through the parameters and values lists and write these to the artword
         for i in range(len(self.parameters)):
             self.artword.seek(0, 2)
-            self.artword.write('Set target... 0.0 ' + str(self.values[i]) + ' ' + self.parameters[i] + '\r\n')
-            self.artword.write(
-                'Set target... ' + length + ' ' + str(self.values[i]) + ' ' + self.parameters[i] + '\r\n')
+            self.artword.write('Set target... 0.0 {} {}\r\n'.format(self.values[i],self.parameters[i]))
+            self.artword.write('Set target... {} {} {}\r\n'.format(length, self.values[i],self.parameters[i])))
 
         # Set sample rate and synthesise audio
-        self.artword.write('select Artword Individual' + self.name + '\r\n')
+        self.artword.write('select Artword Individual{}\r\n'.format(self.name))
         self.artword.write('plus Speaker Robovox\r\n')
         self.artword.write('To Sound... {} 25    0 0 0    0 0 0   0 0 0\r\n'.format(target_sample_rate))
-        self.artword.write('''nowarn do ("Save as WAV file...", "Individual''' + self.name + '''.wav")\r\n''')
+        self.artword.write('''nowarn do ("Save as WAV file...", "Individual{}.wav")\r\n'''.format(self.name))
 
         # Extract formants, pitch, and intensity
-        self.artword.write('''selectObject ("Sound Individual''' + self.name + '''_Robovox")\r\n''')
-        self.artword.write('To Formant (burg): 0, 5, 5000, %s, 50\r\n' % length)
+        self.artword.write('''selectObject ("Sound Individual{}_Robovox")\r\n'''.format(self.name))
+        self.artword.write('To Formant (burg): 0, 5, 5000, {}, 50\r\n'.format(length))
         self.artword.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\r\n')
-        self.artword.write('''appendFile ("formants''' + self.name + '''.txt", info$ ())\r\n''')
-        self.artword.write('''selectObject ("Sound Individual''' + self.name + '''_Robovox")\r\n''')
-        self.artword.write('To Pitch: %s, 75, 600\r\n' % length)
+        self.artword.write('''appendFile ("formants{}.txt", info$ ())\r\n'''.format(self.name))
+        self.artword.write('''selectObject ("Sound Individual{}_Robovox")\r\n'''.format(self.name))
+        self.artword.write('To Pitch: {}, 75, 600\r\n'.format(length))
         self.artword.write('Get mean: 0, 0, "Hertz"\r\n')
-        self.artword.write('''appendFile ("pitch''' + self.name + '''.txt", info$ ())\r\n''')
-        self.artword.write('''selectObject ("Sound Individual''' + self.name + '''_Robovox")\r\n''')
+        self.artword.write('''appendFile ("pitch{}.txt", info$ ())\r\n'''.format(self.name))
+        self.artword.write('''selectObject ("Sound Individual{}_Robovox")\r\n'''.format(self.name))
         self.artword.write('To Intensity: 100, 0, "yes"\r\n')
         self.artword.write('Get standard deviation: 0, 0\r\n')
-        self.artword.write('''appendFile ("intensity''' + self.name + '''.txt", info$ ())\r\n''')
+        self.artword.write('''appendFile ("intensity{}.txt", info$ ())\r\n'''.format(self.name))
 
         self.artword.close()
 
