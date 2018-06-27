@@ -243,7 +243,7 @@ class Individual:
         for i in range(len(self.parameters)):
             self.artword.seek(0, 2)
             self.artword.write('Set target... 0.0 {} {}\r\n'.format(self.values[i],self.parameters[i]))
-            self.artword.write('Set target... {} {} {}\r\n'.format(length, self.values[i],self.parameters[i])))
+            self.artword.write('Set target... {} {} {}\r\n'.format(length, self.values[i],self.parameters[i]))
 
         # Set sample rate and synthesise audio
         self.artword.write('select Artword Individual{}\r\n'.format(self.name))
