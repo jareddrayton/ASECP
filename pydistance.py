@@ -97,10 +97,32 @@ def CAN(x,y):
 
 	return sum(total)
 
+
+def BRITO(x,y):
+
+	weights_osix = [90, 60, 24, 12, 1]
+    weights_oseven = [40, 30, 15, 10, 1]
+
+	total = []
+ 	
+	formant_distances = []
+
+    for i in range(len(formants)):
+        formant_distances.append(weights_oseven[i] * (abs((targetformants[i] - formants[i])) / targetformants[i]))
+	
+	
+	for i in range(len(x)):
+		total.append(x[i] - y[i])
+
+	total = map(abs, total)
+
+	return sum(total)
+
+
+
 # y = [495.0, 1627.0, 2267.0]
 # x = [319.0, 1944.0, 2700.0]
 # y = [10000, 10000, 10000]
 
 # print CAN(x,y)
 # print SSD(x,y)
-
