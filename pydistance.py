@@ -101,14 +101,14 @@ def CAN(x,y):
 def BRITO(x,y):
 
 	weights_osix = [90, 60, 24, 12, 1]
-    weights_oseven = [40, 30, 15, 10, 1]
+	weights_oseven = [40, 30, 15, 10, 1]
 
 	total = []
  	
 	formant_distances = []
 
-    for i in range(len(formants)):
-        formant_distances.append(weights_oseven[i] * (abs((targetformants[i] - formants[i])) / targetformants[i]))
+	for i in range(len(formants)):
+		formant_distances.append(weights_oseven[i] * (abs((targetformants[i] - formants[i])) / targetformants[i]))
 	
 	
 	for i in range(len(x)):

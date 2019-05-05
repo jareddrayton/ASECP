@@ -4,4 +4,5 @@
 
 ## Usage
 
-For an overview of command line arguments, type either `python main.py --help` or `python main.py -h` .
+For an overview of command line arguments, type either `python main.py --help` or `python main.py -h`
+

@@ -233,14 +233,19 @@ def get_individual_formants(name, directory, currentgeneration, samplerate):
     # Assigns the second item from .lines to candformants
     candformants = lines[1].split("\t")
 
-    #print('candformants', candformants)
+    print('candformants', candformants)
+    
+    # Strips whitespace and checks if a formant is undefined and sets this to half the sample rate
     for i in range(len(candformants)):
         candformants[i] = candformants[i].strip()
         if candformants[i].islower():
             candformants[i] = str(samplerate/2)
 
+    # Converts the list of strings to a list of floats
     candformants = list(map(float, candformants))
-    #print('candformants', candformants)
+    
+    print('candformants', candformants)
+    
     os.remove("{}/Generation{!s}/formants{!s}.txt".format(directory, currentgeneration, name))
 
     return candformants[1:6]

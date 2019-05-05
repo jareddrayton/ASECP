@@ -11,7 +11,7 @@ import praatcontrol
 import stats
 
 ###################################################################################################
-# Variables provided at the cmd line, unpacked using argparse
+# Variables provided at the cmd line using argparse
 
 parser = argparse.ArgumentParser()
 
@@ -92,6 +92,9 @@ parser.add_argument("-cntk", "--cntk",
 
 args = parser.parse_args()
 
+###################################################################################################
+# Unpack the variables from argparse
+
 soundfile = args.soundfile
 populationsize = args.populationsize
 generations = args.generations + 1
@@ -166,7 +169,7 @@ class Individual:
         # List containing the real valued genotype
         self.values = []
 
-        # List of the muscle parameters associated with the genotype
+        # Full list of muscle parameters for Praat
         self.full = ['Interarytenoid',
                      'Cricothyroid',
                      'Vocalis',
@@ -195,6 +198,7 @@ class Individual:
                      'LateralPterygoid',
                      'Buccinator']
 
+        # Constrained list of muscle parameters for Praat
         self.constrained = ['Hyoglossus',
                             'Styloglossus',
                             'Genioglossus',
@@ -210,9 +214,10 @@ class Individual:
                             'LateralPterygoid',
                             'Buccinator']
 
+        # Choose which parameters set to use
         self.parameters = self.constrained
 
-        # Initialise the fitness scores to one
+        # Initialise the fitness score variables
         self.fitness = 0
         self.fitnessscaled = 0
 
@@ -223,7 +228,6 @@ class Individual:
     # Method for creating the Praat .artword file
     def create_artword(self):
 
-        # Create the file
         self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, CURRENT_GEN, self.name), "w")
 
         # Configure speaker type and sound length
@@ -267,17 +271,22 @@ class Individual:
 
         self.artword.close()
 
+    # Method 
     def universal(self):
         
+        # Assigns True or False to self.voiced, based on whether praat can calculate pitch 
         self.voiced = praatcontrol.get_individual_pitch(self.name, directory, CURRENT_GEN)
         
+        # If a pitch is detected the formants are calculated and assigned to self.formants
         if self.voiced == True:
             self.formants = praatcontrol.get_individual_formants(self.name, directory, CURRENT_GEN, target_sample_rate)
         else:
             self.formants = [target_sample_rate/2 for x in range(5)]
         
+        # 
         self.formants = self.formants[0:NO_FORMANTS]
 
+        # This acts as a baseline fitness attribute to compare different fitness functions
         self.absolutefitness = fitnessfunction.fitness_a1(self.formants, target_formants, "SAD")
         
         print("absolute fitness", self.absolutefitness)
