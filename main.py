@@ -15,7 +15,7 @@ import stats
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("soundfile",
+parser.add_argument("-sf", "--soundfile",
                     type=str,
                     default='vowel-01.wav',
                     help="sets the filename of the target sound")
