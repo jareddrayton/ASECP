@@ -5,9 +5,9 @@ import csv
 import argparse
 import matplotlib.pyplot as plt
 
-import fitnessfunction
-import genop
-import praatcontrol
+import fitness_functions
+import genetic_operators
+import praat_control
 import stats
 
 ###################################################################################################
@@ -18,97 +18,134 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-sf", "--soundfile",
                     type=str,
                     default='vowel-01.wav',
-                    help="sets the filename of the target sound")
+                    help="sets the filename of the target sound",
+                    metavar='')
 
-parser.add_argument("-ps", "--populationsize", 
+parser.add_argument("-ps", "--population_size", 
 					type=int,
 					default=10,
-                    help="sets the population size")
+                    help="sets the population size",
+                    metavar='')
 
-parser.add_argument("-gs", "--generations",
+parser.add_argument("-gs", "--generation_size",
 					type=int, 
 					default=2,
-                    help="sets the number of generations")
+                    help="sets the number of generation_size",
+                    metavar='')
 
-parser.add_argument("-mr", "--mutationrate",
+parser.add_argument("-sl", "--selection_type",
+                    type=str,
+                    default='linear',
+                    help="use to specify GA selection_type type. Choose from linear, proportional",
+                    metavar='')
+
+parser.add_argument("-el", "--elitism",
+                    type=bool,
+                    default=False,
+                    help="Activate the elitism genetic operator",
+                    metavar='')
+
+parser.add_argument("-mr", "--mutation_rate",
 					type=float, 
 					default=0.2,
-                    help="sets the rate of mutation")
+                    help="sets the rate of mutation",
+                    metavar='')
 
-parser.add_argument("-sd", "--standarddev",
+parser.add_argument("-sd", "--mutation_standard_dev",
 					type=float, 
 					default=0.2,
-                    help="sets the gaussian standard deviation")
+                    help="sets the gaussian distrubutions standard deviation used for mutation",
+                    metavar='')
 
-parser.add_argument("-ft", "--fitnesstype",
+parser.add_argument("-ct", "--crossover_type",
+                    type=str,
+                    default="one_point",
+                    help="type of crossover for combining genotypes",
+                    metavar='')
+
+parser.add_argument("-ft", "--fitness_type",
 					type=str,
 					default='formant',
-					help="choose between formant or filterbank")
+					help="choose between formant or filterbank",
+                    metavar='')
 
-parser.add_argument("-nf", "--noformants",
+parser.add_argument("-nf", "--formant_range",
                     type=int,
                     default=3,
-                    help="sets the number of formants used for analysis")
+                    help="sets the number of formants used for analysis",
+                    metavar='')
 
 parser.add_argument("-fr", "--formantrepresentation",
 					type=str,
 					default='hz',
-					help="Choose the type of formant fitness function")
+					help="Choose the type of formant fitness function",
+                    metavar='')
 
-parser.add_argument("-dm", "--distancemetric",
+parser.add_argument("-dm", "--distance_metric",
 					type=str,
 					default='SSD',
-					help="Choose the type of distance metrics")
+					help="Choose the type of distance distance_metrics",
+                    metavar='')
 
 parser.add_argument("-lm", "--loudnessmeasure",
 					type=str,
 					default='none',
-					help="Choose the type of loudness co-efficent")
+					help="Choose the type of loudness co-efficent",
+                    metavar='')
 
-parser.add_argument("-fb", "--fffilterbank",
+parser.add_argument("-fb", "--filterbank_type",
 					type=str,
 					default='mfcc_average',
-					help="Choose the type of formant fitness function")
+					help="Choose the type of formant fitness function",
+                    metavar='')
 
 parser.add_argument("-id", "--identifier", 
 					type=str,
 					default='2',
-					help="used as random() seed")
+					help="used as random() seed",
+                    metavar='')
 
 parser.add_argument("-pl","--parallel", 
 					type=bool,
 					default=True,
-					help="used to enable multiple praat processes")
-
-parser.add_argument("-sl", "--selection",
-                    type=str,
-                    default='linear',
-                    help="use to specify GA selection type. Choose from linear, proportional")
+					help="Flag to enable multiple praat processes. Set to TRUE by default.",
+                    metavar='')
 
 parser.add_argument("-cntk", "--cntk",
                     type=bool,
                     default=False,
-                    help="write a csv file for use with the CNTK machine learning library")
+                    help="write data to a csv file for use with the CNTK machine learning library",
+                    metavar='')
 
 args = parser.parse_args()
 
 ###################################################################################################
-# Unpack the variables from argparse
+# Unpacking the variables from argparse
 
+# The target sound to be matched
 soundfile = args.soundfile
-populationsize = args.populationsize
-generations = args.generations + 1
-mutationrate = args.mutationrate
-standarddev = args.standarddev
-fitnesstype = args.fitnesstype
-NO_FORMANTS = args.noformants
+
+# Genetic operator variables
+population_size = args.population_size
+generation_size = args.generation_size + 1
+mutation_rate = args.mutation_rate
+mutation_standard_dev = args.mutation_standard_dev
+selection_type = args.selection_type
+crossover_type = args.crossover_type
+elitism = args.elitism
+#number of runs 
+
+# Fitness function variables
+fitness_type = args.fitness_type
+formant_range = args.formant_range
 formantrepresentation = args.formantrepresentation
-metric = args.distancemetric
+distance_metric = args.distance_metric
 loudnessmeasure = args.loudnessmeasure
-fffilterbank = args.fffilterbank
+filterbank_type = args.filterbank_type
 identifier = args.identifier
-parallel = args.parallel
-SELECTION = args.selection
+
+# Constants that are flags
+PARALLEL = args.PARALLEL
 CNTK = args.cntk
 
 ###################################################################################################
@@ -120,20 +157,20 @@ if False:
     random.seed(int(identifier))
 
 # Initialises the generation index as 0
-CURRENT_GEN = 0
+current_generation_index = 0
 
 # Creates the directory string
 prefix = "{} Gen {} Pop {} Mut {} Sd {} ".format(soundfile,
-                                                 generations-1,
-                                                 populationsize,
-                                                 mutationrate,
-                                                 standarddev)
+                                                 generation_size,
+                                                 population_size,
+                                                 mutation_rate,
+                                                 mutation_standard_dev)
 
 
-if fitnesstype == 'formant':
-    directory = prefix + "{} {} {} {}".format(formantrepresentation, metric, loudnessmeasure, identifier)
-elif fitnesstype == 'filterbank':
-    directory = prefix + "{} {}".format(fffilterbank, identifier)
+if fitness_type == 'formant':
+    directory = prefix + "{} {} {} {}".format(formantrepresentation, distance_metric, loudnessmeasure, identifier)
+elif fitness_type == 'filterbank':
+    directory = prefix + "{} {}".format(filterbank_type, identifier)
 
 print(directory)
 
@@ -142,17 +179,17 @@ os.mkdir(directory)
 
 soundfile = 'Vowels\{}'.format(soundfile)
 
-# Call the "praatcontrol" module to get target sound features
-target_length = praatcontrol.get_time(soundfile)
-target_sample_rate = praatcontrol.get_sample_rate(soundfile)
-target_formants = praatcontrol.get_target_formants(target_length, soundfile, NO_FORMANTS)
-target_intensity = praatcontrol.get_target_intensity(soundfile)
-target_rms = praatcontrol.get_target_RMS(soundfile)
+# Call the "praat_control" module to get target sound features
+target_length = praat_control.get_time(soundfile)
+target_sample_rate = praat_control.get_sample_rate(soundfile)
+target_formants = praat_control.get_target_formants(target_length, soundfile, formant_range)
+target_intensity = praat_control.get_target_intensity(soundfile)
+target_rms = praat_control.get_target_RMS(soundfile)
 
-target_mfcc_average = praatcontrol.get_target_mfcc_average(soundfile)
-target_logfbank_average = praatcontrol.get_target_logfbank_average(soundfile)
-target_mfcc = praatcontrol.get_target_mfcc(soundfile)
-target_logfbank = praatcontrol.get_target_logfbank(soundfile)
+target_mfcc_average = praat_control.get_target_mfcc_average(soundfile)
+target_logfbank_average = praat_control.get_target_logfbank_average(soundfile)
+target_mfcc = praat_control.get_target_mfcc(soundfile)
+target_logfbank = praat_control.get_target_logfbank(soundfile)
 
 
 # Sets the length of individuals to equal the target. Can be overwrriten with a string
@@ -222,13 +259,13 @@ class Individual:
         self.fitnessscaled = 0
 
         # Initialise the genotype with random values for the first generation
-        if CURRENT_GEN == 0:
+        if current_generation_index == 0:
             self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
 
     # Method for creating the Praat .artword file
     def create_artword(self):
 
-        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, CURRENT_GEN, self.name), "w")
+        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(directory, current_generation_index, self.name), "w")
 
         # Configure speaker type and sound length
         self.artword.write('Create Speaker... Robovox Male 2\r\n')
@@ -275,19 +312,19 @@ class Individual:
     def universal(self):
         
         # Assigns True or False to self.voiced, based on whether praat can calculate pitch 
-        self.voiced = praatcontrol.get_individual_pitch(self.name, directory, CURRENT_GEN)
+        self.voiced = praat_control.get_individual_pitch(self.name, directory, current_generation_index)
         
         # If a pitch is detected the formants are calculated and assigned to self.formants
         if self.voiced == True:
-            self.formants = praatcontrol.get_individual_formants(self.name, directory, CURRENT_GEN, target_sample_rate)
+            self.formants = praat_control.get_individual_formants(self.name, directory, current_generation_index, target_sample_rate)
         else:
             self.formants = [target_sample_rate/2 for x in range(5)]
         
         # 
-        self.formants = self.formants[0:NO_FORMANTS]
+        self.formants = self.formants[0:formant_range]
 
         # This acts as a baseline fitness attribute to compare different fitness functions
-        self.absolutefitness = fitnessfunction.fitness_a1(self.formants, target_formants, "SAD")
+        self.absolutefitness = fitness_functions.fitness_a1(self.formants, target_formants, "SAD")
         
         print("absolute fitness", self.absolutefitness)
     
@@ -301,25 +338,25 @@ class Individual:
        
        # Calls the relevant fitness function based on cmd line argument
         if formantrepresentation == "hz":
-            self.fitness = fitnessfunction.fitness_a1(self.formants, target_formants, metric)
+            self.fitness = fitness_functions.fitness_a1(self.formants, target_formants, distance_metric)
         elif formantrepresentation == "mel":
-            self.fitness = fitnessfunction.fitness_a2(self.formants, target_formants, metric)
+            self.fitness = fitness_functions.fitness_a2(self.formants, target_formants, distance_metric)
         elif formantrepresentation == "cent":
-            self.fitness = fitnessfunction.fitness_a3(self.formants, target_formants, metric)
+            self.fitness = fitness_functions.fitness_a3(self.formants, target_formants, distance_metric)
         elif formantrepresentation == "bark":
-            self.fitness = fitnessfunction.fitness_a4(self.formants, target_formants, metric)
+            self.fitness = fitness_functions.fitness_a4(self.formants, target_formants, distance_metric)
         elif formantrepresentation == "erb":
-            self.fitness = fitnessfunction.fitness_a5(self.formants, target_formants, metric)
+            self.fitness = fitness_functions.fitness_a5(self.formants, target_formants, distance_metric)
         elif formantrepresentation == "brito":
-            self.fitness = fitnessfunction.fitness_brito(self.formants, target_formants)
+            self.fitness = fitness_functions.fitness_brito(self.formants, target_formants)
         
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:
             self.fitness = self.fitness * 10
 
         # Extract loudness features
-        self.intensity = praatcontrol.get_individual_intensity(self.name, directory, CURRENT_GEN, target_intensity)
-        self.rms = praatcontrol.get_individual_RMS(self.name, directory, CURRENT_GEN, target_rms)
+        self.intensity = praat_control.get_individual_intensity(self.name, directory, current_generation_index, target_intensity)
+        self.rms = praat_control.get_individual_RMS(self.name, directory, current_generation_index, target_rms)
 
         # Apply loudness co-efficents
         if loudnessmeasure == "rms":
@@ -336,7 +373,7 @@ class Individual:
         
         stats.write_formants(self.name,
                              directory,
-                             CURRENT_GEN,
+                             current_generation_index,
                              self.formants,
                              self.fitness,
                              self.voiced,
@@ -353,33 +390,33 @@ class Individual:
         
         self.universal()
 
-        if fffilterbank == "mfcc_average":
-            self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, metric)
+        if filterbank_type == "mfcc_average":
+            self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, directory, current_generation_index)
+            self.fitness = fitness_functions.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, distance_metric)
 
-        elif fffilterbank == "logfbank_average":
-            self.logfbank_average = praatcontrol.get_individual_logfbank_average(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, metric)
+        elif filterbank_type == "logfbank_average":
+            self.logfbank_average = praat_control.get_individual_logfbank_average(self.name, directory, current_generation_index)
+            self.fitness = fitness_functions.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, distance_metric)
 
-        elif fffilterbank == "mfcc_sad":
-            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_sad(target_mfcc, self.mfcc)
+        elif filterbank_type == "mfcc_sad":
+            self.mfcc = praat_control.get_individual_mfcc(self.name, directory, current_generation_index)
+            self.fitness = fitness_functions.fitness_twodim_sad(target_mfcc, self.mfcc)
 
-        elif fffilterbank == "mfcc_ssd":
-            self.mfcc = praatcontrol.get_individual_mfcc(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_ssd(target_mfcc, self.mfcc)
+        elif filterbank_type == "mfcc_ssd":
+            self.mfcc = praat_control.get_individual_mfcc(self.name, directory, current_generation_index)
+            self.fitness = fitness_functions.fitness_twodim_ssd(target_mfcc, self.mfcc)
 
-        elif fffilterbank == "logfbank_sad":
-            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_sad(target_logfbank, self.logfbank)
+        elif filterbank_type == "logfbank_sad":
+            self.logfbank = praat_control.get_individual_logfbank(self.name, directory, current_generation_index)
+            self.fitness = fitness_functions.fitness_twodim_sad(target_logfbank, self.logfbank)
 
-        elif fffilterbank == "logfbank_ssd":
-            self.logfbank = praatcontrol.get_individual_logfbank(self.name, directory, CURRENT_GEN)
-            self.fitness = fitnessfunction.fitness_twodim_ssd(target_logfbank, self.logfbank)
+        elif filterbank_type == "logfbank_ssd":
+            self.logfbank = praat_control.get_individual_logfbank(self.name, directory, current_generation_index)
+            self.fitness = fitness_functions.fitness_twodim_ssd(target_logfbank, self.logfbank)
         
         stats.write_formants(self.name,
                              directory,
-                             CURRENT_GEN,
+                             current_generation_index,
                              self.formants,
                              self.fitness,
                              self.voiced,
@@ -404,7 +441,7 @@ class Individual:
 
     def write_filterbank_cntk(self):
         
-        self.mfcc_average = praatcontrol.get_individual_mfcc_average(self.name, directory, CURRENT_GEN)
+        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, directory, current_generation_index)
 
         with open('cntk_mfcc_data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
@@ -416,7 +453,7 @@ class Individual:
 ###################################################################################################
 
 # Creates a list of strings for use as keys in a dictionary
-keys = [str(x) for x in range(populationsize)]
+keys = [str(x) for x in range(population_size)]
 
 # Create an empty dictionary for storing Individual instances
 population = {}
@@ -426,15 +463,15 @@ averagefitness = []
 minimumfitness = []
 AVERAGE_VOICED = []
 
-# Main loop for Genetic Algorithm logic
-for i in range(generations):
+# Main loop containg all Genetic Algorithm logic
+for i in range(generation_size+1):
 
     # Creates a folder for the current generation
-    os.mkdir(directory + "/Generation{!s}".format(CURRENT_GEN))
+    os.mkdir(directory + "/Generation{!s}".format(current_generation_index))
 
     # If it is the first generation, instantiate the Indiviudal class and associate it with
     # a key in the population dictionary
-    if CURRENT_GEN == 0:
+    if current_generation_index == 0:
         for name in keys:
             population[name] = Individual(name)
 
@@ -443,16 +480,16 @@ for i in range(generations):
         population[name].create_artword()
 
     # Synthesise artwords and run a single or multiple instances of Praat
-    if parallel == True:
-        praatcontrol.synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize)
-    elif parallel == False:
-        praatcontrol.synthesise_artwords_serial(CURRENT_GEN, populationsize, directory)
+    if PARALLEL == True:
+        praat_control.synthesise_artwords_threadpool(directory, current_generation_index, population_size)
+    elif PARALLEL == False:
+        praat_control.synthesise_artwords_serial(current_generation_index, population_size, directory)
 
     # Calculate fitness scores by calling the evaluate_formants method
     for name in keys:
-        if fitnesstype == "formant":
+        if fitness_type == "formant":
             population[name].evaluate_formant()
-        elif fitnesstype == "filterbank":
+        elif fitness_type == "filterbank":
             population[name].evaluate_filterbank()
 
     ###############################################################################################
@@ -491,29 +528,29 @@ for i in range(generations):
         if population[name].voiced:
             VOICED_TOTAL += 1
 
-    VOICED_PERCENTAGE = VOICED_TOTAL / populationsize
+    VOICED_PERCENTAGE = VOICED_TOTAL / population_size
     AVERAGE_VOICED.append(VOICED_PERCENTAGE)
 
     ###############################################################################################
-    # Choose GA selection behaviour
+    # Choose GA selection_type behaviour
 
-    if SELECTION == "linear":
-        genop.lin_rank(population, keys)
-    elif SELECTION == "proportional":
-        genop.fitness_proportional(population, keys)
-    elif SELECTION == "hybrid":
+    if selection_type == "linear":
+        genetic_operators.lin_rank(population, keys)
+    elif selection_type == "proportional":
+        genetic_operators.fitness_proportional(population, keys)
+    elif selection_type == "hybrid":
         if VOICED_PERCENTAGE < 0.5:
-            genop.fitness_proportional(population, keys)
+            genetic_operators.fitness_proportional(population, keys)
         else:
-            genop.lin_rank(population, keys)
+            genetic_operators.lin_rank(population, keys)
 
+    ##############################################################################################
     # The mutation function
-    genop.mutation(population, keys, mutationrate, standarddev)
+    genetic_operators.mutation(population, keys, mutation_rate, mutation_standard_dev)
 
-    # Activate elitism 
-    ELITISM = False
-
-    if ELITISM == True:
+    # Apply the elitism genetic operator
+    if elitism == True:
+        print(elitism)
         for i in range(len(a)):
             print(elite[i])
 
@@ -523,7 +560,7 @@ for i in range(generations):
     
     ###############################################################################################
     # Finish loop by incrementing the generation counter by 1
-    CURRENT_GEN += 1
+    current_generation_index += 1
 
 ###################################################################################################
 ###################################################################################################
@@ -543,8 +580,8 @@ statistics()
 def performance_graph():
     plt.plot(averagefitness, 'k', label='Mean Fitness')
     plt.plot(minimumfitness, 'k--', label='Minimum Fitness')
-    plt.axis([0, generations - 1, 0, max(averagefitness)])
-    plt.xlabel('Generations')
+    plt.axis([0, generation_size, 0, max(averagefitness)])
+    plt.xlabel('Generation_size')
     plt.ylabel('Fitness')
     plt.legend()
     plt.savefig("{}/Performance Graph".format(directory))

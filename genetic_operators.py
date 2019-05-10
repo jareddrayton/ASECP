@@ -1,4 +1,5 @@
-import random, math
+import random
+import math
 from operator import itemgetter
 
 #################################################################################################################
@@ -61,7 +62,7 @@ def lin_rank(population, keys):
     one_crossover(population, keys, temppopulation)
 
 
-def exp_rank():
+def exponetial_rank():
     """Exponential ranking"""
 
     probabilities = []
