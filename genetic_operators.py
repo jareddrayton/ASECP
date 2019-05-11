@@ -3,15 +3,14 @@ import math
 from operator import itemgetter
 
 #################################################################################################################
-#################################################################################################################
-
-"""Functions for assigning the selection probabilities"""
-
+# Functions for assigning selection probabilities
 
 def fitness_proportional(population, keys):
     """ Fitness proportional selection """
 
+    # make a copy o of the population dictionary
     temppopulation = population
+
 
     scaledfitness = []
 
@@ -22,10 +21,10 @@ def fitness_proportional(population, keys):
     for name in keys:
         population[name].fitnessscaled = population[name].fitnessscaled / sum(scaledfitness)
 
-    one_crossover(population, keys, temppopulation)
+    one_point_crossover(population, keys, temppopulation)
 
 
-def lin_rank(population, keys):
+def linear_ranking(population, keys):
     """ Linear probability distribution """
 
     temppopulation = population
@@ -59,10 +58,10 @@ def lin_rank(population, keys):
     print("Sum of probabilities", sum(probabilities))
 
     # uniform_crossover(population, keys, temppopulation)
-    one_crossover(population, keys, temppopulation)
+    one_point_crossover(population, keys, temppopulation)
 
 
-def exponetial_rank():
+def exponential_ranking():
     """Exponential ranking"""
 
     probabilities = []
@@ -74,38 +73,21 @@ def exponetial_rank():
         probabilities.append(prob)
 
 
-################################################################
-
-
-def stochastic_u_sampling():
-    """ Stochastic Universal Sampling Selection """
-
-    pass
-
-
-#####################################################################
-
-def tournament_selection():
-    """ Tournament selection"""
-
-    pass
-
-
 #################################################################################################################
-#################################################################################################################
-
 
 def roulette_spin(population, keys):
-
-    roulettespin = random.uniform(0, 1)
+    """ Returns one"""
+    roulette_spin = random.uniform(0, 1)
     currentcumulative = 0
 
     for name in keys:
         currentcumulative += population[name].fitnessscaled
-        if currentcumulative > roulettespin:
+        if currentcumulative > roulette_spin:
             return name
 
-def one_crossover(population, keys, temppopulation):
+#################################################################################################################
+
+def one_point_crossover(population, keys, temppopulation):
     """ One Point Crossover """
 
     for name in keys:
@@ -119,12 +101,6 @@ def one_crossover(population, keys, temppopulation):
         temppopulation[name].values = population[ca].values[0:cross_point] + population[cb].values[cross_point:limit]
 
         population[name].values = temppopulation[name].values
-
-
-def two_crossover():
-    """ Two point Crossover Operator """
-
-    pass
 
 
 def uniform_crossover(population, keys, temppopulation):

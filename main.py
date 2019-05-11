@@ -4,6 +4,7 @@ import time
 import csv
 import argparse
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 import fitness_functions
 import genetic_operators
@@ -39,12 +40,6 @@ parser.add_argument("-sl", "--selection_type",
                     help="use to specify GA selection_type type. Choose from linear, proportional",
                     metavar='')
 
-parser.add_argument("-el", "--elitism",
-                    type=bool,
-                    default=False,
-                    help="Activate the elitism genetic operator",
-                    metavar='')
-
 parser.add_argument("-mr", "--mutation_rate",
 					type=float, 
 					default=0.2,
@@ -57,10 +52,22 @@ parser.add_argument("-sd", "--mutation_standard_dev",
                     help="sets the gaussian distrubutions standard deviation used for mutation",
                     metavar='')
 
-parser.add_argument("-ct", "--crossover_type",
+parser.add_argument("-cr", "--crossover_type",
                     type=str,
                     default="one_point",
                     help="type of crossover for combining genotypes",
+                    metavar='')
+
+parser.add_argument("-el", "--elitism",
+                    type=bool,
+                    default=False,
+                    help="Activate the elitism genetic operator",
+                    metavar='')
+
+parser.add_argument("-ru", "--runs",
+                    type=int,
+                    default=10,
+                    help="How many repeats of an experiment",
                     metavar='')
 
 parser.add_argument("-ft", "--fitness_type",
@@ -75,7 +82,7 @@ parser.add_argument("-nf", "--formant_range",
                     help="sets the number of formants used for analysis",
                     metavar='')
 
-parser.add_argument("-fr", "--formantrepresentation",
+parser.add_argument("-fr", "--formant_repr",
 					type=str,
 					default='hz',
 					help="Choose the type of formant fitness function",
@@ -87,7 +94,7 @@ parser.add_argument("-dm", "--distance_metric",
 					help="Choose the type of distance distance_metrics",
                     metavar='')
 
-parser.add_argument("-lm", "--loudnessmeasure",
+parser.add_argument("-lm", "--loudness_measure",
 					type=str,
 					default='none',
 					help="Choose the type of loudness co-efficent",
@@ -127,25 +134,25 @@ soundfile = args.soundfile
 
 # Genetic operator variables
 population_size = args.population_size
-generation_size = args.generation_size + 1
+generation_size = args.generation_size
 mutation_rate = args.mutation_rate
 mutation_standard_dev = args.mutation_standard_dev
 selection_type = args.selection_type
 crossover_type = args.crossover_type
 elitism = args.elitism
-#number of runs 
+runs = args.runs 
 
 # Fitness function variables
 fitness_type = args.fitness_type
 formant_range = args.formant_range
-formantrepresentation = args.formantrepresentation
+formant_repr = args.formant_repr
 distance_metric = args.distance_metric
-loudnessmeasure = args.loudnessmeasure
+loudness_measure = args.loudness_measure
 filterbank_type = args.filterbank_type
 identifier = args.identifier
 
 # Constants that are flags
-PARALLEL = args.PARALLEL
+PARALLEL = args.parallel
 CNTK = args.cntk
 
 ###################################################################################################
@@ -153,8 +160,8 @@ CNTK = args.cntk
 start_time = time.time()
 
 # If True, the identifier variable is used as a seed for random number generation
-if False:
-    random.seed(int(identifier))
+# if False:
+#     random.seed(int(identifier))
 
 # Initialises the generation index as 0
 current_generation_index = 0
@@ -168,7 +175,7 @@ prefix = "{} Gen {} Pop {} Mut {} Sd {} ".format(soundfile,
 
 
 if fitness_type == 'formant':
-    directory = prefix + "{} {} {} {}".format(formantrepresentation, distance_metric, loudnessmeasure, identifier)
+    directory = prefix + "{} {} {} {}".format(formant_repr, distance_metric, loudness_measure, identifier)
 elif fitness_type == 'filterbank':
     directory = prefix + "{} {}".format(filterbank_type, identifier)
 
@@ -337,17 +344,17 @@ class Individual:
         print(target_formants)
        
        # Calls the relevant fitness function based on cmd line argument
-        if formantrepresentation == "hz":
+        if formant_repr == "hz":
             self.fitness = fitness_functions.fitness_a1(self.formants, target_formants, distance_metric)
-        elif formantrepresentation == "mel":
+        elif formant_repr == "mel":
             self.fitness = fitness_functions.fitness_a2(self.formants, target_formants, distance_metric)
-        elif formantrepresentation == "cent":
+        elif formant_repr == "cent":
             self.fitness = fitness_functions.fitness_a3(self.formants, target_formants, distance_metric)
-        elif formantrepresentation == "bark":
+        elif formant_repr == "bark":
             self.fitness = fitness_functions.fitness_a4(self.formants, target_formants, distance_metric)
-        elif formantrepresentation == "erb":
+        elif formant_repr == "erb":
             self.fitness = fitness_functions.fitness_a5(self.formants, target_formants, distance_metric)
-        elif formantrepresentation == "brito":
+        elif formant_repr == "brito":
             self.fitness = fitness_functions.fitness_brito(self.formants, target_formants)
         
         # Apply a penalty of the sound is not voiced
@@ -359,13 +366,13 @@ class Individual:
         self.rms = praat_control.get_individual_RMS(self.name, directory, current_generation_index, target_rms)
 
         # Apply loudness co-efficents
-        if loudnessmeasure == "rms":
+        if loudness_measure == "rms":
             self.fitness = self.fitness * self.rms
-        elif loudnessmeasure == "intensity":
+        elif loudness_measure == "intensity":
             self.fitness = self.fitness * self.intensity
-        elif loudnessmeasure == "both":
+        elif loudness_measure == "both":
             self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
-        elif loudnessmeasure == "none":
+        elif loudness_measure == "none":
             pass
 
         ###########################################################################################
@@ -464,7 +471,7 @@ minimumfitness = []
 AVERAGE_VOICED = []
 
 # Main loop containg all Genetic Algorithm logic
-for i in range(generation_size+1):
+for i in tqdm(range(generation_size+1)):
 
     # Creates a folder for the current generation
     os.mkdir(directory + "/Generation{!s}".format(current_generation_index))
@@ -535,14 +542,14 @@ for i in range(generation_size+1):
     # Choose GA selection_type behaviour
 
     if selection_type == "linear":
-        genetic_operators.lin_rank(population, keys)
+        genetic_operators.linear_ranking(population, keys)
     elif selection_type == "proportional":
         genetic_operators.fitness_proportional(population, keys)
     elif selection_type == "hybrid":
         if VOICED_PERCENTAGE < 0.5:
             genetic_operators.fitness_proportional(population, keys)
         else:
-            genetic_operators.lin_rank(population, keys)
+            genetic_operators.linear_ranking(population, keys)
 
     ##############################################################################################
     # The mutation function
@@ -558,11 +565,9 @@ for i in range(generation_size+1):
             population[str(a[i])].values = elite[i]
             print(i, population[str(a[i])].values)
     
-    ###############################################################################################
-    # Finish loop by incrementing the generation counter by 1
+    # Finish the loop by incrementing the generation counter index by 1
     current_generation_index += 1
 
-###################################################################################################
 ###################################################################################################
 # Statisticss stuff
 
