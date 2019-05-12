@@ -31,13 +31,19 @@ parser.add_argument("-ps", "--population_size",
 parser.add_argument("-gs", "--generation_size",
 					type=int, 
 					default=2,
-                    help="sets the number of generation_size",
+                    help="sets the number of generations",
                     metavar='')
 
 parser.add_argument("-sl", "--selection_type",
                     type=str,
                     default='linear',
-                    help="use to specify GA selection_type type. Choose from linear, proportional",
+                    help="use to specify GA selection_type type. Choose from linear, proportional, and exponential",
+                    metavar='')
+
+parser.add_argument("-cr", "--crossover_type",
+                    type=str,
+                    default="one_point",
+                    help="type of crossover for combining genotypes",
                     metavar='')
 
 parser.add_argument("-mr", "--mutation_rate",
@@ -50,12 +56,6 @@ parser.add_argument("-sd", "--mutation_standard_dev",
 					type=float, 
 					default=0.2,
                     help="sets the gaussian distrubutions standard deviation used for mutation",
-                    metavar='')
-
-parser.add_argument("-cr", "--crossover_type",
-                    type=str,
-                    default="one_point",
-                    help="type of crossover for combining genotypes",
                     metavar='')
 
 parser.add_argument("-el", "--elitism",
@@ -545,6 +545,9 @@ for i in tqdm(range(generation_size+1)):
         genetic_operators.linear_ranking(population, keys)
     elif selection_type == "proportional":
         genetic_operators.fitness_proportional(population, keys)
+    elif selection_type == "exponential":
+        genetic_operators.exponential_ranking(population, keys)
+    
     elif selection_type == "hybrid":
         if VOICED_PERCENTAGE < 0.5:
             genetic_operators.fitness_proportional(population, keys)

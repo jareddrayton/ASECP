@@ -8,9 +8,8 @@ from operator import itemgetter
 def fitness_proportional(population, keys):
     """ Fitness proportional selection """
 
-    # make a copy o of the population dictionary
+    # duplicate the population dictionary
     temppopulation = population
-
 
     scaledfitness = []
 
@@ -27,18 +26,25 @@ def fitness_proportional(population, keys):
 def linear_ranking(population, keys):
     """ Linear probability distribution """
 
+    # duplicate the population dictionary
     temppopulation = population
 
+    # make the constant equal to the population size
     c = len(population)
 
-    s = 2.0  # This can be in the range 1.0 < x <= 2.0
+    # Set he selection pressure. This can be in the range 1.0 < x <= 2.0
+    s = 2.0  
 
+    # create an empty list to hold 
     fitness = []
 
+    # duplicate the keys list os strings
     index = keys
 
+    # for every name in keys, check the indiviudals fitness and add to fitness list
     for name in keys:
         fitness.append(population[name].fitness)
+
 
     zippedlists = zip(index, fitness)
     sortedlist = sorted(zippedlists, key=itemgetter(1))
@@ -61,16 +67,49 @@ def linear_ranking(population, keys):
     one_point_crossover(population, keys, temppopulation)
 
 
-def exponential_ranking():
+def exponential_ranking(population, keys):
     """Exponential ranking"""
+
+    # duplicate the population dictionary
+    temppopulation = population
+
+    # make the constant equal to the population size
+    c = len(population)
+
+    # Set he selection pressure. This can be in the range 1.0 < x <= 2.0
+    sp = 0.95  
+
+    # create an empty list to hold 
+    fitness = []
+
+    # duplicate the keys list os strings
+    index = keys
+
+    # for every name in keys, check the indiviudals fitness and add to fitness list
+    for name in keys:
+        fitness.append(population[name].fitness)
+
+    
+    zippedlists = zip(index, fitness)
+    sortedlist = sorted(zippedlists, key=itemgetter(1))
+    x, y = zip(*sortedlist)
+    ranked = list(x)
+    ranked.reverse()
+    print("ranking")
+    print(ranked)
 
     probabilities = []
 
-    for i in range(c):
-        prob = 1 - (math.e ** -i)
-        prob = prob / c
+    for i in range(1, len(ranked)+1):
+        population[ranked[i-1]].fitnessscaled = ((sp - 1) / ((sp ** c) - 1)) * (sp ** (c - i))
+        print(len(ranked))
+        print(ranked[i-1], population[ranked[i-1]].fitnessscaled, i)
+        probabilities.append(population[ranked[i-1]].fitnessscaled)
 
-        probabilities.append(prob)
+    print("Sum of probabilities", sum(probabilities))
+
+    # uniform_crossover(population, keys, temppopulation)
+    one_point_crossover(population, keys, temppopulation)
 
 
 #################################################################################################################
@@ -126,10 +165,7 @@ def uniform_crossover(population, keys, temppopulation):
 #################################################################################################################
 
 def mutation(population, keys, mutationprobability, standarddeviation):
-    """ Mutation function
-	A value is taken from a gaussian distribution and added to an alelle value.
-
-	"""
+    """ Mutation function A value is taken from a gaussian distribution and added to an alelle value."""
 
     for name in keys:
         for i in range(len(population[name].values)):
