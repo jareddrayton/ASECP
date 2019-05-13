@@ -108,7 +108,6 @@ def exponential_ranking(population, keys):
 
     print("Sum of probabilities", sum(probabilities))
 
-    # uniform_crossover(population, keys, temppopulation)
     one_point_crossover(population, keys, temppopulation)
 
 
@@ -124,20 +123,23 @@ def roulette_spin(population, keys):
         if currentcumulative > roulette_spin:
             return name
 
+def stochastic_universal_sampling():
+    pass
+
 #################################################################################################################
 
 def one_point_crossover(population, keys, temppopulation):
     """ One Point Crossover """
 
     for name in keys:
-        ca = roulette_spin(population, keys)
-        cb = roulette_spin(population, keys)
+        parent_a = roulette_spin(population, keys)
+        parent_b = roulette_spin(population, keys)
 
-        limit = len(population[ca].values)
+        limit = len(population[parent_a].values)
 
         cross_point = random.randint(0, limit)
 
-        temppopulation[name].values = population[ca].values[0:cross_point] + population[cb].values[cross_point:limit]
+        temppopulation[name].values = population[parent_a].values[0:cross_point] + population[parent_b].values[cross_point:limit]
 
         population[name].values = temppopulation[name].values
 
@@ -146,22 +148,23 @@ def uniform_crossover(population, keys, temppopulation):
     """ Uniform Crossover Operator """
 
     for name in keys:
-        ca = roulette_spin(population, keys)
-        cb = roulette_spin(population, keys)
+        parent_a = roulette_spin(population, keys)
+        parent_b = roulette_spin(population, keys)
 
-        print("Parent A", population[ca].values)
-        print("Parent B", population[cb].values)
+        print("Parent A", population[parent_a].values)
+        print("Parent B", population[parent_b].values)
+        
         for i in range(len(temppopulation[name].values)):
             if random.random() <= 0.5:
-                temppopulation[name].values[i] = population[ca].values[i]
+                temppopulation[name].values[i] = population[parent_a].values[i]
             else:
-                temppopulation[name].values[i] = population[cb].values[i]
+                temppopulation[name].values[i] = population[parent_b].values[i]
+        
         print("Child", temppopulation[name].values)
 
         population[name].values = temppopulation[name].values
 
 
-#################################################################################################################
 #################################################################################################################
 
 def mutation(population, keys, mutationprobability, standarddeviation):
@@ -174,8 +177,9 @@ def mutation(population, keys, mutationprobability, standarddeviation):
             perturb = random.gauss(0, standarddeviation)
 
             if mutationprobability >= mutationthresh:
-                round(population[name].values[i] + perturb, 1)
-                if population[name].values[i] > 1:
+                round(population[name].values[i] + perturb, 2)
+                
+                if population[name].values[i] > 1.0:
                     population[name].values[i] = 1.0
-                elif population[name].values[i] < 0:
-                    population[name].values[i] = 0.0
+                elif population[name].values[i] < -1.0:
+                    population[name].values[i] = -1.0

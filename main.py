@@ -6,8 +6,8 @@ import argparse
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-import fitness_functions
 import genetic_operators
+import fitness_functions
 import praat_control
 import stats
 
@@ -90,7 +90,7 @@ parser.add_argument("-fr", "--formant_repr",
 
 parser.add_argument("-dm", "--distance_metric",
 					type=str,
-					default='SSD',
+					default='SAD',
 					help="Choose the type of distance distance_metrics",
                     metavar='')
 
@@ -500,7 +500,7 @@ for i in tqdm(range(generation_size+1)):
             population[name].evaluate_filterbank()
 
     ###############################################################################################
-
+    # do fitness statistics
     listfitness = []
 
     for name in keys:
@@ -511,7 +511,22 @@ for i in tqdm(range(generation_size+1)):
     averagefitness.append(sum(listfitness) / len(listfitness))
     minimumfitness.append(min(listfitness))
 
-    # save the n number of best individuals
+    ###############################################################################################
+    # Calculate the percentage of voiced sounds in the generation
+    
+    voiced_total = 0.0
+
+    for name in keys:
+        if population[name].voiced:
+            voiced_total += 1
+
+    voiced_percentage = voiced_total / population_size
+    AVERAGE_VOICED.append(voiced_percentage)
+
+
+    ###############################################################################################
+    # Save n number of the best individuals for use with the elitism operator
+    
     a, b = list(zip(*sorted((numbered_list), key=lambda student: student[1])[:5]))
 
     elite = []
@@ -527,16 +542,6 @@ for i in tqdm(range(generation_size+1)):
     for i in keys:
         print(i, population[i].values)
 
-    ###############################################################################################
-    # Total the number of voiced sounds in a generation
-    VOICED_TOTAL = 0.0
-
-    for name in keys:
-        if population[name].voiced:
-            VOICED_TOTAL += 1
-
-    VOICED_PERCENTAGE = VOICED_TOTAL / population_size
-    AVERAGE_VOICED.append(VOICED_PERCENTAGE)
 
     ###############################################################################################
     # Choose GA selection_type behaviour
@@ -547,17 +552,17 @@ for i in tqdm(range(generation_size+1)):
         genetic_operators.fitness_proportional(population, keys)
     elif selection_type == "exponential":
         genetic_operators.exponential_ranking(population, keys)
-    
     elif selection_type == "hybrid":
-        if VOICED_PERCENTAGE < 0.5:
+        if voiced_percentage < 0.5:
             genetic_operators.fitness_proportional(population, keys)
         else:
             genetic_operators.linear_ranking(population, keys)
 
     ##############################################################################################
-    # The mutation function
+    # Apply the mutation operator
     genetic_operators.mutation(population, keys, mutation_rate, mutation_standard_dev)
 
+    ##############################################################################################
     # Apply the elitism genetic operator
     if elitism == True:
         print(elitism)
