@@ -6,9 +6,8 @@ import genetic_operators
 population_size = 20
 generations = 10
 
-mutation_rate = 0.2
+mutation_rate = 0.1
 mutation_standard_dev = 0.2
-
 
 test = [-0.7, 0.5, 0.3, -0.9, 0.8]
 

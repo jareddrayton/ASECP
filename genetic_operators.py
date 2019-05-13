@@ -167,19 +167,23 @@ def uniform_crossover(population, keys, temppopulation):
 
 #################################################################################################################
 
-def mutation(population, keys, mutationprobability, standarddeviation):
+def mutation(population, keys, mutation_rate, mutation_standard_dev):
     """ Mutation function A value is taken from a gaussian distribution and added to an alelle value."""
 
     for name in keys:
+        print("Before Mutation", population[name].values)
+        
         for i in range(len(population[name].values)):
 
-            mutationthresh = random.random()
-            perturb = random.gauss(0, standarddeviation)
+            mutation_threshold = random.random()
+            perturbation = random.gauss(0, mutation_standard_dev)
 
-            if mutationprobability >= mutationthresh:
-                round(population[name].values[i] + perturb, 2)
+            if mutation_rate >= mutation_threshold:
+                population[name].values[i] += perturbation
                 
                 if population[name].values[i] > 1.0:
                     population[name].values[i] = 1.0
                 elif population[name].values[i] < -1.0:
                     population[name].values[i] = -1.0
+        
+        print("After Mutation", population[name].values)
