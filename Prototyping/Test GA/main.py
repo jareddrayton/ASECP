@@ -3,11 +3,11 @@ from tqdm import tqdm
 
 import genetic_operators
 
-population_size = 20
+population_size = 10
 generations = 10
 
 mutation_rate = 0.1
-mutation_standard_dev = 0.2
+mutation_standard_dev = 0.1
 
 test = [-0.7, 0.5, 0.3, -0.9, 0.8]
 
@@ -49,10 +49,11 @@ for i in tqdm(range(generations + 1)):
     for name in keys:
         population[name].evaluate_fitness()
         print(population[name].fitness)
-
-    print(current_generation_index)
     
     genetic_operators.linear_ranking(population, keys)
+    
+    genetic_operators.one_point_crossover(population, keys)
+
     genetic_operators.mutation(population, keys, mutation_rate, mutation_standard_dev)
     
     current_generation_index += 1

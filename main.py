@@ -263,7 +263,7 @@ class Individual:
 
         # Initialise the fitness score variables
         self.fitness = 0
-        self.fitnessscaled = 0
+        self.selection_probability = 0
 
         # Initialise the genotype with random values for the first generation
         if current_generation_index == 0:
@@ -544,7 +544,7 @@ for i in tqdm(range(generation_size+1)):
 
 
     ###############################################################################################
-    # Choose GA selection_type behaviour
+    # Choose GA probability assignment type
 
     if selection_type == "linear":
         genetic_operators.linear_ranking(population, keys)
@@ -557,6 +557,11 @@ for i in tqdm(range(generation_size+1)):
             genetic_operators.fitness_proportional(population, keys)
         else:
             genetic_operators.linear_ranking(population, keys)
+
+    ###############################################################################################
+    # Choose crossover
+    
+    genetic_operators.one_point_crossover(population, keys)
 
     ##############################################################################################
     # Apply the mutation operator

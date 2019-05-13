@@ -5,52 +5,36 @@ from operator import itemgetter
 def linear_ranking(population, keys):
     """ Linear probability distribution """
 
-    # duplicate the population dictionary
-    temppopulation = population
+    # Create a list containing all the fitness scores of the population
+    fitness = [population[name].fitness for name in keys]
 
-    # make the constant equal to the population size
-    c = len(population)
+    # Create a zip of keys fitness then sort them by fitness
+    keys_fitness = zip(keys, fitness)
+    keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
 
-    # Set he selection pressure. This can be in the range 1.0 < x <= 2.0
-    s = 2.0  
+    # Unpack the zip
+    rank, y = zip(*keys_fitness)
+    rank = list(rank)
+  
+    C = len(population) # Set the constant term to equal to the population size
 
-    # create an empty list to hold 
-    fitness = []
+    SP = 2.0  # Set the selection pressure. This can be in the range 1.0 < x <= 2.0
 
-    # duplicate the keys list os strings
-    index = keys
+    for i in range(len(rank)):
+        population[rank[i]].selection_probability = (2 - SP) / C + (2.0 * i * (SP - 1)) / (C * (C - 1))
+        
+        #print(rank[i], population[rank[i]].selection_probability, population[rank[i]].fitness)
+    
+    #print("Sum of Probs", sum([population[rank[i]].selection_probability for i in range(len(keys))]))
 
-    # for every name in keys, check the indiviudals fitness and add to fitness list
-    for name in keys:
-        fitness.append(population[name].fitness)
-
-
-    zippedlists = zip(index, fitness)
-    sortedlist = sorted(zippedlists, key=itemgetter(1))
-    x, y = zip(*sortedlist)
-    ranked = list(x)
-    ranked.reverse()
-    print("Current Ranking", ranked)
-
-    probabilities = []
-
-    for i in range(len(ranked)):
-        population[ranked[i]].fitnessscaled = (2 - s) / c + (2.0 * i * (s - 1)) / (c * (c - 1))
-        #print(ranked[i], population[ranked[i]].fitnessscaled)
-        probabilities.append(population[ranked[i]].fitnessscaled)
-
-    print("Sum of probabilities", sum(probabilities))
-
-    # uniform_crossover(population, keys, temppopulation)
-    one_point_crossover(population, keys, temppopulation)
-
+#################################################################################################################
 
 def roulette_spin(population, keys):
     roulette_spin = random.uniform(0, 1)
     currentcumulative = 0
 
     for name in keys:
-        currentcumulative += population[name].fitnessscaled
+        currentcumulative += population[name].selection_probability
         if currentcumulative > roulette_spin:
             return name
 
@@ -59,8 +43,10 @@ def stochastic_universal_sampling():
 
 #################################################################################################################
 
-def one_point_crossover(population, keys, temppopulation):
+def one_point_crossover(population, keys):
     """ One Point Crossover """
+
+    temppopulation = population
 
     for name in keys:
         parent_a = roulette_spin(population, keys)
@@ -75,23 +61,21 @@ def one_point_crossover(population, keys, temppopulation):
         population[name].values = temppopulation[name].values
 
 
+#################################################################################################################
+
 def mutation(population, keys, mutation_rate, mutation_standard_dev):
-    """ Mutation function A value is taken from a gaussian distribution and added to an alelle value."""
 
     for name in keys:
-        print("Before Mutation", population[name].values)
-
         for i in range(len(population[name].values)):
 
-            mutation_threshold = random.random()
-            perturbation = random.gauss(0, mutation_standard_dev)
-
-            if mutation_rate >= mutation_threshold:
-                population[name].values[i] += perturbation
+            # Proceed if mutation_rate is higher than a number taken from a uniform distrubtion
+            if mutation_rate >= random.random():
                 
+                # Mutate the current allele value
+                population[name].values[i] += random.gauss(0, mutation_standard_dev)
+                
+                # Then truncate tha vaule if it is now out of bounds
                 if population[name].values[i] > 1.0:
                     population[name].values[i] = 1.0
                 elif population[name].values[i] < -1.0:
                     population[name].values[i] = -1.0
-
-        print("After Mutation ", population[name].values)
