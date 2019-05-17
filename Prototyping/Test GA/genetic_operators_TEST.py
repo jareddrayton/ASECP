@@ -30,6 +30,7 @@ def linear_ranking(population, keys):
 #################################################################################################################
 
 def roulette_spin(population, keys):
+    
     roulette_spin = random.uniform(0, 1)
     currentcumulative = 0
 
@@ -38,7 +39,8 @@ def roulette_spin(population, keys):
         if currentcumulative > roulette_spin:
             return name
 
-def stochastic_universal_sampling():
+def stochastic_universal_sampling(population, keys, N):
+
     pass
 
 #################################################################################################################
@@ -60,6 +62,22 @@ def one_point_crossover(population, keys):
 
         population[name].values = temppopulation[name].values
 
+def one_point_crossover_SUS(population, keys):
+    """ One Point Crossover """
+
+    temppopulation = population
+
+    for name in keys:
+        parent_a = roulette_spin(population, keys)
+        parent_b = roulette_spin(population, keys)
+
+        limit = len(population[parent_a].values)
+
+        cross_point = random.randint(0, limit)
+
+        temppopulation[name].values = population[parent_a].values[0:cross_point] + population[parent_b].values[cross_point:limit]
+
+        population[name].values = temppopulation[name].values
 
 #################################################################################################################
 

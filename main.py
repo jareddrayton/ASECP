@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-sf", "--soundfile",
                     type=str,
-                    default='vowel-01.wav',
+                    default='vowel-05.wav',
                     help="sets the filename of the target sound",
                     metavar='')
 
@@ -90,7 +90,7 @@ parser.add_argument("-fr", "--formant_repr",
 
 parser.add_argument("-dm", "--distance_metric",
 					type=str,
-					default='SAD',
+					default='SSD',
 					help="Choose the type of distance distance_metrics",
                     metavar='')
 
