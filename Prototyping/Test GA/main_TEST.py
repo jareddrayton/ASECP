@@ -3,16 +3,19 @@ from tqdm import tqdm
 
 import genetic_operators_TEST
 
-population_size = 10
-generations = 10
+population_size = 100
+generations = 100
 
-mutation_rate = 0.1
-mutation_standard_dev = 0.1
+mutation_rate = 0.05
+mutation_standard_dev = 0.15
+
+elitism = 0
 
 test = [-0.7, 0.5, 0.3, -0.9, 0.8]
 
-random.seed(2)
+random.seed(5)
 
+# Create a custom data structure using a class
 class Individual:
     def __init__(self, name):
 
@@ -42,20 +45,27 @@ current_generation_index = 0
 
 for i in tqdm(range(generations + 1)):
 
+    fitness_list = []
+
     if current_generation_index == 0:
         for name in keys:
             population[name] = Individual(name)
 
     for name in keys:
         population[name].evaluate_fitness()
-        print(population[name].fitness)
-    
+        #print(name, population[name].selection_probability)
+        #print(name, population[name].fitness)
+        fitness_list.append(population[name].fitness)
+
+
     genetic_operators_TEST.linear_ranking(population, keys)
     
-    genetic_operators_TEST.one_point_crossover(population, keys)
+    #genetic_operators_TEST.one_point_crossover(population, keys)
+    genetic_operators_TEST.uniform_crossover(population, keys)
 
     genetic_operators_TEST.mutation(population, keys, mutation_rate, mutation_standard_dev)
     
-    print(current_generation_index)
+    print(current_generation_index, sum(fitness_list)/len(fitness_list))
+    
     current_generation_index += 1
 

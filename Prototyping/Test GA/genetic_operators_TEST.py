@@ -1,5 +1,6 @@
 import random
 import math
+import copy
 from operator import itemgetter
 
 def linear_ranking(population, keys):
@@ -30,7 +31,8 @@ def linear_ranking(population, keys):
 #################################################################################################################
 
 def roulette_spin(population, keys):
-    
+    # Just returns one
+
     roulette_spin = random.uniform(0, 1)
     currentcumulative = 0
 
@@ -39,45 +41,99 @@ def roulette_spin(population, keys):
         if currentcumulative > roulette_spin:
             return name
 
-def stochastic_universal_sampling(population, keys, N):
 
-    pass
+def stochastic_universal_sampling(population, keys):
+
+    N = len(keys) * 2
+
+    mating_pool = []
+
+    r = random.uniform(0, 1/N) # pick a number from 0, 1/N
+
+    multi_arm_bandit = [r+i/N for i in range(N)]
+
+    for arm in multi_arm_bandit:
+        
+        cumulative_probability = 0
+        
+        for name in keys:    
+            cumulative_probability += population[name].selection_probability
+            
+            if cumulative_probability >= arm:
+                mating_pool.append(name)
+                break
+            
+    return mating_pool
+
 
 #################################################################################################################
 
+def one_point_crossover_LEGACY(population, keys):
+    """ One Point Crossover """
+
+    temppopulation = population
+
+    for name in keys:
+        parent_a = roulette_spin(population, keys)
+        parent_b = roulette_spin(population, keys)
+
+        limit = len(population[parent_a].values)
+
+        cross_point = random.randint(0, limit)
+
+        temppopulation[name].values = population[parent_a].values[0:cross_point] + population[parent_b].values[cross_point:limit]
+
+        population[name].values = temppopulation[name].values
+
+
 def one_point_crossover(population, keys):
     """ One Point Crossover """
+    
+    # Call SUS selection that returns a pool of parents double the size of the population
+    mating_pool = stochastic_universal_sampling(population, keys) 
+    
+    # Shuffle the mating pool
+    random.shuffle(mating_pool)
+    
+    # split the mating pool into even length mother and father lists
+    mothers = [mating_pool[x] for x in range(0, len(mating_pool), 2)]
+    fathers = [mating_pool[x] for x in range(1, len(mating_pool), 2)]
 
-    temppopulation = population
+    hold = []
 
-    for name in keys:
-        parent_a = roulette_spin(population, keys)
-        parent_b = roulette_spin(population, keys)
+    for i, name in enumerate(keys):
+        crossover_point = random.randint(0, len(population[keys[i]].values))
+        hold.append(population[mothers[i]].values[0:crossover_point] + population[fathers[i]].values[crossover_point:])
 
-        limit = len(population[parent_a].values)
+    for i, name in enumerate(keys):
+        population[name].values = hold[i]
 
-        cross_point = random.randint(0, limit)
 
-        temppopulation[name].values = population[parent_a].values[0:cross_point] + population[parent_b].values[cross_point:limit]
 
-        population[name].values = temppopulation[name].values
+def uniform_crossover(population, keys):
+    """ Uniform Crossover """
+    
+    # Call SUS selection that returns a pool of parents double the size of the population
+    mating_pool = stochastic_universal_sampling(population, keys) 
+    
+    # Shuffle the mating pool
+    random.shuffle(mating_pool)
+    
+    # split the mating pool into even length mother and father lists
+    mothers = [mating_pool[x] for x in range(0, len(mating_pool), 2)]
+    fathers = [mating_pool[x] for x in range(1, len(mating_pool), 2)]
 
-def one_point_crossover_SUS(population, keys):
-    """ One Point Crossover """
+    hold = []
 
-    temppopulation = population
+    for i, name in enumerate(keys):
+        
+        tt = [random.randint(0, 1) for x in range(len(population[keys[i]].values))]
+        
+        hold.append([population[mothers[i]].values[j] if tt[j] == True else population[fathers[i]].values[j] for j in range(len(tt))])
 
-    for name in keys:
-        parent_a = roulette_spin(population, keys)
-        parent_b = roulette_spin(population, keys)
+    for i, name in enumerate(keys):
+        population[name].values = hold[i]
 
-        limit = len(population[parent_a].values)
-
-        cross_point = random.randint(0, limit)
-
-        temppopulation[name].values = population[parent_a].values[0:cross_point] + population[parent_b].values[cross_point:limit]
-
-        population[name].values = temppopulation[name].values
 
 #################################################################################################################
 
