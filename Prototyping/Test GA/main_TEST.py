@@ -4,12 +4,13 @@ from tqdm import tqdm
 import genetic_operators_TEST
 
 population_size = 100
-generations = 100
+generations = 50
 
-mutation_rate = 0.05
-mutation_standard_dev = 0.15
+mutation_rate = 0.1
+mutation_standard_dev = 0.1
 
-elitism = 0
+elitism = True
+elite_size = 5
 
 test = [-0.7, 0.5, 0.3, -0.9, 0.8]
 
@@ -53,19 +54,25 @@ for i in tqdm(range(generations + 1)):
 
     for name in keys:
         population[name].evaluate_fitness()
-        #print(name, population[name].selection_probability)
-        #print(name, population[name].fitness)
         fitness_list.append(population[name].fitness)
 
+    # store n number of elite members if enabled
+    elites = genetic_operators_TEST.elitism(population, keys, elite_size)
 
-    genetic_operators_TEST.linear_ranking(population, keys)
+    #genetic_operators_TEST.linear_ranking(population, keys)
+    genetic_operators_TEST.exponential_ranking(population, keys)
+    #genetic_operators_TEST.fitness_proportional(population, keys)
     
-    #genetic_operators_TEST.one_point_crossover(population, keys)
-    genetic_operators_TEST.uniform_crossover(population, keys)
+    genetic_operators_TEST.one_point_crossover(population, keys)
+    #genetic_operators_TEST.uniform_crossover(population, keys)
 
     genetic_operators_TEST.mutation(population, keys, mutation_rate, mutation_standard_dev)
+
+    if elitism == True:
+        for i in range(elite_size):
+            population[keys[i]].values = elites[i]
     
-    print(current_generation_index, sum(fitness_list)/len(fitness_list))
+    print(current_generation_index, sum(fitness_list)/len(fitness_list), min(fitness_list))
     
     current_generation_index += 1
 
