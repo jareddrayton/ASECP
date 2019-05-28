@@ -581,6 +581,12 @@ for i in tqdm(range(generation_size+1)):
     # Finish the loop by incrementing the generation counter index by 1
     current_generation_index += 1
 
+
+
+
+
+
+
 ###################################################################################################
 # Statisticss stuff
 
