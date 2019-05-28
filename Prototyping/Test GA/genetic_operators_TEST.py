@@ -30,25 +30,21 @@ def elitism(population, keys, elite_size):
 def linear_ranking(population, keys):
     """ Linear probability distribution """
 
-    # Create a list containing all the fitness scores of the population
-    fitness = [population[name].fitness for name in keys]
+    # Create a list of tuple pairs containing key and fitness scores of each individual
+    keys_fitness = [(name, population[name].fitness) for name in keys]
 
-    # Create a zip of keys fitness then sort them by fitness
-    keys_fitness = zip(keys, fitness)
+    # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
     keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
 
-    # Unpack the zip
-    rank, y = zip(*keys_fitness)
-    rank = list(rank)
+    # Unpack the list of tuples into seperate tuples
+    ranked, fitness = zip(*keys_fitness)
   
     C = len(population) # Set the constant term to equal to the population size
 
     SP = 2.0  # Set the selection pressure. This can be in the range 1.0 < x <= 2.0
 
-    for i in range(len(rank)):
-        population[rank[i]].selection_probability = (2 - SP) / C + (2.0 * i * (SP - 1)) / (C * (C - 1))
-
-    # print(sum([population[name].selection_probability for name in keys]))
+    for i, rank in enumerate(ranked):
+        population[rank].selection_probability = (2 - SP) / C + (2.0 * i * (SP - 1)) / (C * (C - 1))
 
 
 def exponential_ranking(population, keys):

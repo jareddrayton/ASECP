@@ -3,8 +3,8 @@ from tqdm import tqdm
 
 import genetic_operators_TEST
 
-population_size = 100
-generations = 100
+population_size = 10
+generations = 10
 
 mutation_rate = 0.05
 mutation_standard_dev = 0.1
@@ -59,8 +59,9 @@ for i in tqdm(range(generations + 1)):
     # store n number of elite members if enabled
     elites = genetic_operators_TEST.elitism(population, keys, elite_size)
 
-    #genetic_operators_TEST.linear_ranking(population, keys)
-    genetic_operators_TEST.exponential_ranking(population, keys)
+    #genetic_operators_TEST.linear_ranking_refactored(population, keys)
+    genetic_operators_TEST.linear_ranking(population, keys)
+    #genetic_operators_TEST.exponential_ranking(population, keys)
     #genetic_operators_TEST.fitness_proportional(population, keys)
     
     genetic_operators_TEST.one_point_crossover(population, keys)
