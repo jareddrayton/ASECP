@@ -133,14 +133,45 @@ def stochastic_universal_sampling(population, keys):
             
     return mating_pool
 
+
+def tournament_sampling(population, keys):
+
+    tourn_size = 3
+
+    N = len(keys) * 2 
+
+    mating_pool = []
+    
+    for i in range(N):
+        selection = random.sample(keys, tourn_size)
+        fitness = [population[name].fitness for name in selection]
+
+            # Create a zip of keys fitness then sort them by fitness
+        keys_fitness = zip(selection, fitness)
+        keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=False)
+
+
+        # Unpack the zip
+        rank, y = zip(*keys_fitness)
+        rank = list(rank)
+        #print(rank,y)
+        
+        mating_pool.append(rank[0])
+
+    #print(mating_pool)
+
+    return mating_pool
+
+
 #################################################################################################################
 
 def one_point_crossover(population, keys):
     """ One Point Crossover """
     
-    # Call the SUS function that returns a pool of parents double the size of the population
+    # Call a sampling function that returns a pool of parents double the size of the population
     mating_pool = stochastic_universal_sampling(population, keys) 
     #mating_pool = roulette_wheel_sampling(population, keys)
+    #mating_pool = tournament_sampling(population, keys)
 
     # Shuffle the mating pool
     random.shuffle(mating_pool)

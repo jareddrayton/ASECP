@@ -4,9 +4,9 @@ from tqdm import tqdm
 import genetic_operators_TEST
 
 population_size = 100
-generations = 50
+generations = 100
 
-mutation_rate = 0.1
+mutation_rate = 0.05
 mutation_standard_dev = 0.1
 
 elitism = True
