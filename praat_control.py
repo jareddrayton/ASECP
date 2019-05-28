@@ -38,7 +38,7 @@ def synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize):
     ex = futures.ThreadPoolExecutor(max_workers=mp.cpu_count()-1)
     ex.map(worker, repeat(directory), repeat(CURRENT_GEN), [i for i in range(populationsize)])
     ex.shutdown()
-    print("ThreadPoolCompleted")
+    #print("ThreadPoolCompleted")
 
 
 def synthesise_artwords_serial(currentgeneration, generationsize, directory):
@@ -62,7 +62,7 @@ def get_time(soundfile):
     script.write('writeFileLine: "time.txt", time\r\n')
     script.close()
 
-    subprocess.call(['./praat', '--run', 'AnalyseTargetSound.praat'],stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL )
+    subprocess.call(['./praat', '--ansi', '--run', 'AnalyseTargetSound.praat'], stdout=subprocess.DEVNULL)
 
     os.remove('AnalyseTargetSound.praat')
 
@@ -90,7 +90,7 @@ def get_target_formants(TargetLength, soundfile, NO_FORMANTS):
     script.write('appendFile ("pitch.txt", info$ ())')
     script.close()
 
-    subprocess.call(['./praat', '--run', 'GetPitch.praat'])
+    subprocess.call(['./praat', '--ansi', '--run', 'GetPitch.praat'], stdout=subprocess.DEVNULL)
     os.remove('GetPitch.praat')
 
     script = open("GetFormants.praat", 'w')
@@ -100,7 +100,7 @@ def get_target_formants(TargetLength, soundfile, NO_FORMANTS):
     script.write('appendFile ("formants.txt", info$ ())')
     script.close()
 
-    subprocess.call(['./praat', '--run', 'GetFormants.praat'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.call(['./praat', '--ansi','--run', 'GetFormants.praat'], stdout=subprocess.DEVNULL)
     os.remove('GetFormants.praat')
 
     with open("pitch.txt", "r") as pitch:
@@ -130,7 +130,7 @@ def get_target_formants(TargetLength, soundfile, NO_FORMANTS):
 
     values = list(map(float, values))
 
-    print(values)
+    # print(values)
 
     return values[1:NO_FORMANTS+1]
 
@@ -143,7 +143,7 @@ def get_target_intensity(soundfile):
     script.write('appendFile ("intensity.txt", info$ ())')
     script.close()
 
-    subprocess.call(['./praat', '--run', 'GetIntensity.praat'])
+    subprocess.call(['./praat', '--ansi', '--run', 'GetIntensity.praat'], stdout=subprocess.DEVNULL)
     os.remove('GetIntensity.praat')
 
     with open("intensity.txt", "r") as f:
@@ -233,7 +233,7 @@ def get_individual_formants(name, directory, currentgeneration, samplerate):
     # Assigns the second item from .lines to candformants
     candformants = lines[1].split("\t")
 
-    print('candformants', candformants)
+    # print('candformants', candformants)
     
     # Strips whitespace and checks if a formant is undefined and sets this to half the sample rate
     for i in range(len(candformants)):
@@ -244,7 +244,7 @@ def get_individual_formants(name, directory, currentgeneration, samplerate):
     # Converts the list of strings to a list of floats
     candformants = list(map(float, candformants))
     
-    print('candformants', candformants)
+    # print('candformants', candformants)
     
     os.remove("{}/Generation{!s}/formants{!s}.txt".format(directory, currentgeneration, name))
 

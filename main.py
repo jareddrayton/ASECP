@@ -30,7 +30,7 @@ parser.add_argument("-ps", "--population_size",
 
 parser.add_argument("-gs", "--generation_size",
 					type=int, 
-					default=10,
+					default=2,
                     help="sets the number of generations",
                     metavar='')
 
@@ -60,13 +60,13 @@ parser.add_argument("-sd", "--mutation_standard_dev",
 
 parser.add_argument("-el", "--elitism",
                     type=bool,
-                    default=False,
+                    default=True,
                     help="Activate the elitism genetic operator",
                     metavar='')
 
 parser.add_argument("-es", "--elite_size",
                     type=int,
-                    default=5,
+                    default=2,
                     help="Specify number of elite individuals to be kept",
                     metavar='')
 
@@ -186,7 +186,7 @@ if fitness_type == 'formant':
 elif fitness_type == 'filterbank':
     directory = prefix + "{} {}".format(filterbank_type, identifier)
 
-print(directory)
+#print(directory)
 
 # Makes the directory for all subsequent files
 os.mkdir(directory)
@@ -341,15 +341,15 @@ class Individual:
         # This acts as a baseline fitness attribute to compare different fitness functions
         self.absolutefitness = fitness_functions.fitness_a1(self.formants, target_formants, "SAD")
         
-        print("absolute fitness", self.absolutefitness)
+        # print("absolute fitness", self.absolutefitness)
     
     # Method for calculating an individuals fitness
     def evaluate_formant(self):
         
         self.universal()
-        print(self.voiced)
-        print(self.formants)
-        print(target_formants)
+        #print(self.voiced)
+        #print(self.formants)
+        # print(target_formants)
        
        # Calls the relevant fitness function based on cmd line argument
         if formant_repr == "hz":
@@ -572,6 +572,8 @@ for i in tqdm(range(generation_size+1)):
         for i in range(elite_size):
             population[keys[i]].values = elites[i]
     
+    ##############################################################################################
+
     # Finish the loop by incrementing the generation counter index by 1
     current_generation_index += 1
 

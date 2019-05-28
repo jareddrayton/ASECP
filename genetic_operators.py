@@ -47,7 +47,7 @@ def linear_ranking(population, keys):
     for i, rank in enumerate(ranked):
         population[rank].selection_probability = (2 - SP) / C + (2.0 * i * (SP - 1)) / (C * (C - 1))
 
-    print(sum([population[name].selection_probability for name in keys]))
+    #print(sum([population[name].selection_probability for name in keys]))
 
 
 def exponential_ranking(population, keys):
@@ -69,7 +69,7 @@ def exponential_ranking(population, keys):
     for i, rank in enumerate(ranked):
         population[rank].selection_probability = ((i ** 2)/(C - 1)**2)  / NF
 
-    print(sum([population[name].selection_probability for name in keys]))
+    #print(sum([population[name].selection_probability for name in keys]))
 
 
 def fitness_proportional(population, keys):
@@ -84,7 +84,7 @@ def fitness_proportional(population, keys):
     for name in keys:
         population[name].selection_probability = population[name].scaled_fitness / sum(scaled_fitness)
     
-    print(sum([population[name].selection_probability for name in keys]))
+    #print(sum([population[name].selection_probability for name in keys]))
 
 
 #################################################################################################################
