@@ -30,31 +30,31 @@ parser.add_argument("-ps", "--population_size",
 
 parser.add_argument("-gs", "--generation_size",
 					type=int, 
-					default=2,
+					default=10,
                     help="sets the number of generations",
                     metavar='')
 
 parser.add_argument("-sl", "--selection_type",
                     type=str,
-                    default='linear',
-                    help="use to specify GA selection_type type. Choose from linear, proportional, and exponential",
+                    default='exponential',
+                    help="use to specify GA selection_type type. Choose from 'linear', 'proportional', and 'exponential'",
                     metavar='')
 
 parser.add_argument("-cr", "--crossover_type",
                     type=str,
-                    default="one_point",
-                    help="type of crossover for combining genotypes",
+                    default="uniform",
+                    help="type of crossover for combining genotypes. Choose from 'one_point' or 'uniform'",
                     metavar='')
 
 parser.add_argument("-mr", "--mutation_rate",
 					type=float, 
-					default=0.2,
+					default=0.05,
                     help="sets the rate of mutation",
                     metavar='')
 
 parser.add_argument("-sd", "--mutation_standard_dev",
 					type=float, 
-					default=0.2,
+					default=0.1,
                     help="sets the gaussian distrubutions standard deviation used for mutation",
                     metavar='')
 
@@ -62,6 +62,12 @@ parser.add_argument("-el", "--elitism",
                     type=bool,
                     default=False,
                     help="Activate the elitism genetic operator",
+                    metavar='')
+
+parser.add_argument("-es", "--elite_size",
+                    type=int,
+                    default=5,
+                    help="Specify number of elite individuals to be kept",
                     metavar='')
 
 parser.add_argument("-ru", "--runs",
@@ -140,6 +146,7 @@ mutation_standard_dev = args.mutation_standard_dev
 selection_type = args.selection_type
 crossover_type = args.crossover_type
 elitism = args.elitism
+elite_size = args.elite_size
 runs = args.runs 
 
 # Fitness function variables
@@ -263,11 +270,12 @@ class Individual:
 
         # Initialise the fitness score variables
         self.fitness = 0
+        self.scaled_fitness = 0
         self.selection_probability = 0
 
         # Initialise the genotype with random values for the first generation
         if current_generation_index == 0:
-            self.values = [round(random.uniform(0, 1), 1) for x in range(len(self.parameters))]
+            self.values = [round(random.uniform(-1, 1), 1) for x in range(len(self.parameters))]
 
     # Method for creating the Praat .artword file
     def create_artword(self):
@@ -525,26 +533,12 @@ for i in tqdm(range(generation_size+1)):
 
 
     ###############################################################################################
-    # Save n number of the best individuals for use with the elitism operator
-    
-    a, b = list(zip(*sorted((numbered_list), key=lambda student: student[1])[:5]))
+    # Elitism
 
-    elite = []
-
-    print("\n")
-    print("elitism")
-    for i in range(len(a)):
-        elite.append(population[str(a[i])].values)
-        print(i, elite[i])
-
-    print("\n")
-
-    for i in keys:
-        print(i, population[i].values)
-
+    elites = genetic_operators.elitism(population, keys, elite_size)
 
     ###############################################################################################
-    # Choose GA probability assignment type
+    # Selection
 
     if selection_type == "linear":
         genetic_operators.linear_ranking(population, keys)
@@ -559,31 +553,27 @@ for i in tqdm(range(generation_size+1)):
             genetic_operators.linear_ranking(population, keys)
 
     ###############################################################################################
-    # Choose crossover
+    # Crossover
     
-    genetic_operators.one_point_crossover(population, keys)
+    if crossover_type == "one_point":
+        genetic_operators.one_point_crossover(population, keys)
+    elif crossover_type == "uniform":
+        genetic_operators.uniform_crossover(population, keys)
 
     ##############################################################################################
-    # Apply the mutation operator
+    # Mutation
+
     genetic_operators.mutation(population, keys, mutation_rate, mutation_standard_dev)
 
     ##############################################################################################
-    # Apply the elitism genetic operator
+    # Elitism
+    
     if elitism == True:
-        print(elitism)
-        for i in range(len(a)):
-            print(elite[i])
-
-            print(i, population[str(a[i])].values)
-            population[str(a[i])].values = elite[i]
-            print(i, population[str(a[i])].values)
+        for i in range(elite_size):
+            population[keys[i]].values = elites[i]
     
     # Finish the loop by incrementing the generation counter index by 1
     current_generation_index += 1
-
-
-
-
 
 
 
