@@ -347,9 +347,7 @@ class Individual:
     def evaluate_formant(self):
         
         self.universal()
-        #print(self.voiced)
-        #print(self.formants)
-        # print(target_formants)
+
        
        # Calls the relevant fitness function based on cmd line argument
         if formant_repr == "hz":
@@ -362,6 +360,7 @@ class Individual:
             self.fitness = fitness_functions.fitness_a4(self.formants, target_formants, distance_metric)
         elif formant_repr == "erb":
             self.fitness = fitness_functions.fitness_a5(self.formants, target_formants, distance_metric)
+        
         elif formant_repr == "brito":
             self.fitness = fitness_functions.fitness_brito(self.formants, target_formants)
         
@@ -546,11 +545,6 @@ for i in tqdm(range(generation_size+1)):
         genetic_operators.fitness_proportional(population, keys)
     elif selection_type == "exponential":
         genetic_operators.exponential_ranking(population, keys)
-    elif selection_type == "hybrid":
-        if voiced_percentage < 0.5:
-            genetic_operators.fitness_proportional(population, keys)
-        else:
-            genetic_operators.linear_ranking(population, keys)
 
     ###############################################################################################
     # Crossover

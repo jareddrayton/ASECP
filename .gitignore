@@ -58,6 +58,7 @@ Temporary Items
 *.png
 *.cmd
 *.pdf
+*.AIFF
 
 # Python files
 *.pyc
