@@ -1,5 +1,6 @@
 import random
 import math
+import shutil
 from operator import itemgetter
 
 
@@ -135,6 +136,8 @@ def stochastic_universal_sampling(population, keys):
 def tournament_sampling(population, keys):
 
     # Set the tournament size and essentially the selection pressure
+    # Not used in conjubction  with 
+
     tourn_size = 3
 
     N = len(keys) * 2 
@@ -180,7 +183,7 @@ def one_point_crossover(population, keys):
     hold = []
 
     for i, name in enumerate(keys):
-        crossover_point = random.randint(0, len(population[keys[i]].values))
+        crossover_point = random.randint(0, len(population[keys[i]].values))        
         hold.append(population[mothers[i]].values[0:crossover_point] + population[fathers[i]].values[crossover_point:])
 
     # overwrite the parents with the new child values
@@ -189,7 +192,16 @@ def one_point_crossover(population, keys):
 
 
 def uniform_crossover(population, keys):
-    """ Uniform Crossover """
+    """ Uniform Crossover 
+    
+    Parameters
+    ----------
+    population : dictionary
+        A dictionary containing the collection of Individual objects
+    keys : list
+        A list of keys for the population dictionary
+
+    """
     
     # Call a sampling function that returns a pool of parents double the size of the population
     mating_pool = stochastic_universal_sampling(population, keys) 
@@ -208,7 +220,6 @@ def uniform_crossover(population, keys):
     for i, name in enumerate(keys):
         
         tt = [random.randint(0, 1) for x in range(len(population[keys[i]].values))]
-        
         hold.append([population[mothers[i]].values[j] if tt[j] == True 
                     else population[fathers[i]].values[j] 
                     for j in range(len(tt))])

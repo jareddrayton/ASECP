@@ -1,7 +1,9 @@
 import csv
 import matplotlib.pyplot as plt
 import os
+import pathlib
 import random
+import shutil
 import time
 from tqdm import tqdm
 
@@ -55,26 +57,32 @@ start_time = time.time()
 # if False:
 #     random.seed(int(identifier))
 
-# Initialises the generation index as 0
-current_generation_index = 0
+
 
 # Creates the directory string
-prefix = "{} Gen {} Pop {} Mut {} Sd {} ".format(soundfile,
+prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(soundfile,
                                                  generation_size,
                                                  population_size,
                                                  mutation_rate,
                                                  mutation_standard_dev)
 
 
-if fitness_type == 'formant':
-    directory = prefix + "{} {} {} {}".format(formant_repr, distance_metric, loudness_measure, identifier)
-elif fitness_type == 'filterbank':
-    directory = prefix + "{} {}".format(filterbank_type, identifier)
+root_data_directory = pathlib.Path.cwd().parent / 'data'
 
-#print(directory)
-data_folder = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data'
+
+if fitness_type == 'formant':
+    directory = root_data_directory / '{}{} {} {} {}'.format(prefix, formant_repr, distance_metric, loudness_measure, identifier)
+elif fitness_type == 'filterbank':
+    directory = root_data_directory / '{}{} {}'.format(prefix, filterbank_type, identifier)
+
+
+
+print(directory)
 
 # Makes the directory for all subsequent files
+if directory.exists():
+    shutil.rmtree(directory)
+
 os.mkdir(directory)
 
 soundfile = '{}'.format(soundfile)
@@ -107,7 +115,7 @@ class Individual:
         self.values = []
 
         # Load parameters fomr CONSTANTS file
-        self.parameters = PARAMETER_LISTS['ALL']
+        self.parameters = PARAMETER_LISTS['CONSTRAINED']
 
         # Initialise the fitness score variables
         self.raw_fitness = 0
@@ -316,15 +324,15 @@ keys = [str(x) for x in range(population_size)]
 population = {}
 
 # Lists to hold fitness stats
-averagefitness = []
-minimumfitness = []
-AVERAGE_VOICED = []
+average_fitness = []
+minimum_fitness = []
+voiced_percentage = []
 
 # Main loop containg all Genetic Algorithm logic
-for i in tqdm(range(generation_size+1)):
+for current_generation_index in range(generation_size + 1):
 
     # Creates a folder for the current generation
-    os.mkdir(directory + "/Generation{!s}".format(current_generation_index))
+    os.mkdir(directory / 'Generation{!s}'.format(current_generation_index))
 
     # If it is the first generation, instantiate the Indiviudal class and associate it with
     # a key in the population dictionary
@@ -358,8 +366,8 @@ for i in tqdm(range(generation_size+1)):
 
     numbered_list = list(enumerate(listfitness))
 
-    averagefitness.append(sum(listfitness) / len(listfitness))
-    minimumfitness.append(min(listfitness))
+    average_fitness.append(sum(listfitness) / len(listfitness))
+    minimum_fitness.append(min(listfitness))
 
     ###############################################################################################
     # Calculate the percentage of voiced sounds in the generation
@@ -370,8 +378,7 @@ for i in tqdm(range(generation_size+1)):
         if population[name].voiced:
             voiced_total += 1
 
-    voiced_percentage = voiced_total / population_size
-    AVERAGE_VOICED.append(voiced_percentage)
+    voiced_percentage.append(voiced_total / population_size)
 
 
     ###############################################################################################
@@ -381,7 +388,7 @@ for i in tqdm(range(generation_size+1)):
 
     ###############################################################################################
     # Selection
-
+    # Assigns selection probability
     if selection_type == "linear":
         genetic_operators.linear_ranking(population, keys)
     elif selection_type == "proportional":
@@ -391,7 +398,7 @@ for i in tqdm(range(generation_size+1)):
 
     ###############################################################################################
     # Crossover
-    
+    print("yelp")
     if crossover_type == "one_point":
         genetic_operators.one_point_crossover(population, keys)
     elif crossover_type == "uniform":
@@ -412,7 +419,7 @@ for i in tqdm(range(generation_size+1)):
     ##############################################################################################
 
     # Finish the loop by incrementing the generation counter index by 1
-    current_generation_index += 1
+    # current_generation_index += 1
 
 
 
@@ -422,18 +429,18 @@ for i in tqdm(range(generation_size+1)):
 def statistics():
     """ Function for plotting performance graphs and saving run data"""
     with open("{}/Mean.txt".format(directory), "w") as mean:
-        for item in averagefitness:
+        for item in average_fitness:
             mean.write("{!s}\r\n".format(item))
 
     with open("{}/Minimum.txt".format(directory), "w") as minimum:
-        for item in minimumfitness:
+        for item in minimum_fitness:
             minimum.write('{!s}\r\n'.format(item))
 statistics()
 
 def performance_graph():
-    plt.plot(averagefitness, 'k', label='Mean Fitness')
-    plt.plot(minimumfitness, 'k--', label='Minimum Fitness')
-    plt.axis([0, generation_size, 0, max(averagefitness)])
+    plt.plot(average_fitness, 'k', label='Mean Fitness')
+    plt.plot(minimum_fitness, 'k--', label='Minimum Fitness')
+    plt.axis([0, generation_size, 0, max(average_fitness)])
     plt.xlabel('Generation_size')
     plt.ylabel('Fitness')
     plt.legend()
@@ -443,18 +450,15 @@ performance_graph()
 
 def csv_file():
     with open('{}/Stats.csv'.format(directory), 'w', newline='') as csvfile:
-        for i in range(len(averagefitness)):
-            csvdata = (averagefitness[i], minimumfitness[i])
+        for i in range(len(average_fitness)):
+            csvdata = (average_fitness[i], minimum_fitness[i], voiced_percentage[i])
             spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             spamwriter.writerow(csvdata)
 csv_file()
 
 def runtime():
-    with open("{}/{}Runtime.txt".format(directory, directory), "w") as run:
+    with open(directory / 'Runtime.txt', 'w') as run:
         run.write("--- %d seconds ---" % (time.time() - start_time))
 runtime()
 
 time.sleep(2)
-
-###################################################################################################
-###################################################################################################
