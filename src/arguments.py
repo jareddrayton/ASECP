@@ -17,7 +17,7 @@ def get_user_args():
 
     parser.add_argument("-gs", "--generation_size",
                         type=int,
-                        default=2,
+                        default=5,
                         help="sets the number of generations",
                         metavar='')
 
@@ -29,7 +29,7 @@ def get_user_args():
 
     parser.add_argument("-cr", "--crossover_type",
                         type=str,
-                        default="uniform",
+                        default="one_point",
                         help="type of crossover for combining genotypes. Choose from 'one_point' or 'uniform'",
                         metavar='')
 
@@ -47,7 +47,7 @@ def get_user_args():
 
     parser.add_argument("-el", "--elitism",
                         type=bool,
-                        default=True,
+                        default=False,
                         help="Activate the elitism genetic operator",
                         metavar='')
 

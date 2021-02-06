@@ -1,4 +1,5 @@
 import csv
+import json
 import matplotlib.pyplot as plt
 import os
 import pathlib
@@ -14,13 +15,9 @@ import praat_control
 import stats
 from CONSTANTS import PARAMETER_LISTS
 
-###################################################################################################
-# Variables provided at the cmd line using argparse
 
-args = arguments.get_user_args()
-
-###################################################################################################
 # Unpacking the variables from argparse
+args = arguments.get_user_args()
 
 # The target sound to be matched
 soundfile = args.soundfile
@@ -57,27 +54,23 @@ start_time = time.time()
 # if False:
 #     random.seed(int(identifier))
 
-
-
 # Creates the directory string
 prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(soundfile,
-                                                 generation_size,
-                                                 population_size,
-                                                 mutation_rate,
-                                                 mutation_standard_dev)
+                                             generation_size,
+                                             population_size,
+                                             mutation_rate,
+                                             mutation_standard_dev)
 
+parent_dir = pathlib.Path.cwd().parent
 
-root_data_directory = pathlib.Path.cwd().parent / 'data'
-
+root_data_directory = parent_dir / 'data'
+root_target_sounds_directory = parent_dir / 'target_sounds'
+root_praat_directory = parent_dir / 'praat'
 
 if fitness_type == 'formant':
     directory = root_data_directory / '{}{} {} {} {}'.format(prefix, formant_repr, distance_metric, loudness_measure, identifier)
 elif fitness_type == 'filterbank':
     directory = root_data_directory / '{}{} {}'.format(prefix, filterbank_type, identifier)
-
-
-
-print(directory)
 
 # Makes the directory for all subsequent files
 if directory.exists():
@@ -85,7 +78,9 @@ if directory.exists():
 
 os.mkdir(directory)
 
-soundfile = '{}'.format(soundfile)
+soundfile = root_target_sounds_directory / soundfile
+
+print(soundfile)
 
 # Call the "praat_control" module to get target sound features
 target_length = praat_control.get_time(soundfile)
@@ -249,7 +244,6 @@ class Individual:
         if self.voiced and CNTK:
             self.write_formants_cntk()
 
-    
     def evaluate_filterbank(self):
         # MFCC and filterbank based fitness functions
         
@@ -289,8 +283,6 @@ class Individual:
         
         if self.voiced and CNTK:
             self.write_filterbank_cntk()
-
-    ###############################################################################################
 
     def write_formants_cntk(self):
         """ writes features and labels to a file for use with CNTK in the following format
@@ -380,7 +372,6 @@ for current_generation_index in range(generation_size + 1):
 
     voiced_percentage.append(voiced_total / population_size)
 
-
     ###############################################################################################
     # Elitism
 
@@ -398,7 +389,6 @@ for current_generation_index in range(generation_size + 1):
 
     ###############################################################################################
     # Crossover
-    print("yelp")
     if crossover_type == "one_point":
         genetic_operators.one_point_crossover(population, keys)
     elif crossover_type == "uniform":
@@ -415,12 +405,6 @@ for current_generation_index in range(generation_size + 1):
     if elitism == True:
         for i in range(elite_size):
             population[keys[i]].values = elites[i]
-    
-    ##############################################################################################
-
-    # Finish the loop by incrementing the generation counter index by 1
-    # current_generation_index += 1
-
 
 
 ###################################################################################################
@@ -460,5 +444,9 @@ def runtime():
     with open(directory / 'Runtime.txt', 'w') as run:
         run.write("--- %d seconds ---" % (time.time() - start_time))
 runtime()
+
+
+with open(directory / 'arguments.json', 'w') as outfile:  
+    json.dump(vars(args), outfile, indent=4) 
 
 time.sleep(2)
