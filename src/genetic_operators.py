@@ -11,7 +11,7 @@ def elitism(population, keys, elite_size):
     values = []
 
     # Create a list of tuple pairs containing key and fitness scores of each individual
-    keys_fitness = [(name, population[name].fitness) for name in keys]
+    keys_fitness = [(name, population[name].raw_fitness) for name in keys]
 
     # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
     keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
@@ -32,7 +32,7 @@ def linear_ranking(population, keys):
     """ Linear probability distribution """
 
     # Create a list of tuple pairs containing key and fitness scores of each individual
-    keys_fitness = [(name, population[name].fitness) for name in keys]
+    keys_fitness = [(name, population[name].raw_fitness) for name in keys]
 
     # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
     keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
@@ -54,7 +54,7 @@ def exponential_ranking(population, keys):
     """ Exponential probability distribution """
 
     # Create a list of tuple pairs containing key and fitness scores of each individual
-    keys_fitness = [(name, population[name].fitness) for name in keys]
+    keys_fitness = [(name, population[name].raw_fitness) for name in keys]
 
     # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
     keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
@@ -78,8 +78,8 @@ def fitness_proportional(population, keys):
     scaled_fitness = []
 
     for name in keys:
-        population[name].scaled_fitness = round(1.0 / (population[name].fitness), 10)
-        scaled_fitness.append(population[name].fitness)
+        population[name].scaled_fitness = round(1.0 / (population[name].raw_fitness), 10)
+        scaled_fitness.append(population[name].raw_fitness)
 
     for name in keys:
         population[name].selection_probability = population[name].scaled_fitness / sum(scaled_fitness)
@@ -145,7 +145,7 @@ def tournament_sampling(population, keys):
         # Select the individuals used in this tournament
         selection = random.sample(keys, tourn_size)
 
-        keys_fitness = [(name, population[name].fitness) for name in selection]
+        keys_fitness = [(name, population[name].raw_fitness) for name in selection]
 
         # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
         keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=False)
