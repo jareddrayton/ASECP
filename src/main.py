@@ -1,15 +1,17 @@
+import argparse
+import csv
+import matplotlib.pyplot as plt
 import os
 import random
 import time
-import csv
-import argparse
-import matplotlib.pyplot as plt
+
 from tqdm import tqdm
 
-import genetic_operators
 import fitness_functions
+import genetic_operators
 import praat_control
 import stats
+from CONSTANTS import PARAMETER_LISTS
 
 ###################################################################################################
 # Variables provided at the cmd line using argparse
@@ -29,8 +31,8 @@ parser.add_argument("-ps", "--population_size",
                     metavar='')
 
 parser.add_argument("-gs", "--generation_size",
-					type=int, 
-					default=20,
+                    type=int,
+                    default=20,
                     help="sets the number of generations",
                     metavar='')
 
@@ -47,14 +49,14 @@ parser.add_argument("-cr", "--crossover_type",
                     metavar='')
 
 parser.add_argument("-mr", "--mutation_rate",
-					type=float, 
-					default=0.05,
+                    type=float,
+                    default=0.05,
                     help="sets the rate of mutation",
                     metavar='')
 
 parser.add_argument("-sd", "--mutation_standard_dev",
-					type=float, 
-					default=0.1,
+                    type=float,
+                    default=0.1,
                     help="sets the gaussian distrubutions standard deviation used for mutation",
                     metavar='')
 
@@ -77,9 +79,9 @@ parser.add_argument("-ru", "--runs",
                     metavar='')
 
 parser.add_argument("-ft", "--fitness_type",
-					type=str,
-					default='formant',
-					help="choose between formant or filterbank",
+                    type=str,
+                    default='formant',
+                    help="choose between formant or filterbank",
                     metavar='')
 
 parser.add_argument("-nf", "--formant_range",
@@ -89,39 +91,39 @@ parser.add_argument("-nf", "--formant_range",
                     metavar='')
 
 parser.add_argument("-fr", "--formant_repr",
-					type=str,
-					default='hz',
-					help="Choose the type of formant fitness function",
+                    type=str,
+                    default='hz',
+                    help="Choose the type of formant fitness function",
                     metavar='')
 
 parser.add_argument("-dm", "--distance_metric",
-					type=str,
-					default='SSD',
-					help="Choose the type of distance distance_metrics",
+                    type=str,
+                    default='SSD',
+                    help="Choose the type of distance distance_metrics",
                     metavar='')
 
 parser.add_argument("-lm", "--loudness_measure",
-					type=str,
-					default='none',
-					help="Choose the type of loudness co-efficent",
+                    type=str,
+                    default='none',
+                    help="Choose the type of loudness co-efficent",
                     metavar='')
 
 parser.add_argument("-fb", "--filterbank_type",
-					type=str,
-					default='mfcc_average',
-					help="Choose the type of formant fitness function",
+                    type=str,
+                    default='mfcc_average',
+                    help="Choose the type of formant fitness function",
                     metavar='')
 
-parser.add_argument("-id", "--identifier", 
-					type=str,
-					default='2',
-					help="used as random() seed",
+parser.add_argument("-id", "--identifier",
+                    type=str,
+                    default='2',
+                    help="used as random() seed",
                     metavar='')
 
-parser.add_argument("-pl","--parallel", 
-					type=bool,
-					default=True,
-					help="Flag to enable multiple praat processes. Set to TRUE by default.",
+parser.add_argument("-pl", "--parallel",
+                    type=bool,
+                    default=True,
+                    help="Flag to enable multiple praat processes. Set to TRUE by default.",
                     metavar='')
 
 parser.add_argument("-cntk", "--cntk",
@@ -221,55 +223,12 @@ class Individual:
         self.values = []
 
         # Full list of muscle parameters for Praat
-        self.full = ['Interarytenoid',
-                     'Cricothyroid',
-                     'Vocalis',
-                     'Thyroarytenoid',
-                     'PosteriorCricoarytenoid',
-                     'LateralCricoarytenoid',
-                     'Stylohyoid',
-                     'Sternohyoid',
-                     'Thyropharyngeus',
-                     'LowerConstrictor',
-                     'MiddleConstrictor',
-                     'UpperConstrictor',
-                     'Sphincter',
-                     'Hyoglossus',
-                     'Styloglossus',
-                     'Genioglossus',
-                     'UpperTongue',
-                     'LowerTongue',
-                     'TransverseTongue',
-                     'VerticalTongue',
-                     'Risorius',
-                     'OrbicularisOris',
-                     'TensorPalatini',
-                     'Masseter',
-                     'Mylohyoid',
-                     'LateralPterygoid',
-                     'Buccinator']
-
-        # Constrained list of muscle parameters for Praat
-        self.constrained = ['Hyoglossus',
-                            'Styloglossus',
-                            'Genioglossus',
-                            'UpperTongue',
-                            'LowerTongue',
-                            'TransverseTongue',
-                            'VerticalTongue',
-                            'Risorius',
-                            'OrbicularisOris',
-                            'TensorPalatini',
-                            'Masseter',
-                            'Mylohyoid',
-                            'LateralPterygoid',
-                            'Buccinator']
 
         # Choose which parameters set to use
-        self.parameters = self.constrained
+        self.parameters = PARAMETER_LISTS['ALL']
 
         # Initialise the fitness score variables
-        self.fitness = 0
+        self.raw_fitness = 0
         self.scaled_fitness = 0
         self.selection_probability = 0
 
@@ -351,22 +310,22 @@ class Individual:
        
        # Calls the relevant fitness function based on cmd line argument
         if formant_repr == "hz":
-            self.fitness = fitness_functions.fitness_a1(self.formants, target_formants, distance_metric)
+            self.raw_fitness = fitness_functions.fitness_a1(self.formants, target_formants, distance_metric)
         elif formant_repr == "mel":
-            self.fitness = fitness_functions.fitness_a2(self.formants, target_formants, distance_metric)
+            self.raw_fitness = fitness_functions.fitness_a2(self.formants, target_formants, distance_metric)
         elif formant_repr == "cent":
-            self.fitness = fitness_functions.fitness_a3(self.formants, target_formants, distance_metric)
+            self.raw_fitness = fitness_functions.fitness_a3(self.formants, target_formants, distance_metric)
         elif formant_repr == "bark":
-            self.fitness = fitness_functions.fitness_a4(self.formants, target_formants, distance_metric)
+            self.raw_fitness = fitness_functions.fitness_a4(self.formants, target_formants, distance_metric)
         elif formant_repr == "erb":
-            self.fitness = fitness_functions.fitness_a5(self.formants, target_formants, distance_metric)
+            self.raw_fitness = fitness_functions.fitness_a5(self.formants, target_formants, distance_metric)
         
         elif formant_repr == "brito":
-            self.fitness = fitness_functions.fitness_brito(self.formants, target_formants)
+            self.raw_fitness = fitness_functions.fitness_brito(self.formants, target_formants)
         
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:
-            self.fitness = self.fitness * 10
+            self.raw_fitness = self.raw_fitness * 10
 
         # Extract loudness features
         self.intensity = praat_control.get_individual_intensity(self.name, directory, current_generation_index, target_intensity)
@@ -374,11 +333,11 @@ class Individual:
 
         # Apply loudness co-efficents
         if loudness_measure == "rms":
-            self.fitness = self.fitness * self.rms
+            self.raw_fitness = self.raw_fitness * self.rms
         elif loudness_measure == "intensity":
-            self.fitness = self.fitness * self.intensity
+            self.raw_fitness = self.raw_fitness * self.intensity
         elif loudness_measure == "both":
-            self.fitness = self.fitness * ((self.rms + self.intensity) / 2.0)
+            self.raw_fitness = self.raw_fitness * ((self.rms + self.intensity) / 2.0)
         elif loudness_measure == "none":
             pass
 
@@ -389,7 +348,7 @@ class Individual:
                              directory,
                              current_generation_index,
                              self.formants,
-                             self.fitness,
+                             self.raw_fitness,
                              self.voiced,
                              self.absolutefitness)
         ###########################################################################################
@@ -406,33 +365,33 @@ class Individual:
 
         if filterbank_type == "mfcc_average":
             self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, directory, current_generation_index)
-            self.fitness = fitness_functions.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, distance_metric)
+            self.raw_fitness = fitness_functions.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, distance_metric)
 
         elif filterbank_type == "logfbank_average":
             self.logfbank_average = praat_control.get_individual_logfbank_average(self.name, directory, current_generation_index)
-            self.fitness = fitness_functions.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, distance_metric)
+            self.raw_fitness = fitness_functions.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, distance_metric)
 
         elif filterbank_type == "mfcc_sad":
             self.mfcc = praat_control.get_individual_mfcc(self.name, directory, current_generation_index)
-            self.fitness = fitness_functions.fitness_twodim_sad(target_mfcc, self.mfcc)
+            self.raw_fitness = fitness_functions.fitness_twodim_sad(target_mfcc, self.mfcc)
 
         elif filterbank_type == "mfcc_ssd":
             self.mfcc = praat_control.get_individual_mfcc(self.name, directory, current_generation_index)
-            self.fitness = fitness_functions.fitness_twodim_ssd(target_mfcc, self.mfcc)
+            self.raw_fitness = fitness_functions.fitness_twodim_ssd(target_mfcc, self.mfcc)
 
         elif filterbank_type == "logfbank_sad":
             self.logfbank = praat_control.get_individual_logfbank(self.name, directory, current_generation_index)
-            self.fitness = fitness_functions.fitness_twodim_sad(target_logfbank, self.logfbank)
+            self.raw_fitness = fitness_functions.fitness_twodim_sad(target_logfbank, self.logfbank)
 
         elif filterbank_type == "logfbank_ssd":
             self.logfbank = praat_control.get_individual_logfbank(self.name, directory, current_generation_index)
-            self.fitness = fitness_functions.fitness_twodim_ssd(target_logfbank, self.logfbank)
+            self.raw_fitness = fitness_functions.fitness_twodim_ssd(target_logfbank, self.logfbank)
         
         stats.write_formants(self.name,
                              directory,
                              current_generation_index,
                              self.formants,
-                             self.fitness,
+                             self.raw_fitness,
                              self.voiced,
                              self.absolutefitness)
         
@@ -555,7 +514,7 @@ for i in tqdm(range(generation_size+1)):
         genetic_operators.uniform_crossover(population, keys)
 
     ##############################################################################################
-    # Mutation
+    # Apply mutation to individuals
 
     genetic_operators.mutation(population, keys, mutation_rate, mutation_standard_dev)
 
