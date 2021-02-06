@@ -67,3 +67,7 @@ Temporary Items
 *.exe
 *.bat
 .vscode/settings.json
+
+# notebook
+*/.ipynb_checkpoints
+__pycache__

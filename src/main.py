@@ -18,19 +18,19 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-sf", "--soundfile",
                     type=str,
-                    default='vowel-05.wav',
+                    default='Primary8.wav',
                     help="sets the filename of the target sound",
                     metavar='')
 
-parser.add_argument("-ps", "--population_size", 
-					type=int,
-					default=10,
+parser.add_argument("-ps", "--population_size",
+                    type=int,
+                    default=150,
                     help="sets the population size",
                     metavar='')
 
 parser.add_argument("-gs", "--generation_size",
 					type=int, 
-					default=2,
+					default=20,
                     help="sets the number of generations",
                     metavar='')
 
@@ -191,7 +191,7 @@ elif fitness_type == 'filterbank':
 # Makes the directory for all subsequent files
 os.mkdir(directory)
 
-soundfile = 'Vowels\{}'.format(soundfile)
+soundfile = '{}'.format(soundfile)
 
 # Call the "praat_control" module to get target sound features
 target_length = praat_control.get_time(soundfile)

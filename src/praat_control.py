@@ -50,6 +50,28 @@ def synthesise_artwords_serial(currentgeneration, generationsize, directory):
     time.sleep(1.5)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def get_time(soundfile):
     """Find and return the length of the target sound
 
@@ -95,7 +117,7 @@ def get_target_formants(TargetLength, soundfile, NO_FORMANTS):
 
     script = open("GetFormants.praat", 'w')
     script.write('Read from file: "{!s}"\r\n'.format(soundfile))
-    script.write('To Formant (burg): 0, 5, 5500, {!s}, 50\r\n'.format(TargetLength))
+    script.write('To Formant (sl): 0, 5, 5000, {!s}, 50\r\n'.format(TargetLength))
     script.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\r\n')
     script.write('appendFile ("formants.txt", info$ ())')
     script.close()
@@ -170,6 +192,35 @@ def get_target_RMS(soundfile):
     total = total / len(data)
 
     return math.sqrt(total)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #######################################################################################
 #######################################################################################

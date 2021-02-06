@@ -1,7 +1,7 @@
 import os
 
 # Set the directory for where target sounds are located
-sounds_path = 'Vowels'
+sounds_path = 'target_sounds'
 
 # Creates a list of filenames contained within the sounds path 
 vowels = os.listdir(sounds_path)
@@ -11,14 +11,14 @@ print(vowels)
 
 # Specify the Genetic Algorithm parameters
 no_of_runs = 1
-gen_size = '4'
-pop_size = '10'
-mutationrate = '0.2'
-standard_dev = '0.2'
+gen_size = '20'
+pop_size = '150'
+mutationrate = '0.1'
+standard_dev = '0.1'
 selection = 'linear'
 
 # specify fitness type ['formant' or 'filterbank']
-fitnesstype = 'filterbank'
+fitnesstype = 'formant'
 
 GA_PARAMS = '-gs={} -ps={} -mr={} -sd={} -ft={}'.format(gen_size,
                                                         pop_size,
@@ -55,7 +55,7 @@ if fitnesstype == 'formant':
                 for l in loudness:
                     for n in range(no_of_runs):
                         with open('batch.cmd', 'a') as t:
-                            t.write("{} {} {} -fr={} -lm={} -id={!s} \n".format(prefix,
+                            t.write("{} -sf={} {} -fr={} -lm={} -id={!s} \n".format(prefix,
                                                                     vowel,
                                                                     GA_PARAMS,
                                                                     f,
@@ -66,7 +66,7 @@ if fitnesstype == 'formant':
                     for l in loudness:
                         for n in range(no_of_runs):
                             with open('batch.cmd', 'a') as t:
-                                t.write("{} {} {} -fr={} -dm={} -lm={} -id={!s} \n".format(prefix,
+                                t.write("{} -sf='{}' {} -fr={} -dm={} -lm={} -id={!s} \n".format(prefix,
                                                                         vowel,
                                                                         GA_PARAMS,
                                                                         f,
