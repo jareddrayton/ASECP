@@ -1,4 +1,5 @@
 import numpy as np
+import vocal_tract_control
 
 def write_tract_sequence_file(identifier):
     sample_rate = 44100
@@ -36,6 +37,10 @@ def write_tract_sequence_file(identifier):
             f.write(' '.join(vocal_tract_params) + '\n')
 
 
-for i in range(100):
-    write_tract_sequence_file(i)
+def main():
+    vocal_tract_control.synthesise_artwords_threadpool()
+
+if __name__ == '__main__':
+    main()
+
 

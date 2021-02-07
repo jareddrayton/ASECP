@@ -303,7 +303,8 @@ class Individual:
             # append a new pair of features and labels
             self.cntk.write('|labels {} '.format(" ".join(str(x) for x in self.values)))
             self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.mfcc_average)))
-        
+
+
 
 ###################################################################################################
 ###################################################################################################
