@@ -15,7 +15,6 @@ import praat_control
 import stats
 from CONSTANTS import PARAMETER_LISTS
 
-
 # Unpacking the variables from argparse
 args = arguments.get_user_args()
 
@@ -51,8 +50,8 @@ CNTK = args.cntk
 start_time = time.time()
 
 # If True, the identifier variable is used as a seed for random number generation
-# if False:
-#     random.seed(int(identifier))
+if True:
+    random.seed(1998)
 
 # Creates the directory string
 prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(soundfile,
@@ -68,7 +67,7 @@ root_target_sounds_directory = parent_dir / 'target_sounds'
 root_praat_directory = parent_dir / 'praat'
 
 if fitness_type == 'formant':
-    directory = root_data_directory / '{}{} {} {} {}'.format(prefix, formant_repr, distance_metric, loudness_measure, identifier)
+    directory = root_data_directory / '{}{}.{}.id{}'.format(prefix, formant_repr, distance_metric, identifier)
 elif fitness_type == 'filterbank':
     directory = root_data_directory / '{}{} {}'.format(prefix, filterbank_type, identifier)
 
@@ -110,7 +109,7 @@ class Individual:
         self.values = []
 
         # Load parameters fomr CONSTANTS file
-        self.parameters = PARAMETER_LISTS['CONSTRAINED']
+        self.parameters = PARAMETER_LISTS['ALL']
 
         # Initialise the fitness score variables
         self.raw_fitness = 0
@@ -336,6 +335,8 @@ for current_generation_index in range(generation_size + 1):
     for name in keys:
         population[name].create_artword()
 
+    print(population.keys())
+
     # Synthesise artwords and run a single or multiple instances of Praat
     if PARALLEL == True:
         praat_control.synthesise_artwords_threadpool(directory, current_generation_index, population_size)
@@ -378,8 +379,7 @@ for current_generation_index in range(generation_size + 1):
     elites = genetic_operators.elitism(population, keys, elite_size)
 
     ###############################################################################################
-    # Selection
-    # Assigns selection probability
+    # Selection Probabilities
     if selection_type == "linear":
         genetic_operators.linear_ranking(population, keys)
     elif selection_type == "proportional":
@@ -442,7 +442,7 @@ csv_file()
 
 def runtime():
     with open(directory / 'Runtime.txt', 'w') as run:
-        run.write("--- %d seconds ---" % (time.time() - start_time))
+        run.write("--- {} seconds ---".format(time.time() - start_time))
 runtime()
 
 

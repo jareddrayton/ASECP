@@ -5,19 +5,19 @@ def get_user_args():
 
     parser.add_argument("-sf", "--soundfile",
                         type=str,
-                        default='Primary8.wav',
+                        default='Primary1.wav',
                         help="sets the filename of the target sound",
                         metavar='')
 
     parser.add_argument("-ps", "--population_size",
                         type=int,
-                        default=20,
+                        default=100,
                         help="sets the population size",
                         metavar='')
 
     parser.add_argument("-gs", "--generation_size",
                         type=int,
-                        default=5,
+                        default=15,
                         help="sets the number of generations",
                         metavar='')
 
@@ -35,7 +35,7 @@ def get_user_args():
 
     parser.add_argument("-mr", "--mutation_rate",
                         type=float,
-                        default=0.05,
+                        default=0.1,
                         help="sets the rate of mutation",
                         metavar='')
 
@@ -47,13 +47,13 @@ def get_user_args():
 
     parser.add_argument("-el", "--elitism",
                         type=bool,
-                        default=False,
+                        default=True,
                         help="Activate the elitism genetic operator",
                         metavar='')
 
     parser.add_argument("-es", "--elite_size",
                         type=int,
-                        default=2,
+                        default=4,
                         help="Specify number of elite individuals to be kept",
                         metavar='')
 

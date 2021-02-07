@@ -4,22 +4,36 @@ import shutil
 from operator import itemgetter
 
 
-#################################################################################################################
-
-
 def elitism(population, keys, elite_size):
+    """
+    Elitism function that returns a list of values to carry over to the next generation.
+
+    Parameters
+    ----------
+    population : dict
+        A dictionary containing references to the Individuals of a population
+    keys : list
+        List of the key values for population
+    elite_size : int
+        Number of individuals to carry over to next generation.
     
+    Returns
+    -------
+    values : list
+        List of elite values to carry over
+    """
     values = []
 
     # Create a list of tuple pairs containing key and fitness scores of each individual
     keys_fitness = [(name, population[name].raw_fitness) for name in keys]
 
     # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
-    keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
+    keys_fitness = sorted(keys_fitness, key=itemgetter(1))
 
     # Unpack the list of tuples into seperate tuples
     ranked, fitness = zip(*keys_fitness)
-    
+    #print(keys_fitness)
+
     for i in range(elite_size):
         values.append(population[ranked[i]].values)
     

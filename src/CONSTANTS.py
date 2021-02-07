@@ -1,6 +1,5 @@
 PARAMETER_LISTS = {'ALL':
-                   ['Interarytenoid',
-                    'Cricothyroid',
+                   ['Cricothyroid',
                     'Vocalis',
                     'Thyroarytenoid',
                     'PosteriorCricoarytenoid',
