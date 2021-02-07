@@ -60,6 +60,7 @@ Temporary Items
 *.pdf
 *.AIFF
 *.json
+*.dll
 
 # Python files
 *.pyc
