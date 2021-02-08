@@ -50,28 +50,6 @@ def synthesise_artwords_serial(currentgeneration, generationsize, directory):
     time.sleep(1.5)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def get_time(soundfile):
     """Find and return the length of the target sound
 
@@ -155,6 +133,34 @@ def get_target_formants(TargetLength, soundfile, NO_FORMANTS):
     # print(values)
 
     return values[1:NO_FORMANTS+1]
+
+
+def get_average_formants(file_path, no_of_formants):
+    """
+    General function for getting the average formant values for a
+    
+    Paramaters
+    ----------
+    file_path : str
+        Full file path of sound to extract formants from.
+    
+    no_of_formants
+
+
+    Returns
+    -------
+
+    """
+
+    with open() as f:
+        
+        f.write('Read from file: "{}"'.format())
+        f.write('To Formant (burg): 0, 5, 5000, 0.025, 50')
+        f.write('Save as text file: "C:\Users\Jazz\VSCODE\Repo\ASECP\data\Primary1.wav.Gen5.Pop10.Mut0.1.Sd0.1.hz.SSD.id2\Generation0\test0.Formant"')
+
+
+
+    return formants
 
 
 def get_target_intensity(soundfile):

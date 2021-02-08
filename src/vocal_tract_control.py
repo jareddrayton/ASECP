@@ -9,7 +9,7 @@ from scipy.io import wavfile
 from itertools import repeat
 from concurrent import futures
 
-def worker(i):
+def worker(directory, current_generation_index, i):
     parent_dir = pathlib.Path.cwd().parent
 
     root_vtl_directory = parent_dir / 'vocaltractlab'
@@ -26,14 +26,14 @@ def worker(i):
     if failure != 0:
         raise ValueError('Error in vtlInitialize! Errorcode: %i' % failure)
 
-    tract = ctypes.c_char_p('tract_seq{}.txt'.format(i).encode())
-    audio_f = ctypes.c_char_p('test{}.wav'.format(i).encode())
+    tract = ctypes.c_char_p('{}/Generation{!s}/tract_seq{}.txt'.format(directory, current_generation_index, i).encode())
+    audio_f = ctypes.c_char_p('{}/Generation{!s}/Individual{}.wav'.format(directory, current_generation_index, i).encode())
     failure = VTL.vtlTractSequenceToAudio(tract, audio_f, None, None)
 
 
-def synthesise_tracts_threadpool():
+def synthesise_tracts_threadpool(directory, current_generation_index, population_size):
     ex = futures.ProcessPoolExecutor(max_workers=mp.cpu_count()-1)
-    ex.map(worker, [i for i in range(100)])
+    ex.map(worker, repeat(directory), repeat(current_generation_index), [i for i in range(population_size)])
     ex.shutdown()
 
 

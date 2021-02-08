@@ -1,5 +1,7 @@
 import numpy as np
 import vocal_tract_control
+from CONSTANTS import VTL_PARAMETER_LIST
+import random
 
 def write_tract_sequence_file(identifier):
     sample_rate = 44100
@@ -10,9 +12,10 @@ def write_tract_sequence_file(identifier):
     number_of_states = int((sample_rate * target_time) // step_size)
     pressure = np.geomspace(1, target_pressure, num=20)
     glottis_params = ['101.594', '0', '0.0102', '0.02035', '0.05', '1.22204', '1', '0.05', '0',  '25', '-10'] 
-    vocal_tract_params = ['0.1667', '-3.9392', '0', '-4.1498', '0.0718', '0.9937', '0.8', '-0.1', '0.1524', '-1.8333', '4.2474', '-1.694', '2.5488', '-0.675', '-2.8371', '-2.9034', '0.2064', '0.0384', '0.1488']
+    #vocal_tract_params = ['0.1667', '-3.9392', '0', '-4.1498', '0.0718', '0.9937', '0.8', '-0.1', '0.1524', '-1.8333', '4.2474', '-1.694', '2.5488', '-0.675', '-2.8371', '-2.9034', '0.2064', '0.0384', '0.1488']
 
-
+    vocal_tract_params = [str(round(random.uniform(y, z), 2)) for _, y, z in VTL_PARAMETER_LIST['ALL']]
+    
     print(len(glottis_params))
     print(len(vocal_tract_params))
 
@@ -35,6 +38,7 @@ def write_tract_sequence_file(identifier):
         for _ in range(number_of_states - 20):
             f.write(' '.join(glottis_params) + '\n')
             f.write(' '.join(vocal_tract_params) + '\n')
+
 
 
 def main():
