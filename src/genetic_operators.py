@@ -16,7 +16,7 @@ def elitism(population, keys, elite_size):
         List of the key values for population
     elite_size : int
         Number of individuals to carry over to next generation.
-    
+
     Returns
     -------
     values : list

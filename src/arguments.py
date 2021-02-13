@@ -1,5 +1,6 @@
 import argparse
 
+
 def get_user_args():
     parser = argparse.ArgumentParser()
 
@@ -111,10 +112,16 @@ def get_user_args():
                         help="Flag to enable multiple praat processes. Set to TRUE by default.",
                         metavar='')
 
+    parser.add_argument("-sn", "--synthesiser",
+                        type=str,
+                        default='PRT',
+                        help="Choose what synthesiser to use",
+                        metavar='')
+
     parser.add_argument("-cntk", "--cntk",
                         type=bool,
                         default=False,
                         help="write data to a csv file for use with the CNTK machine learning library",
                         metavar='')
-    
+
     return parser.parse_args()

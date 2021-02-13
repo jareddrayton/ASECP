@@ -1,4 +1,4 @@
-PARAMETER_LISTS = {'ALL':
+PRT_PARAMETER_DEFS = {'ALL':
                    ['Cricothyroid',
                     'Vocalis',
                     'Thyroarytenoid',
@@ -42,7 +42,7 @@ PARAMETER_LISTS = {'ALL':
                     'Buccinator']
                    }
 
-VTL_PARAMETER_LIST = {'ALL':
+VTL_PARAMETER_DEFS = {'ALL':
                       [('HX', 0.0, 1.0),
                        ('HY', -6.0, -3.5),
                        ('JX', -0.5, 0.0),

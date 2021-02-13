@@ -1,13 +1,15 @@
-import subprocess, time, os, math, sys
-
+import math
 import multiprocessing as mp
-import scipy.io.wavfile as wav
-import numpy as np
-
-from itertools import repeat
+import os
+import subprocess
+import sys
+import time
 from concurrent import futures
+from itertools import repeat
 
-from python_speech_features import mfcc, logfbank
+import numpy as np
+import scipy.io.wavfile as wav
+from python_speech_features import logfbank, mfcc
 
 
 def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
@@ -51,31 +53,39 @@ def synthesise_artwords_serial(currentgeneration, generationsize, directory):
 
 
 def get_time(soundfile):
-    """Find and return the length of the target sound
+    """
+    Return the length of a given audio file in seconds.
 
-    returns: returns a string containing soundfile length as string
+    PARAMETERS
+    ----------
+    soundfile : pathlib Obj
+        A pathlib object representing the absolute file path of the audio file
+    
+    RETURNS
+    -------
+    time : str
+        A string containing the length of the given audio file
     """
 
-    script = open("AnalyseTargetSound.praat", 'w')
-    script.write('Read from file: "{!s}"\r\n'.format(soundfile))
-    script.write('time = Get total duration\r\n')
-    script.write('writeFileLine: "time.txt", time\r\n')
-    script.close()
+    with open('AnalyseTargetSound.praat', 'w') as script:
+        script.write('Read from file: "{}"\n'.format(soundfile))
+        script.write('time = Get total duration\n')
+        script.write('writeFileLine: "time.txt", time\n')
 
     subprocess.call(['./praat', '--ansi', '--run', 'AnalyseTargetSound.praat'], stdout=subprocess.DEVNULL)
 
-    os.remove('AnalyseTargetSound.praat')
+    with open('time.txt', 'r') as timetxt:
+        time = timetxt.readline().strip()
 
-    with open("time.txt", "r") as timetxt:
-        TargetLength = timetxt.readline().strip()
+    os.remove('AnalyseTargetSound.praat')
     os.remove('time.txt')
 
-    return TargetLength
+    return time
 
 
 def get_sample_rate(soundfile):
 
-    (rate, signal) = wav.read(soundfile)
+    (rate, _) = wav.read(soundfile)
 
     return rate
 
@@ -145,7 +155,7 @@ def get_average_formants(file_path, no_of_formants):
         Full file path of sound to extract formants from.
     
     no_of_formants
-
+        Number of formants to look for.
 
     Returns
     -------
@@ -153,10 +163,9 @@ def get_average_formants(file_path, no_of_formants):
     """
 
     with open() as f:
-        
-        f.write('Read from file: "{}"'.format())
-        f.write('To Formant (burg): 0, 5, 5000, 0.025, 50')
-        f.write('Save as text file: "C:\Users\Jazz\VSCODE\Repo\ASECP\data\Primary1.wav.Gen5.Pop10.Mut0.1.Sd0.1.hz.SSD.id2\Generation0\test0.Formant"')
+        f.write('Read from file: "{}"'.format(file_path))
+        f.write('To Formant (burg): 0, {}, 5000, 0.025, 50'.format(no_of_formants))
+        f.write('Save as text file: "C:\\Users\\Jazz\\VSCODE\\Repo\ASECP\data\Primary1.wav.Gen5.Pop10.Mut0.1.Sd0.1.hz.SSD.id2\Generation0\\test0.Formant"')
 
 
 
@@ -198,34 +207,6 @@ def get_target_RMS(soundfile):
     total = total / len(data)
 
     return math.sqrt(total)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #######################################################################################

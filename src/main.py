@@ -1,7 +1,5 @@
 import csv
 import json
-import matplotlib.pyplot as plt
-import numpy as np
 import os
 import pathlib
 import random
@@ -9,41 +7,48 @@ import shutil
 import subprocess
 import time
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 import arguments
 import fitness_functions
 import genetic_operators
 import praat_control
 import stats
 import vocal_tract_control
+from CONSTANTS import PRT_PARAMETER_DEFS, VTL_PARAMETER_DEFS
 
-from CONSTANTS import PARAMETER_LISTS, VTL_PARAMETER_LIST
 
-
-class Individual:
-    def __init__(self, name):
+class Individual_PRT:
+    def __init__(self, name, target_info, directory):
 
         self.name = name
 
-        # List containing the real valued genotype
-        self.values = []
+        # A dictionary containing information about the target sound
+        self.target_info = target_info
 
-        # Load parameters fomr CONSTANTS file
-        self.parameters = PARAMETER_LISTS['ALL']
-        self.directory = None
-        # Initialise the fitness score variables
+        # Set the run directory
+        self.directory = directory
+
+        # Initialise fitness score variables
         self.raw_fitness = 0
         self.scaled_fitness = 0
         self.selection_probability = 0
-        self.target_info = None
 
         self.current_generation = 0
+
+        # List for holding the real valued genotype values
+        self.values = []
+
+        # Load parameter definition from the CONSTANTS module
+        self.parameters = PRT_PARAMETER_DEFS['ALL']
 
         # Initialise the genotype with random values for the first generation
         if self.current_generation == 0:
             self.values = [round(random.uniform(-1, 1), 1) for x in range(len(self.parameters))]
 
     # Method for creating a Praat .artword file
-    def create_artword(self):
+    def create_synth_params(self):
 
         self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(self.directory, self.current_generation, self.name), "w")
 
@@ -170,39 +175,39 @@ class Individual:
         
         self.voiced_penalty()
 
-        if filterbank_type == "mfcc_average":
-            self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_mfcc_average(target_mfcc_average, self.mfcc_average, distance_metric)
+        if self.target_info['filterbank_type'] == "mfcc_average":
+            self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
+            self.raw_fitness = fitness_functions.fitness_mfcc_average(self.target_info['target_mfcc_average'], self.mfcc_average, self.target_info['distance_metric'])
 
-        elif filterbank_type == "logfbank_average":
-            self.logfbank_average = praat_control.get_individual_logfbank_average(self.name, directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_logfbank_average(target_logfbank_average, self.logfbank_average, distance_metric)
+        elif self.target_info['filterbank_type'] == "logfbank_average":
+            self.logfbank_average = praat_control.get_individual_logfbank_average(self.name, self.directory, self.current_generation)
+            self.raw_fitness = fitness_functions.fitness_logfbank_average(self.target_info['target_logfbank_average'], self.logfbank_average, self.target_info['distance_metric'])
 
-        elif filterbank_type == "mfcc_sad":
-            self.mfcc = praat_control.get_individual_mfcc(self.name, directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_sad(target_mfcc, self.mfcc)
+        elif self.target_info['filterbank_type'] == "mfcc_sad":
+            self.mfcc = praat_control.get_individual_mfcc(self.name, self.directory, self.current_generation)
+            self.raw_fitness = fitness_functions.fitness_twodim_sad(self.target_info['target_mfcc'], self.mfcc)
 
-        elif filterbank_type == "mfcc_ssd":
-            self.mfcc = praat_control.get_individual_mfcc(self.name, directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_ssd(target_mfcc, self.mfcc)
+        elif self.target_info['filterbank_type'] == "mfcc_ssd":
+            self.mfcc = praat_control.get_individual_mfcc(self.name, self.directory, self.current_generation)
+            self.raw_fitness = fitness_functions.fitness_twodim_ssd(self.target_info['target_mfcc'], self.mfcc)
 
-        elif filterbank_type == "logfbank_sad":
-            self.logfbank = praat_control.get_individual_logfbank(self.name, directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_sad(target_logfbank, self.logfbank)
+        elif self.target_info['filterbank_type'] == "logfbank_sad":
+            self.logfbank = praat_control.get_individual_logfbank(self.name, self.directory, self.current_generation)
+            self.raw_fitness = fitness_functions.fitness_twodim_sad(self.target_info['target_logfbank'], self.logfbank)
 
-        elif filterbank_type == "logfbank_ssd":
-            self.logfbank = praat_control.get_individual_logfbank(self.name, directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_ssd(target_logfbank, self.logfbank)
+        elif self.target_info['filterbank_type'] == "logfbank_ssd":
+            self.logfbank = praat_control.get_individual_logfbank(self.name, self.directory, self.current_generation)
+            self.raw_fitness = fitness_functions.fitness_twodim_ssd(self.target_info['target_logfbank'], self.logfbank)
         
         stats.write_formants(self.name,
-                             directory,
+                             self.directory,
                              self.current_generation,
                              self.formants,
                              self.raw_fitness,
                              self.voiced,
                              self.absolutefitness)
         
-        if self.voiced and CNTK:
+        if self.voiced and self.target_info['cntk']:
             self.write_filterbank_cntk()
 
     def write_formants_cntk(self):
@@ -219,7 +224,7 @@ class Individual:
 
     def write_filterbank_cntk(self):
         
-        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, directory, self.current_generation)
+        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
 
         with open('cntk_mfcc_data.txt', 'a') as self.cntk:
             # append a new pair of features and labels
@@ -228,24 +233,24 @@ class Individual:
 
 
 class Individual_VTL:
-    def __init__(self, name):
+    def __init__(self, name, target_info, directory):
 
         self.name = name
 
         # List containing the real valued genotype
         self.values = []
 
-        # Load parameters fomr CONSTANTS file
-        self.parameters = VTL_PARAMETER_LIST['ALL']
+        # Load parameter definition from the CONSTANTS module
+        self.parameters = VTL_PARAMETER_DEFS['ALL']
 
         # Initialise the fitness score variables
         self.raw_fitness = 0
         self.scaled_fitness = 0 # Used to calculate proporional fitness
         self.selection_probability = 0
 
-        self.target_info = None
+        self.target_info = target_info
 
-        self.directory = None
+        self.directory = directory
 
         self.current_generation = 0
 
@@ -253,7 +258,7 @@ class Individual_VTL:
         if self.current_generation == 0:
             self.values = [round(random.uniform(y, z), 1) for _, y, z in self.parameters]
 
-    def create_tract_list(self):
+    def create_synth_params(self):
         sample_rate = 44100
         target_time = 1.0
         fold_type = 'Geometric glottis'
@@ -261,15 +266,13 @@ class Individual_VTL:
         target_pressure = 8000
         number_of_states = int((sample_rate * target_time) // step_size)
         pressure = np.geomspace(1, target_pressure, num=20)
-        glottis_params = ['101.594', '0', '0.0102', '0.02035',
-                        '0.05', '1.22204', '1', '0.05', '0',  '25', '-10']
+        glottis_params = ['101.594', '0', '0.0102', '0.02035', '0.05', '1.22204', '1', '0.05', '0', '25', '-10']
 
         with open('{}\\Generation{}\\tract_seq{}.txt'.format(self.directory, self.current_generation, self.name), 'w') as f:
             f.write('# The first two lines (below the comment lines) indicate the name of the vocal fold model and the number of states.' + '\n')
             f.write('# The following lines contain the control parameters of the vocal folds and the vocal tract (states)' + '\n')
             f.write('# in steps of 110 audio samples (corresponding to about 2.5 ms for the sampling rate of 44100 Hz).' + '\n')
-            f.write(
-                '# For every step, there is one line with the vocal fold parameters followed by' + '\n')
+            f.write('# For every step, there is one line with the vocal fold parameters followed by' + '\n')
             f.write('# one line with the vocal tract parameters.' + '\n')
 
             f.write('#' + '\n')
@@ -286,18 +289,35 @@ class Individual_VTL:
                 f.write(' '.join(glottis_params) + '\n')
                 f.write(' '.join(map(str,self.values)) + '\n')
     
-    def get_formants():
-        praat_control.get_average_formants()
+    def get_formants(self):
+        
+        file_path = self.directory / self.current_generation
+        praat_control.get_average_formants(file_path, self.target_info['formant_range'])
+
+
+def get_target_info(formant_range, target_dict):
+
+    target_dict['target_length'] = praat_control.get_time(target_dict['file_path'])
+    target_dict['target_sample_rate'] = praat_control.get_sample_rate(target_dict['file_path'])
+    target_dict['target_formants'] = praat_control.get_target_formants(target_dict['target_length'], target_dict['file_path'], formant_range)
+    target_dict['target_intensity'] = praat_control.get_target_intensity(target_dict['file_path'])
+    target_dict['target_rms'] = praat_control.get_target_RMS(target_dict['file_path'])
+    target_dict['target_mfcc_average'] = praat_control.get_target_mfcc_average(target_dict['file_path'])
+    target_dict['target_logfbank_average'] = praat_control.get_target_logfbank_average(target_dict['file_path'])
+    target_dict['target_mfcc'] = praat_control.get_target_mfcc(target_dict['file_path'])
+    target_dict['target_logfbank'] = praat_control.get_target_logfbank(target_dict['file_path'])
 
 
 def main():
+    # Store time to measure the length of a single run
     start_time = time.time()
     
     args = arguments.get_user_args()
     print(vars(args))
-    target_dict = vars(args)
+    target_dict = vars(args).copy()
+    
     # The target sound to be matched
-    soundfile = args.soundfile
+    target_dict['file_name'] = args.soundfile
 
     # Genetic operator variables
     population_size = args.population_size
@@ -315,34 +335,27 @@ def main():
     formant_range = args.formant_range
     formant_repr = args.formant_repr
     distance_metric = args.distance_metric
-    loudness_measure = args.loudness_measure
     filterbank_type = args.filterbank_type
     identifier = args.identifier
-
-    # Constants that are flags
-    PARALLEL = args.parallel
-    CNTK = args.cntk
-
-    ###################################################################################################
-    # Set the time to measure the length of a run
-    
 
     # If True, the identifier variable is used as a seed for random number generation
     if True:
         random.seed(1998)
 
     # Creates the directory string
-    prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(soundfile,
-                                                generation_size,
-                                                population_size,
-                                                mutation_rate,
-                                                mutation_standard_dev)
+    prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(target_dict['file_name'],
+                                                 generation_size,
+                                                 population_size,
+                                                 mutation_rate,
+                                                 mutation_standard_dev)
 
     parent_dir = pathlib.Path.cwd().parent
 
     root_data_directory = parent_dir / 'data'
-    root_target_sounds_directory = parent_dir / 'target_sounds'
     root_praat_directory = parent_dir / 'praat'
+    root_vtl_directory = parent_dir / 'vocaltractlab'
+    root_target_sounds_directory = parent_dir / 'target_sounds'
+
 
     if fitness_type == 'formant':
         directory = root_data_directory / '{}{}.{}.id{}'.format(prefix, formant_repr, distance_metric, identifier)
@@ -352,26 +365,13 @@ def main():
     # Makes the directory for all subsequent files
     if directory.exists():
         shutil.rmtree(directory)
-
     os.mkdir(directory)
 
-    soundfile = root_target_sounds_directory / soundfile
+    target_dict['file_path'] = root_target_sounds_directory / target_dict['file_name']
 
-    print(soundfile)
-    
-    # Call the "praat_control" module to get target sound features
-    target_dict['target_length'] = praat_control.get_time(soundfile)
-    target_dict['target_sample_rate'] = praat_control.get_sample_rate(soundfile)
-    target_dict['target_formants'] = praat_control.get_target_formants(target_dict['target_length'], soundfile, formant_range)
-    target_dict['target_intensity'] = praat_control.get_target_intensity(soundfile)
-    target_dict['target_rms'] = praat_control.get_target_RMS(soundfile)
+    # Update target_dict with information relating to the target sound
+    get_target_info(formant_range, target_dict)
 
-    target_dict['target_mfcc_average'] = praat_control.get_target_mfcc_average(soundfile)
-    target_dict['target_logfbank_average'] = praat_control.get_target_logfbank_average(soundfile)
-    target_dict['target_mfcc'] = praat_control.get_target_mfcc(soundfile)
-    target_dict['target_logfbank'] = praat_control.get_target_logfbank(soundfile)
-
-    
     # Creates a list of strings for use as keys in a dictionary
     keys = [str(x) for x in range(population_size)]
 
@@ -381,43 +381,36 @@ def main():
     average_fitness = []
     minimum_fitness = []
     voiced_percentage = []
+
+    if target_dict['synthesiser'] == 'PRT':
+        Individual = Individual_PRT
+    elif target_dict['synthesiser'] == 'VTL':
+        Individual = Individual_VTL
     
     for current_generation_index in range(generation_size + 1):
 
-        # Creates a folder for the current generation
+        # Create a directory for the current generation
         os.mkdir(directory / 'Generation{!s}'.format(current_generation_index))
 
-        # If it is the first generation, instantiate the Indiviudal class and associate it with
-        # a key in the population dictionary
+        # Instantiate the Indiviudal class and associate it with a key in the population dictionary
         if current_generation_index == 0:
             for name in keys:
-                population[name] = Individual_VTL(name)
-                #population[name] = Individual(name)
-                population[name].directory = directory
-                population[name].target_info = target_dict
-        
+                population[name] = Individual(name, target_dict, directory)
+
         for name in keys:
             population[name].current_generation = current_generation_index
 
-        # Call the artword method for object in the population dictionary
-        #for name in keys:
-        #    population[name].create_artword()
-
+        # Create the config files that drive a paticular synthesiser
         for name in keys:
-            population[name].create_tract_list()
-        
-        #print(population.keys())
-        #subprocess.run(['python', 'test_.py', str(directory), str(current_generation_index), str(population_size)])
-        #
-        vocal_tract_control.synthesise_tracts_threadpool(directory, current_generation_index, population_size)
-        # Synthesise artwords and run a single or multiple instances of Praat
-        #if PARALLEL == True:
-        #    praat_control.synthesise_artwords_threadpool(directory, current_generation_index, population_size)
-        #elif PARALLEL == False:
-        #    praat_control.synthesise_artwords_serial(current_generation_index, population_size, directory)
+            population[name].create_synth_params()
+
+        # Synthesise Individual sounds using the config files
+        if target_dict['synthesiser'] == 'PRT':
+            praat_control.synthesise_artwords_threadpool(directory, current_generation_index, population_size)
+        elif target_dict['synthesiser'] == 'VTL':
+            vocal_tract_control.synthesise_tracts_threadpool(directory, current_generation_index, population_size)
 
         # Calculate fitness scores by calling the evaluate_formants method
-        
         for name in keys:
             if fitness_type == "formant":
                 population[name].evaluate_formant()
@@ -430,8 +423,6 @@ def main():
 
         for name in keys:
             listfitness.append(population[name].raw_fitness)
-
-        numbered_list = list(enumerate(listfitness))
 
         average_fitness.append(sum(listfitness) / len(listfitness))
         minimum_fitness.append(min(listfitness))
@@ -448,7 +439,7 @@ def main():
         voiced_percentage.append(voiced_total / population_size)
 
         ###############################################################################################
-        # Elitism
+        # Store Elite Candidates
 
         elites = genetic_operators.elitism(population, keys, elite_size)
 
@@ -480,17 +471,13 @@ def main():
             for i in range(elite_size):
                 population[keys[i]].values = elites[i]
     
-    #statistics(average_fitness, minimum_fitness)
-    #performance_graph()
-    
-    #csv_file()
-    #runtime()
-    #dump()
+    performance_graph(average_fitness, minimum_fitness, generation_size, directory)
+    dump(directory, start_time, args)
+    statistics(average_fitness, minimum_fitness, directory)
+    csv_file(average_fitness, minimum_fitness, voiced_percentage, directory)
 
-###################################################################################################
-# Statisticss stuff
 
-def statistics(average_fitness, minimum_fitness):
+def statistics(average_fitness, minimum_fitness, directory):
     """ Function for plotting performance graphs and saving run data"""
     with open("{}/Mean.txt".format(directory), "w") as mean:
         for item in average_fitness:
@@ -501,7 +488,7 @@ def statistics(average_fitness, minimum_fitness):
             minimum.write('{!s}\r\n'.format(item))
 
 
-def performance_graph():
+def performance_graph(average_fitness, minimum_fitness, generation_size, directory):
     plt.plot(average_fitness, 'k', label='Mean Fitness')
     plt.plot(minimum_fitness, 'k--', label='Minimum Fitness')
     plt.axis([0, generation_size, 0, max(average_fitness)])
@@ -511,7 +498,7 @@ def performance_graph():
     plt.savefig("{}/Performance Graph".format(directory))
 
 
-def csv_file():
+def csv_file(average_fitness, minimum_fitness, voiced_percentage, directory):
     with open('{}/Stats.csv'.format(directory), 'w', newline='') as csvfile:
         for i in range(len(average_fitness)):
             csvdata = (average_fitness[i], minimum_fitness[i], voiced_percentage[i])
@@ -519,14 +506,13 @@ def csv_file():
             spamwriter.writerow(csvdata)
 
 
-def runtime():
+def dump(directory, start_time, args):
     with open(directory / 'Runtime.txt', 'w') as run:
-        run.write("--- {} seconds ---".format(time.time() - start_time))
+        run.write('--- {} seconds ---'.format(time.time() - start_time))
 
-
-def dump():
-    with open(directory / 'arguments.json', 'w') as outfile:  
-        json.dump(vars(args), outfile, indent=4) 
+    with open(directory / 'arguments.json', 'w') as outfile:
+        print(vars(args))
+        json.dump(vars(args), outfile, indent=4)
 
 
 if __name__ == '__main__':

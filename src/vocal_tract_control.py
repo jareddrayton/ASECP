@@ -38,4 +38,4 @@ def synthesise_tracts_threadpool(directory, current_generation_index, population
 
 
 if __name__ == '__main__':
-    synthesise_artwords_threadpool()
+    synthesise_tracts_threadpool()

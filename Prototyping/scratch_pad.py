@@ -1,24 +1,16 @@
-import random
-from operator import itemgetter
 
-population_size = 10
+class VTL:
+    def __init__(self, name):
+        self.name = name
 
-keys = [str(x) for x in range(population_size)]
-fitness = [random.randint(0,10) for x in range(population_size)]
+class PRT:
+    def __init__(self, name):
+        self.name = name
 
-print(keys,fitness)
+synthesiser = VTL
 
-keys_fitness = [(keys[i], fitness[i]) for i in range(population_size)]
+a = synthesiser('H')
+b = synthesiser('X')
 
-print(keys_fitness)
-
-keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
-
-print(keys_fitness)
-
-ranked, fitness = zip(*keys_fitness)
-
-print(ranked, fitness)
-
-for rank in ranked:
-    print(type(rank))
+print(a)
+print(b)
