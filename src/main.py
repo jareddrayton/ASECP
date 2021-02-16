@@ -101,9 +101,13 @@ class Individual_PRT:
         # Assigns True or False to self.voiced, based on whether praat can calculate pitch 
         self.voiced = praat_control.get_individual_pitch(self.name, self.directory, self.current_generation)
         
+
         # If a pitch is detected the formants are calculated and assigned to self.formants
+        
         if self.voiced == True:
-            self.formants = praat_control.get_individual_formants(self.name, self.directory, self.current_generation, self.target_info['target_sample_rate'])
+            #self.formants = praat_control.get_individual_formants(self.name, self.directory, self.current_generation, self.target_info['target_sample_rate'])
+            file_path = self.directory / 'Generation{}'.format(self.current_generation)
+            self.formants = praat_control.write_formant_table(file_path, self.name)
         else:
             self.formants = [self.target_info['target_sample_rate'] / 2 for x in range(5)]
         
@@ -291,15 +295,15 @@ class Individual_VTL:
     
     def get_formants(self):
         
-        file_path = self.directory / self.current_generation
-        praat_control.get_average_formants(file_path, self.target_info['formant_range'])
+        file_path = self.directory / 'Generation{}'.format(self.current_generation)
+        praat_control.get_average_formants(file_path, self.name)
 
 
-def get_target_info(formant_range, target_dict):
+def get_target_info(target_dict):
 
     target_dict['target_length'] = praat_control.get_time(target_dict['file_path'])
     target_dict['target_sample_rate'] = praat_control.get_sample_rate(target_dict['file_path'])
-    target_dict['target_formants'] = praat_control.get_target_formants(target_dict['target_length'], target_dict['file_path'], formant_range)
+    target_dict['target_formants'] = praat_control.write_formant_table(target_dict['file_path_root'], '1', 'Primary')
     target_dict['target_intensity'] = praat_control.get_target_intensity(target_dict['file_path'])
     target_dict['target_rms'] = praat_control.get_target_RMS(target_dict['file_path'])
     target_dict['target_mfcc_average'] = praat_control.get_target_mfcc_average(target_dict['file_path'])
@@ -366,11 +370,12 @@ def main():
     if directory.exists():
         shutil.rmtree(directory)
     os.mkdir(directory)
-
+    
+    target_dict['file_path_root'] = root_target_sounds_directory
     target_dict['file_path'] = root_target_sounds_directory / target_dict['file_name']
 
     # Update target_dict with information relating to the target sound
-    get_target_info(formant_range, target_dict)
+    get_target_info(target_dict)
 
     # Creates a list of strings for use as keys in a dictionary
     keys = [str(x) for x in range(population_size)]

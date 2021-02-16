@@ -1,6 +1,8 @@
+import csv
 import math
 import multiprocessing as mp
 import os
+import pathlib
 import subprocess
 import sys
 import time
@@ -145,31 +147,67 @@ def get_target_formants(TargetLength, soundfile, NO_FORMANTS):
     return values[1:NO_FORMANTS+1]
 
 
-def get_average_formants(file_path, no_of_formants):
+def get_formants(file_path):
     """
-    General function for getting the average formant values for a
-    
-    Paramaters
-    ----------
-    file_path : str
-        Full file path of sound to extract formants from.
-    
-    no_of_formants
-        Number of formants to look for.
-
-    Returns
-    -------
-
+    take in filepath to a formant table
     """
 
-    with open() as f:
-        f.write('Read from file: "{}"'.format(file_path))
-        f.write('To Formant (burg): 0, {}, 5000, 0.025, 50'.format(no_of_formants))
-        f.write('Save as text file: "C:\\Users\\Jazz\\VSCODE\\Repo\ASECP\data\Primary1.wav.Gen5.Pop10.Mut0.1.Sd0.1.hz.SSD.id2\Generation0\\test0.Formant"')
+    data = []
+
+    with open(file_path, 'r') as f:
+        formant_table = csv.reader(f)
+        for row in formant_table:
+            data.append(row)
+
+    formant_dict = {'F1': [], 'F2': [], 'F3': [], 'F4': [], 'F5': []}
+
+    data = data[1:]
+
+    f1 = [float(x[1]) if x[1] != '--undefined--' else None for x in data]
+    f2 = [float(x[2]) if x[2] != '--undefined--' else None for x in data]
+    f3 = [float(x[3]) if x[3] != '--undefined--' else None for x in data]
+    f4 = [float(x[4]) if x[4] != '--undefined--' else None for x in data]
+    f5 = [float(x[5]) if x[5] != '--undefined--' else None for x in data]
+
+    formants = [f1, f2, f3, f4, f5]
+
+    for key in formant_dict.keys():
+        formant_dict[key] = []
+
+    forms = []
+
+    for f in formants:
+        print('Per ', 100 * (1 - f.count(None) / len(f)))
+        print('Mean', np.mean([x for x in f if x != None]))
+        print('Std ', np.std([x for x in f if x != None]))
+        print('')
+        forms.append(np.mean([x for x in f if x != None]))
+
+    return forms
 
 
+def write_formant_table(file_path, name, sound_type='Individual'):
 
-    return formants
+    praat_script = file_path / '{}{}.praat'.format(sound_type, name)
+    audio_file = file_path / '{}{}.wav'.format(sound_type, name)
+    formant_table = file_path / '{}{}.Table'.format(sound_type, name)
+        
+    with open(praat_script, 'w') as f:
+        f.write('Read from file: "{}"\n'.format(audio_file))
+        f.write('To Formant (sl): 0, 5, 4500, 0.025, 50\n')
+        f.write('Down to Table: "no", "no", 6, "no", 3, "yes", 1, "no"\n')
+        f.write('Save as comma-separated file: "{}"\n'.format(formant_table))
+    
+    run_praat_command(praat_script)
+
+    return get_formants(formant_table)
+
+
+def run_praat_command(praat_script):
+    subprocess.call(['./praat',
+                     '--run',
+                     '--ansi',
+                     praat_script], stdout=subprocess.DEVNULL)
 
 
 def get_target_intensity(soundfile):
@@ -209,9 +247,6 @@ def get_target_RMS(soundfile):
     return math.sqrt(total)
 
 
-#######################################################################################
-#######################################################################################
-
 def get_target_mfcc_average(soundfile):
     (rate, signal) = wav.read(soundfile)
 
@@ -239,8 +274,6 @@ def get_target_logfbank(soundfile):
 
     return logfbank(signal, rate, winlen=0.025, winstep=0.025)
 
-#######################################################################################
-#######################################################################################
 
 def get_individual_pitch(name, directory, currentgeneration):
     
@@ -326,8 +359,6 @@ def get_individual_RMS(name, directory, currentgeneration, targetrms):
 
     return round(rms, 2)
 
-#######################################################################################
-#######################################################################################
 
 def get_individual_mfcc_average(name, directory, currentgeneration):
     soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
@@ -363,6 +394,3 @@ def get_individual_logfbank(name, directory, currentgeneration):
     (rate, signal) = wav.read(soundfile)
 
     return logfbank(signal, rate, winlen=0.025, winstep=0.025)
-
-#######################################################################################
-#######################################################################################
