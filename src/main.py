@@ -50,48 +50,47 @@ class Individual_PRT:
     # Method for creating a Praat .artword file
     def create_synth_params(self):
 
-        self.artword = open("{}/Generation{!s}/Individual{!s}.praat".format(self.directory, self.current_generation, self.name), "w")
+        with open('{}/Generation{!s}/Individual{!s}.praat'.format(self.directory, self.current_generation, self.name), 'w') as self.artword:
 
-        # Configure speaker type and sound length
-        self.artword.write('Create Speaker... Robovox Male 2\r\n')
-        self.artword.write('Create Artword... Individual{} {}\r\n'.format(self.name, self.target_info['target_length']))
+            # Configure speaker type and sound length
+            self.artword.write('Create Speaker... Robovox Male 2\n')
+            self.artword.write('Create Artword... Individual{} {}\n'.format(self.name, self.target_info['target_length']))
 
-        # Specify Lungs and LevatorPalatini parameter values
-        self.artword.write('Set target... 0.0  0.07  Lungs\r\n')
-        self.artword.write('Set target... 0.04  0.0  Lungs\r\n')
-        self.artword.write('Set target... {}  0.0  Lungs\r\n'.format(self.target_info['target_length']))
-        self.artword.write('Set target... 0.00  1 LevatorPalatini\r\n')
-        self.artword.write('Set target... {}  1 LevatorPalatini\r\n'.format(self.target_info['target_length']))
-        self.artword.write('Set target... 0.0  0.5 Interarytenoid\r\n')
-        self.artword.write('Set target... {}  0.5 Interarytenoid\r\n'.format(self.target_info['target_length']))
+            # Specify Lungs and LevatorPalatini parameter values
+            self.artword.write('Set target... 0.0  0.07  Lungs\n')
+            self.artword.write('Set target... 0.04  0.0  Lungs\n')
+            self.artword.write('Set target... {}  0.0  Lungs\n'.format(self.target_info['target_length']))
+            self.artword.write('Set target... 0.00  1 LevatorPalatini\n')
+            self.artword.write('Set target... {}  1 LevatorPalatini\n'.format(self.target_info['target_length']))
+            self.artword.write('Set target... 0.0  0.5 Interarytenoid\n')
+            self.artword.write('Set target... {}  0.5 Interarytenoid\n'.format(self.target_info['target_length']))
 
-        # Loop through the parameters and values lists and write these to the artword
-        for i in range(len(self.parameters)):
-            self.artword.seek(0, 2)
-            self.artword.write('Set target... 0.0 {} {}\r\n'.format(self.values[i],self.parameters[i]))
-            self.artword.write('Set target... {} {} {}\r\n'.format(self.target_info['target_length'], self.values[i],self.parameters[i]))
+            # Loop through the parameters and values lists and write these to the artword
+            for i in range(len(self.parameters)):
+                self.artword.seek(0, 2)
+                self.artword.write('Set target... 0.0 {} {}\n'.format(self.values[i],self.parameters[i]))
+                self.artword.write('Set target... {} {} {}\n'.format(self.target_info['target_length'], self.values[i], self.parameters[i]))
 
-        # Set sample rate and synthesise audio
-        self.artword.write('select Artword Individual{}\r\n'.format(self.name))
-        self.artword.write('plus Speaker Robovox\r\n')
-        self.artword.write('To Sound... {} 25    0 0 0    0 0 0   0 0 0\r\n'.format(self.target_info['target_sample_rate']))
-        self.artword.write('''nowarn do ("Save as WAV file...", "Individual{}.wav")\r\n'''.format(self.name))
+            # Set sample rate and synthesise audio
+            self.artword.write('select Artword Individual{}\n'.format(self.name))
+            self.artword.write('plus Speaker Robovox\n')
+            self.artword.write('To Sound... {} 25    0 0 0    0 0 0   0 0 0\n'.format(self.target_info['target_sample_rate']))
+            self.artword.write('''nowarn do ("Save as WAV file...", "Individual{}.wav")\n'''.format(self.name))
 
-        # Extract formants, pitch, and intensity
-        self.artword.write('''selectObject ("Sound Individual{}_Robovox")\r\n'''.format(self.name))
-        self.artword.write('To Formant (burg): 0, 5, 5000, {}, 50\r\n'.format(self.target_info['target_length']))
-        self.artword.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\r\n')
-        self.artword.write('''appendFile ("formants{}.txt", info$ ())\r\n'''.format(self.name))
-        self.artword.write('''selectObject ("Sound Individual{}_Robovox")\r\n'''.format(self.name))
-        self.artword.write('To Pitch: {}, 75, 600\r\n'.format(self.target_info['target_length']))
-        self.artword.write('Get mean: 0, 0, "Hertz"\r\n')
-        self.artword.write('''appendFile ("pitch{}.txt", info$ ())\r\n'''.format(self.name))
-        self.artword.write('''selectObject ("Sound Individual{}_Robovox")\r\n'''.format(self.name))
-        self.artword.write('To Intensity: 100, 0, "yes"\r\n')
-        self.artword.write('Get standard deviation: 0, 0\r\n')
-        self.artword.write('''appendFile ("intensity{}.txt", info$ ())\r\n'''.format(self.name))
+            # Extract formants, pitch, and intensity
+            self.artword.write('''selectObject ("Sound Individual{}_Robovox")\n'''.format(self.name))
+            self.artword.write('To Formant (burg): 0, 5, 5000, {}, 50\n'.format(self.target_info['target_length']))
+            self.artword.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\n')
+            self.artword.write('''appendFile ("formants{}.txt", info$ ())\n'''.format(self.name))
+            self.artword.write('''selectObject ("Sound Individual{}_Robovox")\n'''.format(self.name))
+            self.artword.write('To Pitch: {}, 75, 600\n'.format(self.target_info['target_length']))
+            self.artword.write('Get mean: 0, 0, "Hertz"\n')
+            self.artword.write('''appendFile ("pitch{}.txt", info$ ())\n'''.format(self.name))
+            self.artword.write('''selectObject ("Sound Individual{}_Robovox")\n'''.format(self.name))
+            self.artword.write('To Intensity: 100, 0, "yes"\n')
+            self.artword.write('Get standard deviation: 0, 0\n')
+            self.artword.write('''appendFile ("intensity{}.txt", info$ ())\n'''.format(self.name))
 
-        self.artword.close()
 
     def voiced_penalty(self):
         """

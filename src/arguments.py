@@ -12,13 +12,13 @@ def get_user_args():
 
     parser.add_argument("-ps", "--population_size",
                         type=int,
-                        default=100,
+                        default=10,
                         help="sets the population size",
                         metavar='')
 
     parser.add_argument("-gs", "--generation_size",
                         type=int,
-                        default=10,
+                        default=5,
                         help="sets the number of generations",
                         metavar='')
 
