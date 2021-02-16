@@ -18,7 +18,7 @@ def get_user_args():
 
     parser.add_argument("-gs", "--generation_size",
                         type=int,
-                        default=5,
+                        default=10,
                         help="sets the number of generations",
                         metavar='')
 

@@ -47,7 +47,6 @@ class Individual_PRT:
         if self.current_generation == 0:
             self.values = [round(random.uniform(-1, 1), 1) for x in range(len(self.parameters))]
 
-    # Method for creating a Praat .artword file
     def create_synth_params(self):
 
         with open('{}/Generation{!s}/Individual{!s}.praat'.format(self.directory, self.current_generation, self.name), 'w') as self.artword:
@@ -91,6 +90,35 @@ class Individual_PRT:
             self.artword.write('Get standard deviation: 0, 0\n')
             self.artword.write('''appendFile ("intensity{}.txt", info$ ())\n'''.format(self.name))
 
+    def evaluate_formants(self):
+        file_path = self.directory / 'Generation{}'.format(self.current_generation)
+        self.formants = praat_control.write_formant_table(file_path, self.name)
+
+        self.voiced_penalty()
+
+        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+        print(self.voice_report)
+
+        if self.voiced == False:
+            self.raw_fitness = self.raw_fitness * 10
+    
+    def evaluate_voice_quality(self):
+        file_path = self.directory / 'Generation{}'.format(self.current_generation)
+        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+
+    def evaluate_formant_fitness(self):
+        self.evaluate_formants()
+        self.evaluate_voice_quality()
+
+
+
+
+
+
+
+
+
+
 
     def voiced_penalty(self):
         """
@@ -109,36 +137,34 @@ class Individual_PRT:
             self.formants = praat_control.write_formant_table(file_path, self.name)
         else:
             self.formants = [self.target_info['target_sample_rate'] / 2 for x in range(5)]
-        
-        # 
+
+
         self.formants = self.formants[0:self.target_info['formant_range']]
 
         # This acts as a baseline fitness attribute to compare different fitness functions
         self.absolutefitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], "SAD")
-        
-        # print("absolute fitness", self.absolutefitness)
-    
-    # Method for calculating an individuals fitness
+
+
+
     def evaluate_formant(self):
-        
+
         self.voiced_penalty()
 
-       
        # Calls the relevant fitness function based on cmd line argument
-        if self.target_info['formant_repr'] == "hz":
+        if self.target_info['formant_repr'] == 'hz':
             self.raw_fitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == "mel":
+        elif self.target_info['formant_repr'] == 'mel':
             self.raw_fitness = fitness_functions.fitness_a2(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == "cent":
+        elif self.target_info['formant_repr'] == 'cent':
             self.raw_fitness = fitness_functions.fitness_a3(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == "bark":
+        elif self.target_info['formant_repr'] == 'bark':
             self.raw_fitness = fitness_functions.fitness_a4(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == "erb":
+        elif self.target_info['formant_repr'] == 'erb':
             self.raw_fitness = fitness_functions.fitness_a5(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
         
-        elif self.target_info['formant_repr'] == "brito":
+        elif self.target_info['formant_repr'] == 'brito':
             self.raw_fitness = fitness_functions.fitness_brito(self.formants, self.target_info['target_formants'])
-        
+
         # Apply a penalty of the sound is not voiced
         if self.voiced == False:
             self.raw_fitness = self.raw_fitness * 10
@@ -342,8 +368,9 @@ def main():
     identifier = args.identifier
 
     # If True, the identifier variable is used as a seed for random number generation
+
     if True:
-        random.seed(1998)
+        random.seed(1989)
 
     # Creates the directory string
     prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(target_dict['file_name'],
@@ -417,7 +444,7 @@ def main():
         # Calculate fitness scores by calling the evaluate_formants method
         for name in keys:
             if fitness_type == "formant":
-                population[name].evaluate_formant()
+                population[name].evaluate_formants()
             elif fitness_type == "filterbank":
                 population[name].evaluate_filterbank()
 

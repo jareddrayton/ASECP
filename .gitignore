@@ -62,6 +62,7 @@ Temporary Items
 *.json
 *.dll
 *.Table
+*.VoiceReport
 
 # Python files
 *.pyc

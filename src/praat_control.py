@@ -203,6 +203,46 @@ def write_formant_table(file_path, name, sound_type='Individual'):
     return get_formants(formant_table)
 
 
+def voice_report(file_path, length, name='', sound_type='Individual'):
+
+    praat_script = file_path / 's{}{}.praat'.format(sound_type, name)
+    audio_file = file_path / '{}{}.wav'.format(sound_type, name)
+    formant_table = file_path / '{}{}.VoiceReport'.format(sound_type, name)
+    
+    with open(praat_script, 'w') as f:
+        f.write('Read from file: "{}"\n'.format(audio_file))
+        f.write('To Pitch: 0, 75, 600\n')
+        f.write('selectObject: "Sound {}{}"\n'.format(sound_type, name))
+        f.write('plusObject: "Pitch {}{}"\n'.format(sound_type, name))
+        f.write('To PointProcess (cc)\n')
+        f.write('selectObject: "Sound {}{}"\n'.format(sound_type, name))
+        f.write('plusObject: "Pitch {}{}"\n'.format(sound_type, name))
+        f.write('plusObject: "PointProcess {}{}_{}{}"\n'.format(sound_type, name, sound_type, name))
+        f.write('voiceReport$ = Voice report: 0, 0, 75, 600, 1.3, 1.6, 0.03, 0.45\n')
+        f.write('meanpitch = extractNumber (voiceReport$, "Mean pitch: ")\n')
+        f.write('fracframes = extractNumber (voiceReport$, "Fraction of locally unvoiced frames: ")\n')
+        f.write('voicebreaks = extractNumber (voiceReport$, "Number of voice breaks: ")\n')
+        f.write('writeFileLine: "{}", meanpitch\n'.format(formant_table))
+        f.write('appendFileLine: "{}", fracframes\n'.format(formant_table))
+        f.write('appendFileLine: "{}", voicebreaks\n'.format(formant_table))
+    
+    run_praat_command(praat_script)
+
+    with open(formant_table, 'r') as f:
+        voice_report = [x.strip() for x in f.readlines()]
+
+    if voice_report[0] == '--undefined--':
+        voice_report[0] = False
+    else:
+        voice_report[0] = float(voice_report[0])
+
+    voice_report[1] = float(voice_report[1])
+    voice_report[2] = float(voice_report[2])
+
+    return voice_report
+
+
+
 def run_praat_command(praat_script):
     subprocess.call(['./praat',
                      '--run',
