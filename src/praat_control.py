@@ -188,7 +188,7 @@ def get_formants(file_path):
 
 def write_formant_table(file_path, name, sound_type='Individual'):
 
-    praat_script = file_path / '{}{}.praat'.format(sound_type, name)
+    praat_script = file_path / 'Readformnt{}{}.praat'.format(sound_type, name)
     audio_file = file_path / '{}{}.wav'.format(sound_type, name)
     formant_table = file_path / '{}{}.Table'.format(sound_type, name)
         
@@ -237,7 +237,7 @@ def voice_report(file_path, length, name='', sound_type='Individual'):
         voice_report[0] = float(voice_report[0])
 
     voice_report[1] = float(voice_report[1])
-    voice_report[2] = float(voice_report[2])
+    voice_report[2] = int(voice_report[2])
 
     return voice_report
 

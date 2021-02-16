@@ -12,7 +12,7 @@ def get_user_args():
 
     parser.add_argument("-ps", "--population_size",
                         type=int,
-                        default=10,
+                        default=20,
                         help="sets the population size",
                         metavar='')
 
@@ -36,19 +36,19 @@ def get_user_args():
 
     parser.add_argument("-mr", "--mutation_rate",
                         type=float,
-                        default=0.1,
+                        default=0.15,
                         help="sets the rate of mutation",
                         metavar='')
 
     parser.add_argument("-sd", "--mutation_standard_dev",
                         type=float,
-                        default=0.1,
+                        default=0.15,
                         help="sets the gaussian distrubutions standard deviation used for mutation",
                         metavar='')
 
     parser.add_argument("-el", "--elitism",
                         type=bool,
-                        default=True,
+                        default=False,
                         help="Activate the elitism genetic operator",
                         metavar='')
 
@@ -114,7 +114,7 @@ def get_user_args():
 
     parser.add_argument("-sn", "--synthesiser",
                         type=str,
-                        default='PRT',
+                        default='VTL',
                         help="Choose what synthesiser to use",
                         metavar='')
 

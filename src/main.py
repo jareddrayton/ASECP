@@ -91,24 +91,27 @@ class Individual_PRT:
             self.artword.write('''appendFile ("intensity{}.txt", info$ ())\n'''.format(self.name))
 
     def evaluate_formants(self):
+        
+        max_formant = 4500
+
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
         self.formants = praat_control.write_formant_table(file_path, self.name)
-
-        self.voiced_penalty()
-
         self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+
+        print(self.formants)
         print(self.voice_report)
 
-        if self.voiced == False:
-            self.raw_fitness = self.raw_fitness * 10
-    
-    def evaluate_voice_quality(self):
-        file_path = self.directory / 'Generation{}'.format(self.current_generation)
-        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+        self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
 
-    def evaluate_formant_fitness(self):
-        self.evaluate_formants()
-        self.evaluate_voice_quality()
+        self.voiced = self.mean_pitch != False
+        print(self.voiced)
+
+        if self.mean_pitch == False or self.frac_frames > 0.1 or self.voice_breaks > 0:
+            self.formants = [max_formant + x for x in self.target_info['target_formants']]
+
+        print(self.formants)
+
+        self.raw_fitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
 
 
 
@@ -127,7 +130,6 @@ class Individual_PRT:
         """
         # Assigns True or False to self.voiced, based on whether praat can calculate pitch 
         self.voiced = praat_control.get_individual_pitch(self.name, self.directory, self.current_generation)
-        
 
         # If a pitch is detected the formants are calculated and assigned to self.formants
         
@@ -137,7 +139,6 @@ class Individual_PRT:
             self.formants = praat_control.write_formant_table(file_path, self.name)
         else:
             self.formants = [self.target_info['target_sample_rate'] / 2 for x in range(5)]
-
 
         self.formants = self.formants[0:self.target_info['formant_range']]
 
@@ -318,10 +319,28 @@ class Individual_VTL:
                 f.write(' '.join(glottis_params) + '\n')
                 f.write(' '.join(map(str,self.values)) + '\n')
     
-    def get_formants(self):
+    def evaluate_formants(self):
         
+        max_formant = 4500
+
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
-        praat_control.get_average_formants(file_path, self.name)
+        self.formants = praat_control.write_formant_table(file_path, self.name)
+        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+
+        print(self.formants)
+        print(self.voice_report)
+
+        self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
+
+        self.voiced = self.mean_pitch != False
+        print(self.voiced)
+
+        if self.mean_pitch == False or self.frac_frames > 0.1 or self.voice_breaks > 0:
+            self.formants = [max_formant + x for x in self.target_info['target_formants']]
+
+        print(self.formants)
+
+        self.raw_fitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
 
 
 def get_target_info(target_dict):
@@ -370,7 +389,7 @@ def main():
     # If True, the identifier variable is used as a seed for random number generation
 
     if True:
-        random.seed(1989)
+        random.seed(2000)
 
     # Creates the directory string
     prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(target_dict['file_name'],

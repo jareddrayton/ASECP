@@ -254,10 +254,15 @@ def mutation(population, keys, mutation_rate, mutation_standard_dev):
             if mutation_rate >= random.random():
                 
                 # Mutate the current allele value
-                population[name].values[i] += random.gauss(0, mutation_standard_dev)
+                population[name].values[i] = round(population[name].values[i] + random.gauss(0, mutation_standard_dev), 2)
                 
                 # Then truncate tha vaule if it is now out of bounds
                 if population[name].values[i] > 1.0:
                     population[name].values[i] = 1.0
                 elif population[name].values[i] < -1.0:
                     population[name].values[i] = -1.0
+
+"""
+def adaptive_mutation(population, keys, mutation_rate, mutation_standard_dev):
+    for name in keys:
+"""
