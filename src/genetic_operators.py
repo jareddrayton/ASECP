@@ -1,5 +1,5 @@
-import random
 import math
+import random
 import shutil
 from operator import itemgetter
 
@@ -73,6 +73,7 @@ def exponential_ranking(population, keys):
 
     # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
     keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
+    print(keys_fitness)
 
     # Unpack the list of tuples into seperate tuples
     ranked, fitness = zip(*keys_fitness)
@@ -83,6 +84,8 @@ def exponential_ranking(population, keys):
 
     for i, rank in enumerate(ranked):
         population[rank].selection_probability = ((i ** 2)/(C - 1)**2)  / NF
+        #print(population[rank].selection_probability, population[rank].raw_fitness)
+
 
     #print(sum([population[name].selection_probability for name in keys]))
 
@@ -245,24 +248,33 @@ def uniform_crossover(population, keys):
 #################################################################################################################
 
 
-def mutation(population, keys, mutation_rate, mutation_standard_dev):
+def gaussian_mutation(population, keys, mutation_rate, mutation_standard_dev):
 
     for name in keys:
         for i in range(len(population[name].values)):
-
+            lower_bound = population[name].parameters[i][1]
+            upper_bound = population[name].parameters[i][2]
             # Proceed if mutation_rate is higher than a number taken from a uniform distrubtion
             if mutation_rate >= random.random():
-                
+
                 # Mutate the current allele value
                 population[name].values[i] = round(population[name].values[i] + random.gauss(0, mutation_standard_dev), 2)
-                
-                # Then truncate tha vaule if it is now out of bounds
-                if population[name].values[i] > 1.0:
-                    population[name].values[i] = 1.0
-                elif population[name].values[i] < -1.0:
-                    population[name].values[i] = -1.0
 
-"""
-def adaptive_mutation(population, keys, mutation_rate, mutation_standard_dev):
+                # Then truncate the vaule if it is now out of bounds
+                if population[name].values[i] > upper_bound:
+                    population[name].values[i] = upper_bound
+                elif population[name].values[i] < lower_bound:
+                    population[name].values[i] = lower_bound
+
+
+def uniform_mutation(population, keys, mutation_rate):
+
     for name in keys:
-"""
+        for i in range(len(population[name].values)):
+            lower_bound = population[name].parameters[i][1]
+            upper_bound = population[name].parameters[i][2]
+            
+            # Proceed if mutation_rate is higher than a number taken from a uniform distrubtion
+            if mutation_rate >= random.random():
+
+                population[name].values[i] = round(random.uniform(lower_bound, upper_bound), 2)
