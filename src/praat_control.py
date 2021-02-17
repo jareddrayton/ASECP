@@ -177,10 +177,10 @@ def get_formants(file_path):
     forms = []
 
     for f in formants:
-        print('Per ', 100 * (1 - f.count(None) / len(f)))
-        print('Mean', np.mean([x for x in f if x != None]))
-        print('Std ', np.std([x for x in f if x != None]))
-        print('')
+        #print('Per ', 100 * (1 - f.count(None) / len(f)))
+        #print('Mean', np.mean([x for x in f if x != None]))
+        #print('Std ', np.std([x for x in f if x != None]))
+        #print('')
         forms.append(np.mean([x for x in f if x != None]))
 
     return forms
@@ -191,6 +191,23 @@ def write_formant_table(file_path, name, sound_type='Individual'):
     praat_script = file_path / 'Readformnt{}{}.praat'.format(sound_type, name)
     audio_file = file_path / '{}{}.wav'.format(sound_type, name)
     formant_table = file_path / '{}{}.Table'.format(sound_type, name)
+        
+    with open(praat_script, 'w') as f:
+        f.write('Read from file: "{}"\n'.format(audio_file))
+        f.write('To Formant (sl): 0, 5, 4500, 0.025, 50\n')
+        f.write('Down to Table: "no", "no", 6, "no", 3, "yes", 1, "no"\n')
+        f.write('Save as comma-separated file: "{}"\n'.format(formant_table))
+    
+    run_praat_command(praat_script)
+
+    return get_formants(formant_table)
+
+
+def write_target_formant_table(file_path, file_name):
+
+    praat_script = file_path / 'read_target_formants{}.praat'.format(file_name)
+    audio_file = file_path / '{}'.format(file_name)
+    formant_table = file_path / '{}.Table'.format(file_name)
         
     with open(praat_script, 'w') as f:
         f.write('Read from file: "{}"\n'.format(audio_file))

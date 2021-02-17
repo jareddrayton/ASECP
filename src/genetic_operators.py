@@ -73,7 +73,7 @@ def exponential_ranking(population, keys):
 
     # Sort the list of tuples by the second tuple item fitness. Reverse=True means the higher fitness are first
     keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
-    print(keys_fitness)
+    #print(keys_fitness)
 
     # Unpack the list of tuples into seperate tuples
     ranked, fitness = zip(*keys_fitness)
@@ -85,6 +85,7 @@ def exponential_ranking(population, keys):
     for i, rank in enumerate(ranked):
         population[rank].selection_probability = ((i ** 2)/(C - 1)**2)  / NF
         #print(population[rank].selection_probability, population[rank].raw_fitness)
+    #print()
 
 
     #print(sum([population[name].selection_probability for name in keys]))

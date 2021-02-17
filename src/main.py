@@ -6,6 +6,7 @@ import random
 import shutil
 import subprocess
 import time
+from operator import itemgetter
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,18 +25,16 @@ class Individual_PRT:
 
         self.name = name
 
-        # A dictionary containing information about the target sound
         self.target_info = target_info
 
-        # Set the run directory
         self.directory = directory
+
+        self.current_generation = 0
 
         # Initialise fitness score variables
         self.raw_fitness = 0
         self.scaled_fitness = 0
         self.selection_probability = 0
-
-        self.current_generation = 0
 
         # List for holding the real valued genotype values
         self.values = []
@@ -45,7 +44,7 @@ class Individual_PRT:
 
         # Initialise the genotype with random values for the first generation
         if self.current_generation == 0:
-            self.values = [round(random.uniform(-1, 1), 1) for x in range(len(self.parameters))]
+            self.values = [round(random.uniform(y, z), 2) for _, y, z in self.parameters]
 
     def create_synth_params(self):
 
@@ -66,9 +65,9 @@ class Individual_PRT:
 
             # Loop through the parameters and values lists and write these to the artword
             for i in range(len(self.parameters)):
-                self.artword.seek(0, 2)
-                self.artword.write('Set target... 0.0 {} {}\n'.format(self.values[i],self.parameters[i]))
-                self.artword.write('Set target... {} {} {}\n'.format(self.target_info['target_length'], self.values[i], self.parameters[i]))
+                #self.artword.seek(0, 2)
+                self.artword.write('Set target... 0.0 {} {}\n'.format(self.values[i], self.parameters[i][0]))
+                self.artword.write('Set target... {} {} {}\n'.format(self.target_info['target_length'], self.values[i], self.parameters[i][0]))
 
             # Set sample rate and synthesise audio
             self.artword.write('select Artword Individual{}\n'.format(self.name))
@@ -91,36 +90,35 @@ class Individual_PRT:
             self.artword.write('''appendFile ("intensity{}.txt", info$ ())\n'''.format(self.name))
 
     def evaluate_formants(self):
-        
-        max_formant = 4500
 
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
+        
         self.formants = praat_control.write_formant_table(file_path, self.name)
         self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
-
-        print(self.formants)
-        print(self.voice_report)
 
         self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
 
         self.voiced = self.mean_pitch != False
-        print(self.voiced)
 
-        if self.mean_pitch == False or self.frac_frames > 0.1 or self.voice_breaks > 0:
-            self.formants = [max_formant + x for x in self.target_info['target_formants']]
+        if self.mean_pitch == False or self.mean_pitch > 200 or self.frac_frames > 0.1 or self.voice_breaks > 0:
+            self.formants = [4500 + x for x in self.target_info['target_formants']]
 
-        print(self.formants)
+        self.raw_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
+        
+        self.absolutefitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
 
-        self.raw_fitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-
-
-
+        self.write_out_formants()
 
 
+    def write_out_formants(self):
 
-
-
-
+        stats.write_formants(self.name,
+                             self.directory,
+                             self.current_generation,
+                             self.formants,
+                             self.raw_fitness,
+                             self.voiced,
+                             self.absolutefitness)
 
 
     def voiced_penalty(self):
@@ -144,7 +142,6 @@ class Individual_PRT:
 
         # This acts as a baseline fitness attribute to compare different fitness functions
         self.absolutefitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], "SAD")
-
 
 
     def evaluate_formant(self):
@@ -187,13 +184,7 @@ class Individual_PRT:
         ###########################################################################################
         # Write feature information to a csv file
         
-        stats.write_formants(self.name,
-                             self.directory,
-                             self.current_generation,
-                             self.formants,
-                             self.raw_fitness,
-                             self.voiced,
-                             self.absolutefitness)
+
         ###########################################################################################
         # Call the write_formants_cntk method if a sound is voiced
 
@@ -265,18 +256,8 @@ class Individual_PRT:
 class Individual_VTL:
     def __init__(self, name, target_info, directory):
 
+
         self.name = name
-
-        # List containing the real valued genotype
-        self.values = []
-
-        # Load parameter definition from the CONSTANTS module
-        self.parameters = VTL_PARAMETER_DEFS['ALL']
-
-        # Initialise the fitness score variables
-        self.raw_fitness = 0
-        self.scaled_fitness = 0 # Used to calculate proporional fitness
-        self.selection_probability = 0
 
         self.target_info = target_info
 
@@ -284,16 +265,27 @@ class Individual_VTL:
 
         self.current_generation = 0
 
+        # Initialise fitness score variables
+        self.raw_fitness = 0
+        self.scaled_fitness = 0
+        self.selection_probability = 0
+
+        # List for holding the real valued genotype values
+        self.values = []
+
+        # Load parameter definition from the CONSTANTS module
+        self.parameters = VTL_PARAMETER_DEFS['ALL']
+
         # Initialise the genotype with random values for the first generation
         if self.current_generation == 0:
-            self.values = [round(random.uniform(y, z), 1) for _, y, z in self.parameters]
+            self.values = [round(random.uniform(y, z), 2) for _, y, z in self.parameters]
 
     def create_synth_params(self):
         sample_rate = 44100
         target_time = 1.0
         fold_type = 'Geometric glottis'
         step_size = 110  # assume 44100 sample rate.
-        target_pressure = 8000
+        target_pressure = 10000
         number_of_states = int((sample_rate * target_time) // step_size)
         pressure = np.geomspace(1, target_pressure, num=20)
         glottis_params = ['101.594', '0', '0.0102', '0.02035', '0.05', '1.22204', '1', '0.05', '0', '25', '-10']
@@ -320,34 +312,42 @@ class Individual_VTL:
                 f.write(' '.join(map(str,self.values)) + '\n')
     
     def evaluate_formants(self):
-        
-        max_formant = 4500
 
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
+        
         self.formants = praat_control.write_formant_table(file_path, self.name)
         self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
-
-        print(self.formants)
-        print(self.voice_report)
 
         self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
 
         self.voiced = self.mean_pitch != False
-        print(self.voiced)
 
-        if self.mean_pitch == False or self.frac_frames > 0.1 or self.voice_breaks > 0:
-            self.formants = [max_formant + x for x in self.target_info['target_formants']]
+        if self.mean_pitch == False or self.mean_pitch > 200 or self.frac_frames > 0.1 or self.voice_breaks > 0:
+            self.formants = [4500 + x for x in self.target_info['target_formants']]
 
-        print(self.formants)
+        self.raw_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
+        
+        self.absolutefitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
 
-        self.raw_fitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
+        self.write_out_formants()
+
+
+    def write_out_formants(self):
+
+        stats.write_formants(self.name,
+                             self.directory,
+                             self.current_generation,
+                             self.formants,
+                             self.raw_fitness,
+                             self.voiced,
+                             self.absolutefitness)
 
 
 def get_target_info(target_dict):
 
     target_dict['target_length'] = praat_control.get_time(target_dict['file_path'])
     target_dict['target_sample_rate'] = praat_control.get_sample_rate(target_dict['file_path'])
-    target_dict['target_formants'] = praat_control.write_formant_table(target_dict['file_path_root'], '1', 'Primary')
+    target_dict['target_formants'] = praat_control.write_target_formant_table(target_dict['file_path_root'], target_dict['file_name'])
     target_dict['target_intensity'] = praat_control.get_target_intensity(target_dict['file_path'])
     target_dict['target_rms'] = praat_control.get_target_RMS(target_dict['file_path'])
     target_dict['target_mfcc_average'] = praat_control.get_target_mfcc_average(target_dict['file_path'])
@@ -392,11 +392,12 @@ def main():
         random.seed(2000)
 
     # Creates the directory string
-    prefix = '{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(target_dict['file_name'],
-                                                 generation_size,
-                                                 population_size,
-                                                 mutation_rate,
-                                                 mutation_standard_dev)
+    prefix = '{}.{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(target_dict['file_name'],
+                                                    target_dict['synthesiser'],
+                                                    generation_size,
+                                                    population_size,
+                                                    mutation_rate,
+                                                    mutation_standard_dev)
 
     parent_dir = pathlib.Path.cwd().parent
 
@@ -431,6 +432,7 @@ def main():
     average_fitness = []
     minimum_fitness = []
     voiced_percentage = []
+    top_individual = []
 
     if target_dict['synthesiser'] == 'PRT':
         Individual = Individual_PRT
@@ -467,15 +469,7 @@ def main():
             elif fitness_type == "filterbank":
                 population[name].evaluate_filterbank()
 
-        ###############################################################################################
-        # do fitness statistics
-        listfitness = []
 
-        for name in keys:
-            listfitness.append(population[name].raw_fitness)
-
-        average_fitness.append(sum(listfitness) / len(listfitness))
-        minimum_fitness.append(min(listfitness))
 
         ###############################################################################################
         # Calculate the percentage of voiced sounds in the generation
@@ -495,47 +489,82 @@ def main():
 
         ###############################################################################################
         # Selection Probabilities used with Roulette Wheel or Stochastic Universal Sampling
-        if selection_type == "linear":
+        if selection_type == 'linear':
             genetic_operators.linear_ranking(population, keys)
-        elif selection_type == "proportional":
+        elif selection_type == 'proportional':
             genetic_operators.fitness_proportional(population, keys)
-        elif selection_type == "exponential":
+        elif selection_type == 'exponential':
             genetic_operators.exponential_ranking(population, keys)
+
+
+        ###############################################################################################
+        # do fitness statistics
+        listfitness = []
+
+        ordered = []
+
+        for name in keys:
+            listfitness.append(population[name].raw_fitness)
+            ordered.append((population[name].name, population[name].raw_fitness, population[name].selection_probability))
+        
+        ordered = sorted(ordered, key=itemgetter(1))
+        #print(*ordered, sep='\n')
+        top_individual.append(ordered[0][0])
+        #print(ordered[0][0], ordered[0][1])
+        #print(ordered[-1][0], ordered[-1][1])
+
+        average_fitness.append(sum(listfitness) / len(listfitness))
+        minimum_fitness.append(min(listfitness))
+
 
         ###############################################################################################
         # Crossover
-        if crossover_type == "one_point":
+        if crossover_type == 'one_point':
             genetic_operators.one_point_crossover(population, keys)
-        elif crossover_type == "uniform":
+        elif crossover_type == 'uniform':
             genetic_operators.uniform_crossover(population, keys)
 
         ##############################################################################################
         # Apply mutation to individuals
 
-        genetic_operators.mutation(population, keys, mutation_rate, mutation_standard_dev)
+        genetic_operators.gaussian_mutation(population, keys, mutation_rate, mutation_standard_dev)
 
         ##############################################################################################
         # Elitism
-        
         if elitism == True:
             for i in range(elite_size):
                 population[keys[i]].values = elites[i]
-    
+
     performance_graph(average_fitness, minimum_fitness, generation_size, directory)
     dump(directory, start_time, args)
-    statistics(average_fitness, minimum_fitness, directory)
+    statistics(average_fitness, minimum_fitness, top_individual, directory)
     csv_file(average_fitness, minimum_fitness, voiced_percentage, directory)
+    summary(directory, top_individual)
 
 
-def statistics(average_fitness, minimum_fitness, directory):
+def statistics(average_fitness, minimum_fitness, top_individual, directory):
     """ Function for plotting performance graphs and saving run data"""
-    with open("{}/Mean.txt".format(directory), "w") as mean:
+    with open("{}/Mean.txt".format(directory), "w") as f:
         for item in average_fitness:
-            mean.write("{!s}\r\n".format(item))
+            f.write("{!s}\n".format(item))
 
-    with open("{}/Minimum.txt".format(directory), "w") as minimum:
+    with open("{}/Minimum.txt".format(directory), "w") as f:
         for item in minimum_fitness:
-            minimum.write('{!s}\r\n'.format(item))
+            f.write('{!s}\n'.format(item))
+    
+    with open("{}/Best.txt".format(directory), "w") as f:
+        for item in top_individual:
+            f.write('{!s}\n'.format(item))
+
+def summary(directory, top_individual):
+
+    with open(directory / 'summary.html', 'w') as f:
+        for i, top in enumerate(top_individual):
+            f.write('<audio controls>\n')
+            f.write('            <source src="Generation{}\\Individual{}.wav" type="audio/wav">\n'.format(i, top))
+            f.write('            Your browser does not support the audio element.\n')
+            f.write('        </audio><br>\n')
+
 
 
 def performance_graph(average_fitness, minimum_fitness, generation_size, directory):
@@ -549,6 +578,8 @@ def performance_graph(average_fitness, minimum_fitness, generation_size, directo
 
 
 def csv_file(average_fitness, minimum_fitness, voiced_percentage, directory):
+    
+    
     with open('{}/Stats.csv'.format(directory), 'w', newline='') as csvfile:
         for i in range(len(average_fitness)):
             csvdata = (average_fitness[i], minimum_fitness[i], voiced_percentage[i])
@@ -561,7 +592,7 @@ def dump(directory, start_time, args):
         run.write('--- {} seconds ---'.format(time.time() - start_time))
 
     with open(directory / 'arguments.json', 'w') as outfile:
-        print(vars(args))
+        #print(vars(args))
         json.dump(vars(args), outfile, indent=4)
 
 

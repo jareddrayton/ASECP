@@ -12,13 +12,13 @@ def get_user_args():
 
     parser.add_argument("-ps", "--population_size",
                         type=int,
-                        default=20,
+                        default=15,
                         help="sets the population size",
                         metavar='')
 
     parser.add_argument("-gs", "--generation_size",
                         type=int,
-                        default=10,
+                        default=5,
                         help="sets the number of generations",
                         metavar='')
 
@@ -48,13 +48,13 @@ def get_user_args():
 
     parser.add_argument("-el", "--elitism",
                         type=bool,
-                        default=False,
+                        default=True,
                         help="Activate the elitism genetic operator",
                         metavar='')
 
     parser.add_argument("-es", "--elite_size",
                         type=int,
-                        default=4,
+                        default=2,
                         help="Specify number of elite individuals to be kept",
                         metavar='')
 
@@ -102,7 +102,7 @@ def get_user_args():
 
     parser.add_argument("-id", "--identifier",
                         type=str,
-                        default='2',
+                        default='1',
                         help="used as random() seed",
                         metavar='')
 
