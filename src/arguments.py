@@ -12,7 +12,7 @@ def get_user_args():
 
     parser.add_argument("-ps", "--population_size",
                         type=int,
-                        default=15,
+                        default=20,
                         help="sets the population size",
                         metavar='')
 
@@ -42,7 +42,7 @@ def get_user_args():
 
     parser.add_argument("-sd", "--mutation_standard_dev",
                         type=float,
-                        default=0.15,
+                        default=0.2,
                         help="sets the gaussian distrubutions standard deviation used for mutation",
                         metavar='')
 

@@ -257,9 +257,10 @@ def gaussian_mutation(population, keys, mutation_rate, mutation_standard_dev):
             upper_bound = population[name].parameters[i][2]
             # Proceed if mutation_rate is higher than a number taken from a uniform distrubtion
             if mutation_rate >= random.random():
-
+                difference = abs(lower_bound - upper_bound)
+                scale_factor = difference / 2
                 # Mutate the current allele value
-                population[name].values[i] = round(population[name].values[i] + random.gauss(0, mutation_standard_dev), 2)
+                population[name].values[i] = round(population[name].values[i] + random.gauss(0, mutation_standard_dev * scale_factor), 2)
 
                 # Then truncate the vaule if it is now out of bounds
                 if population[name].values[i] > upper_bound:
