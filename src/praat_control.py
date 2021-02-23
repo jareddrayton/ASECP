@@ -183,12 +183,14 @@ def get_formants(file_path):
         #print('')
         forms.append(np.mean([x for x in f if x != None]))
 
+    os.remove(file_path)
+
     return forms
 
 
 def write_formant_table(file_path, name, sound_type='Individual'):
 
-    praat_script = file_path / 'Readformnt{}{}.praat'.format(sound_type, name)
+    praat_script = file_path / 'WriteFormantTable{}{}.praat'.format(sound_type, name)
     audio_file = file_path / '{}{}.wav'.format(sound_type, name)
     formant_table = file_path / '{}{}.Table'.format(sound_type, name)
         
@@ -198,7 +200,7 @@ def write_formant_table(file_path, name, sound_type='Individual'):
         f.write('Down to Table: "no", "no", 6, "no", 3, "yes", 1, "no"\n')
         f.write('Save as comma-separated file: "{}"\n'.format(formant_table))
     
-    run_praat_command(praat_script)
+    run_praat_command(praat_script, purge=True)
 
     return get_formants(formant_table)
 
@@ -243,7 +245,7 @@ def voice_report(file_path, length, name='', sound_type='Individual'):
         f.write('appendFileLine: "{}", fracframes\n'.format(formant_table))
         f.write('appendFileLine: "{}", voicebreaks\n'.format(formant_table))
     
-    run_praat_command(praat_script)
+    run_praat_command(praat_script, purge=True)
 
     with open(formant_table, 'r') as f:
         voice_report = [x.strip() for x in f.readlines()]
@@ -256,15 +258,19 @@ def voice_report(file_path, length, name='', sound_type='Individual'):
     voice_report[1] = float(voice_report[1])
     voice_report[2] = int(voice_report[2])
 
+    os.remove(formant_table)
+
     return voice_report
 
 
-
-def run_praat_command(praat_script):
+def run_praat_command(praat_script, purge=False):
     subprocess.call(['./praat',
                      '--run',
                      '--ansi',
                      praat_script], stdout=subprocess.DEVNULL)
+    
+    if purge:
+        os.remove(praat_script)
 
 
 def get_target_intensity(soundfile):

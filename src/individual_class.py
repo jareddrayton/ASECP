@@ -43,17 +43,14 @@ class Individual_PRT:
             self.artword.write('Create Artword... Individual{} {}\n'.format(self.name, self.target_info['target_length']))
 
             # Specify Lungs and LevatorPalatini parameter values
-            self.artword.write('Set target... 0.0  0.07  Lungs\n')
+            self.artword.write('Set target... 0.0  0.1  Lungs\n')
             self.artword.write('Set target... 0.04  0.0  Lungs\n')
             self.artword.write('Set target... {}  0.0  Lungs\n'.format(self.target_info['target_length']))
             self.artword.write('Set target... 0.00  1 LevatorPalatini\n')
             self.artword.write('Set target... {}  1 LevatorPalatini\n'.format(self.target_info['target_length']))
-            self.artword.write('Set target... 0.0  0.5 Interarytenoid\n')
-            self.artword.write('Set target... {}  0.5 Interarytenoid\n'.format(self.target_info['target_length']))
 
             # Loop through the parameters and values lists and write these to the artword
             for i in range(len(self.parameters)):
-                #self.artword.seek(0, 2)
                 self.artword.write('Set target... 0.0 {} {}\n'.format(self.values[i], self.parameters[i][0]))
                 self.artword.write('Set target... {} {} {}\n'.format(self.target_info['target_length'], self.values[i], self.parameters[i][0]))
 
@@ -63,19 +60,6 @@ class Individual_PRT:
             self.artword.write('To Sound... {} 25    0 0 0    0 0 0   0 0 0\n'.format(self.target_info['target_sample_rate']))
             self.artword.write('''nowarn do ("Save as WAV file...", "Individual{}.wav")\n'''.format(self.name))
 
-            # Extract formants, pitch, and intensity
-            self.artword.write('''selectObject ("Sound Individual{}_Robovox")\n'''.format(self.name))
-            self.artword.write('To Formant (burg): 0, 5, 5000, {}, 50\n'.format(self.target_info['target_length']))
-            self.artword.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\n')
-            self.artword.write('''appendFile ("formants{}.txt", info$ ())\n'''.format(self.name))
-            self.artword.write('''selectObject ("Sound Individual{}_Robovox")\n'''.format(self.name))
-            self.artword.write('To Pitch: {}, 75, 600\n'.format(self.target_info['target_length']))
-            self.artword.write('Get mean: 0, 0, "Hertz"\n')
-            self.artword.write('''appendFile ("pitch{}.txt", info$ ())\n'''.format(self.name))
-            self.artword.write('''selectObject ("Sound Individual{}_Robovox")\n'''.format(self.name))
-            self.artword.write('To Intensity: 100, 0, "yes"\n')
-            self.artword.write('Get standard deviation: 0, 0\n')
-            self.artword.write('''appendFile ("intensity{}.txt", info$ ())\n'''.format(self.name))
 
     def evaluate_formants(self):
 
@@ -86,16 +70,22 @@ class Individual_PRT:
 
         self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
 
-        self.voiced = self.mean_pitch != False
+        self.voiced = self.mean_pitch != False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
 
-        if self.mean_pitch == False or self.mean_pitch > 200 or self.frac_frames > 0.1 or self.voice_breaks > 0:
+        if self.mean_pitch == False or self.mean_pitch > 175 or self.frac_frames > 0.1 or self.voice_breaks > 0:
             self.formants = [4500 + x for x in self.target_info['target_formants']]
 
         self.raw_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
         
         self.absolutefitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
-
+ 
         self.write_out_formants()
+
+        if self.voiced and self.target_info['scikit']:
+            self.write_formants_scikit()
+
+        if self.voiced and self.target_info['scikit']:
+            self.write_formants_scikit()
 
 
     def write_out_formants(self):
@@ -107,6 +97,26 @@ class Individual_PRT:
                              self.raw_fitness,
                              self.voiced,
                              self.absolutefitness)
+
+
+    def write_formants_scikit(self):
+        """
+        Writes the formant feature and praat parameter value pairs as comma seperated values.
+        """
+
+        with open('labelled_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.formants)))
+
+
+    def write_filterbank_cntk(self):
+        
+        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
+
+        with open('cntk_mfcc_data.txt', 'a') as self.cntk:
+            # append a new pair of features and labels
+            self.cntk.write('|labels {} '.format(" ".join(str(x) for x in self.values)))
+            self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.mfcc_average)))
+
 
 
     def voiced_penalty(self):
@@ -219,26 +229,8 @@ class Individual_PRT:
         if self.voiced and self.target_info['cntk']:
             self.write_filterbank_cntk()
 
-    def write_formants_cntk(self):
-        """ writes features and labels to a file for use with CNTK in the following format
-        |labels 0 0 0 0 0 0 0 1 0 0 |features 0 0 0 0 0 0 0 0 0 0 0
 
-        :return:
-        """
 
-        with open('cntk_formant_data.txt', 'a') as self.cntk:
-            # append a new pair of features and labels
-            self.cntk.write('|labels {} '.format(" ".join(str(x) for x in self.values)))
-            self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.formants)))
-
-    def write_filterbank_cntk(self):
-        
-        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
-
-        with open('cntk_mfcc_data.txt', 'a') as self.cntk:
-            # append a new pair of features and labels
-            self.cntk.write('|labels {} '.format(" ".join(str(x) for x in self.values)))
-            self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.mfcc_average)))
 
 
 class Individual_VTL:
