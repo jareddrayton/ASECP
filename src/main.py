@@ -145,8 +145,6 @@ def main():
             elif fitness_type == "filterbank":
                 population[name].evaluate_filterbank()
 
-
-
         ###############################################################################################
         # Calculate the percentage of voiced sounds in the generation
         
@@ -184,14 +182,11 @@ def main():
             ordered.append((population[name].name, population[name].raw_fitness, population[name].selection_probability))
         
         ordered = sorted(ordered, key=itemgetter(1))
-        #print(*ordered, sep='\n')
+
         top_individual.append(ordered[0][0])
-        #print(ordered[0][0], ordered[0][1])
-        #print(ordered[-1][0], ordered[-1][1])
 
         average_fitness.append(sum(listfitness) / len(listfitness))
         minimum_fitness.append(min(listfitness))
-
 
         ###############################################################################################
         # Crossover
@@ -210,61 +205,11 @@ def main():
             for i in range(elite_size):
                 population[keys[i]].values = elites[i]
 
-    performance_graph(average_fitness, minimum_fitness, generation_size, directory)
-    dump(directory, start_time, args)
-    statistics(average_fitness, minimum_fitness, top_individual, directory)
-    csv_file(average_fitness, minimum_fitness, voiced_percentage, directory)
-    summary(directory, top_individual)
-
-
-def statistics(average_fitness, minimum_fitness, top_individual, directory):
-    """ Function for plotting performance graphs and saving run data"""
-    with open("{}/Mean.txt".format(directory), "w") as f:
-        for item in average_fitness:
-            f.write("{!s}\n".format(item))
-
-    with open("{}/Minimum.txt".format(directory), "w") as f:
-        for item in minimum_fitness:
-            f.write('{!s}\n'.format(item))
-    
-    with open("{}/Best.txt".format(directory), "w") as f:
-        for item in top_individual:
-            f.write('{!s}\n'.format(item))
-
-
-def summary(directory, top_individual):
-    with open(directory / 'summary.html', 'w') as f:
-        for i, top in enumerate(top_individual):
-            f.write('<audio controls>\n')
-            f.write('            <source src="Generation{}\\Individual{}.wav" type="audio/wav">\n'.format(i, top))
-            f.write('            Your browser does not support the audio element.\n')
-            f.write('        </audio><br>\n')
-
-
-def performance_graph(average_fitness, minimum_fitness, generation_size, directory):
-    plt.plot(average_fitness, 'k', label='Mean Fitness')
-    plt.plot(minimum_fitness, 'k--', label='Minimum Fitness')
-    plt.axis([0, generation_size, 0, max(average_fitness)])
-    plt.xlabel('Generation_size')
-    plt.ylabel('Fitness')
-    plt.legend()
-    plt.savefig("{}/Performance Graph".format(directory))
-
-
-def csv_file(average_fitness, minimum_fitness, voiced_percentage, directory):
-    with open('{}/Stats.csv'.format(directory), 'w', newline='') as csvfile:
-        for i in range(len(average_fitness)):
-            csvdata = (average_fitness[i], minimum_fitness[i], voiced_percentage[i])
-            spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            spamwriter.writerow(csvdata)
-
-
-def dump(directory, start_time, args):
-    with open(directory / 'Runtime.txt', 'w') as run:
-        run.write('--- {} seconds ---'.format(time.time() - start_time))
-
-    with open(directory / 'arguments.json', 'w') as outfile:
-        json.dump(vars(args), outfile, indent=4)
+    stats.performance_graph(average_fitness, minimum_fitness, generation_size, directory)
+    stats.config_dump(directory, start_time, args)
+    stats.statistics(average_fitness, minimum_fitness, top_individual, directory)
+    stats.csv_file(average_fitness, minimum_fitness, voiced_percentage, directory)
+    stats.summary(directory, top_individual)
 
 
 if __name__ == '__main__':
