@@ -72,31 +72,21 @@ class Individual_PRT:
 
         self.voiced = self.mean_pitch != False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
 
-        if self.mean_pitch == False or self.mean_pitch > 175 or self.frac_frames > 0.1 or self.voice_breaks > 0:
+        if self.voiced == False:
             self.formants = [4500 + x for x in self.target_info['target_formants']]
 
         self.raw_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
         
-        self.absolutefitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
+        self.absolute_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
  
         self.write_out_formants()
 
         if self.voiced and self.target_info['scikit']:
             self.write_formants_scikit()
 
-        if self.voiced and self.target_info['scikit']:
-            self.write_formants_scikit()
-
 
     def write_out_formants(self):
-
-        stats.write_formants(self.name,
-                             self.directory,
-                             self.current_generation,
-                             self.formants,
-                             self.raw_fitness,
-                             self.voiced,
-                             self.absolutefitness)
+        stats.write_individual_to_csv(dict(vars(self)), self.directory, self.current_generation)
 
 
     def write_formants_scikit(self):
@@ -118,33 +108,7 @@ class Individual_PRT:
             self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.mfcc_average)))
 
 
-
-    def voiced_penalty(self):
-        """
-        Instance method for ascertaining whether an individual is voiced or not.
-        
-        """
-        # Assigns True or False to self.voiced, based on whether praat can calculate pitch 
-        self.voiced = praat_control.get_individual_pitch(self.name, self.directory, self.current_generation)
-
-        # If a pitch is detected the formants are calculated and assigned to self.formants
-        
-        if self.voiced == True:
-            #self.formants = praat_control.get_individual_formants(self.name, self.directory, self.current_generation, self.target_info['target_sample_rate'])
-            file_path = self.directory / 'Generation{}'.format(self.current_generation)
-            self.formants = praat_control.write_formant_table(file_path, self.name)
-        else:
-            self.formants = [self.target_info['target_sample_rate'] / 2 for x in range(5)]
-
-        self.formants = self.formants[0:self.target_info['formant_range']]
-
-        # This acts as a baseline fitness attribute to compare different fitness functions
-        self.absolutefitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], "SAD")
-
-
     def evaluate_formant(self):
-
-        self.voiced_penalty()
 
        # Calls the relevant fitness function based on cmd line argument
         if self.target_info['formant_repr'] == 'hz':
@@ -161,38 +125,23 @@ class Individual_PRT:
         elif self.target_info['formant_repr'] == 'brito':
             self.raw_fitness = fitness_functions.fitness_brito(self.formants, self.target_info['target_formants'])
 
-        # Apply a penalty of the sound is not voiced
-        if self.voiced == False:
-            self.raw_fitness = self.raw_fitness * 10
-
         # Extract loudness features
         self.intensity = praat_control.get_individual_intensity(self.name, self.directory, self.current_generation, self.target_info['target_intensity'])
         self.rms = praat_control.get_individual_RMS(self.name, self.directory, self.current_generation, self.target_info['target_rms'])
 
         # Apply loudness co-efficents
-        if self.target_info['loudness_measure'] == "rms":
+        if self.target_info['loudness_measure'] == 'rms':
             self.raw_fitness = self.raw_fitness * self.rms
-        elif self.target_info['loudness_measure'] == "intensity":
+        elif self.target_info['loudness_measure'] == 'intensity':
             self.raw_fitness = self.raw_fitness * self.intensity
-        elif self.target_info['loudness_measure'] == "both":
+        elif self.target_info['loudness_measure'] == 'both':
             self.raw_fitness = self.raw_fitness * ((self.rms + self.intensity) / 2.0)
-        elif self.target_info['loudness_measure'] == "none":
+        elif self.target_info['loudness_measure'] == 'none':
             pass
 
-        ###########################################################################################
-        # Write feature information to a csv file
-        
 
-        ###########################################################################################
-        # Call the write_formants_cntk method if a sound is voiced
-
-        if self.voiced and self.target_info['cntk']:
-            self.write_formants_cntk()
 
     def evaluate_filterbank(self):
-        # MFCC and filterbank based fitness functions
-        
-        self.voiced_penalty()
 
         if self.target_info['filterbank_type'] == "mfcc_average":
             self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
@@ -217,17 +166,11 @@ class Individual_PRT:
         elif self.target_info['filterbank_type'] == "logfbank_ssd":
             self.logfbank = praat_control.get_individual_logfbank(self.name, self.directory, self.current_generation)
             self.raw_fitness = fitness_functions.fitness_twodim_ssd(self.target_info['target_logfbank'], self.logfbank)
-        
-        stats.write_formants(self.name,
-                             self.directory,
-                             self.current_generation,
-                             self.formants,
-                             self.raw_fitness,
-                             self.voiced,
-                             self.absolutefitness)
-        
+
         if self.voiced and self.target_info['cntk']:
             self.write_filterbank_cntk()
+
+
 
 
 
@@ -307,7 +250,7 @@ class Individual_VTL:
 
         self.raw_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
         
-        self.absolutefitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
+        self.absolute_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
 
         self.write_out_formants()
 
@@ -320,4 +263,4 @@ class Individual_VTL:
                              self.formants,
                              self.raw_fitness,
                              self.voiced,
-                             self.absolutefitness)
+                             self.absolute_fitness)

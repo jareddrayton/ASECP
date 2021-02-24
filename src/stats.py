@@ -5,15 +5,24 @@ import time
 import matplotlib.pyplot as plt
 
 
-def write_formants(name, directory, currentgeneration, individualfrequencies, fitness, voiced, absolutefitness):
-    csvdata = list(individualfrequencies)
-    csvdata.append(fitness)
-    csvdata.append(voiced)
-    csvdata.append(absolutefitness)
+def write_individual_to_csv(class_dict, directory, currentgeneration):
+    csv_data = []
+    
+    csv_data.append(class_dict['name'])
+    csv_data.append(class_dict['raw_fitness'])
+    csv_data.append(class_dict['scaled_fitness'])
+    csv_data.append(class_dict['absolute_fitness'])
+    csv_data.append(class_dict['selection_probability'])
+    csv_data += class_dict['formants']
+    csv_data.append(class_dict['voiced'])
+    csv_data.append(class_dict['mean_pitch'])
+    csv_data.append(class_dict['frac_frames'])
+    csv_data.append(class_dict['voice_breaks'])
 
-    with open('{}/Generation{!s}/Stats.csv'.format(directory, currentgeneration), 'a', newline='') as csvfile:
+    with open('{}/Generation{!s}/individual_info_table.csv'.format(directory, currentgeneration), 'a', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        spamwriter.writerow(csvdata)
+        spamwriter.writerow(csv_data)
+
 
 def statistics(average_fitness, minimum_fitness, top_individual, directory):
     """ Function for plotting performance graphs and saving run data"""
