@@ -1,5 +1,6 @@
 PRT_PARAMETER_DEFS = {'ALL':
-                      [('Cricothyroid', -1.0, 1.0),
+                      [('Interarytenoid', -1.0, 1.0),
+                       ('Cricothyroid', -1.0, 1.0),
                        ('Vocalis', -1.0, 1.0),
                        ('Thyroarytenoid', -1.0, 1.0),
                        ('PosteriorCricoarytenoid', -1.0, 1.0),
@@ -40,7 +41,7 @@ PRT_PARAMETER_DEFS = {'ALL':
                        ('Masseter', -1.0, 1.0),
                        ('Mylohyoid', -1.0, 1.0),
                        ('LateralPterygoid', -1.0, 1.0),
-                       ('Buccinator', 1.0, 1.0)]
+                       ('Buccinator', -1.0, 1.0)]
                       }
 
 VTL_PARAMETER_DEFS = {'ALL':
@@ -65,3 +66,9 @@ VTL_PARAMETER_DEFS = {'ALL':
                        ('TS3', -1.0, 1.0)
                        ]
                       }
+
+WEIGHTS = {'1': [1],
+           '2': [5, 1],
+           '3': [10, 5, 1],
+           '4': [15, 10, 5, 1],
+           '5': [40, 30, 15, 10, 1]}

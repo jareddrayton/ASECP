@@ -140,13 +140,12 @@ def main():
 
         # Calculate fitness scores by calling the evaluate_formants method
         for name in keys:
-            if fitness_type == "formant":
-                population[name].evaluate_formants()
-            elif fitness_type == "filterbank":
-                population[name].evaluate_filterbank()
+            population[name].evaluate_fitness(target_dict['fitness_type'])
+
 
         ###############################################################################################
         # Calculate the percentage of voiced sounds in the generation
+        # Should be able to move this to stats module now that this data is written out.
         
         voiced_total = 0.0
 
@@ -170,6 +169,11 @@ def main():
         elif selection_type == 'exponential':
             genetic_operators.exponential_ranking(population, keys)
 
+
+        ###############################################################################################
+        # Have to write out data here to include selection probability.
+        for name in keys:
+            population[name].write_out_data
 
         ###############################################################################################
         # do fitness statistics

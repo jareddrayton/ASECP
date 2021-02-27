@@ -11,7 +11,7 @@ from itertools import repeat
 
 import numpy as np
 import scipy.io.wavfile as wav
-from python_speech_features import logfbank, mfcc
+from python_speech_features import mfcc, fbank, logfbank
 
 
 def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
@@ -39,7 +39,7 @@ def worker(directory, CURRENT_GEN, i):
 
 def synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize):
 
-    ex = futures.ThreadPoolExecutor(max_workers=mp.cpu_count()-1)
+    ex = futures.ThreadPoolExecutor(max_workers=mp.cpu_count()-4)
     ex.map(worker, repeat(directory), repeat(CURRENT_GEN), [i for i in range(populationsize)])
     ex.shutdown()
     #print("ThreadPoolCompleted")
@@ -423,15 +423,25 @@ def get_individual_RMS(name, directory, currentgeneration, targetrms):
     return round(rms, 2)
 
 
+################################################################################################
+
 def get_individual_mfcc_average(name, directory, currentgeneration):
     soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
 
     (rate, signal) = wav.read(soundfile)
 
-    mfcc_features = mfcc(signal, rate, winlen=0.025, winstep=0.025)
+    mfcc_features = mfcc(signal, rate, winlen=0.025, winstep=0.025, appendEnergy=False)
 
     return np.average(mfcc_features, axis=0)
 
+def get_individual_fbank_average(name, directory, currentgeneration):
+    soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
+
+    (rate, signal) = wav.read(soundfile)
+
+    logfbank_features_individual, _ = fbank(signal, rate, winlen=0.025, winstep=0.025)
+
+    return np.average(logfbank_features_individual, axis=0)
 
 def get_individual_logfbank_average(name, directory, currentgeneration):
     soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
@@ -441,6 +451,8 @@ def get_individual_logfbank_average(name, directory, currentgeneration):
     logfbank_features_individual = logfbank(signal, rate, winlen=0.025, winstep=0.025)
 
     return np.average(logfbank_features_individual, axis=0)
+
+################################################################################################
 
 
 def get_individual_mfcc(name, directory, currentgeneration):

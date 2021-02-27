@@ -22,6 +22,7 @@ class Individual_PRT:
         # Initialise fitness score variables
         self.raw_fitness = 0
         self.scaled_fitness = 0
+        self.absolute_fitness = 0
         self.selection_probability = 0
 
         # List for holding the real valued genotype values
@@ -33,6 +34,7 @@ class Individual_PRT:
         # Initialise the genotype with random values for the first generation
         if self.current_generation == 0:
             self.values = [round(random.uniform(y, z), 2) for _, y, z in self.parameters]
+
 
     def create_synth_params(self):
 
@@ -61,69 +63,58 @@ class Individual_PRT:
             self.artword.write('''nowarn do ("Save as WAV file...", "Individual{}.wav")\n'''.format(self.name))
 
 
+    def evaluate_fitness(self, fitness_type):
+        
+        self.evaluate_voice()
+        self.evaluate_formants()
+        self.evaluate_mfcc()
+
+        if fitness_type == 'formant':
+            self.evaluate_formant_fitness()
+        elif fitness_type == 'mfcc':
+            self.evaluate_mfcc_fitness()
+
+        if self.voiced and self.target_info['scikit']:
+            self.write_formants_scikit()
+            self.write_mfcc_scikit()
+
+
+    def evaluate_voice(self):
+        
+        file_path = self.directory / 'Generation{}'.format(self.current_generation)
+
+        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+        self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
+        self.voiced = self.mean_pitch != False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
+
+
     def evaluate_formants(self):
 
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
         
         self.formants = praat_control.write_formant_table(file_path, self.name)
-        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
-
-        self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
-
-        self.voiced = self.mean_pitch != False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
 
         if self.voiced == False:
             self.formants = [4500 + x for x in self.target_info['target_formants']]
 
-        self.raw_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
-        
-        self.absolute_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
- 
-        self.write_out_formants()
 
-        if self.voiced and self.target_info['scikit']:
-            self.write_formants_scikit()
+    def evaluate_formant_fitness(self):
 
-
-    def write_out_formants(self):
-        stats.write_individual_to_csv(dict(vars(self)), self.directory, self.current_generation)
+        self.raw_fitness = fitness_functions.evaluate_fitness(self.formants,
+                                                              self.target_info['target_formants'],
+                                                              self.target_info['formant_repr'],
+                                                              self.target_info['distance_metric'],
+                                                              self.target_info['weight_features'])
 
 
-    def write_formants_scikit(self):
-        """
-        Writes the formant feature and praat parameter value pairs as comma seperated values.
-        """
-
-        with open('labelled_data.txt', 'a') as self.cntk:
-            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.formants)))
+        self.absolute_fitness = fitness_functions.evaluate_fitness(self.formants,
+                                                                   self.target_info['target_formants'],
+                                                                   'hz',
+                                                                   'SAD',
+                                                                   False)
 
 
-    def write_filterbank_cntk(self):
-        
-        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
-
-        with open('cntk_mfcc_data.txt', 'a') as self.cntk:
-            # append a new pair of features and labels
-            self.cntk.write('|labels {} '.format(" ".join(str(x) for x in self.values)))
-            self.cntk.write('|features {} \n'.format(" ".join(str(x) for x in self.mfcc_average)))
-
-
-    def evaluate_formant(self):
-
-       # Calls the relevant fitness function based on cmd line argument
-        if self.target_info['formant_repr'] == 'hz':
-            self.raw_fitness = fitness_functions.fitness_a1(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == 'mel':
-            self.raw_fitness = fitness_functions.fitness_a2(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == 'cent':
-            self.raw_fitness = fitness_functions.fitness_a3(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == 'bark':
-            self.raw_fitness = fitness_functions.fitness_a4(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        elif self.target_info['formant_repr'] == 'erb':
-            self.raw_fitness = fitness_functions.fitness_a5(self.formants, self.target_info['target_formants'], self.target_info['distance_metric'])
-        
-        elif self.target_info['formant_repr'] == 'brito':
-            self.raw_fitness = fitness_functions.fitness_brito(self.formants, self.target_info['target_formants'])
+    def loudness_penalty(self):
 
         # Extract loudness features
         self.intensity = praat_control.get_individual_intensity(self.name, self.directory, self.current_generation, self.target_info['target_intensity'])
@@ -140,8 +131,13 @@ class Individual_PRT:
             pass
 
 
+    def evaluate_mfcc(self):
 
-    def evaluate_filterbank(self):
+        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
+        self.fbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
+        self.logfbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
+
+    def evaluate_mfcc_fitness(self):
 
         if self.target_info['filterbank_type'] == "mfcc_average":
             self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
@@ -167,12 +163,28 @@ class Individual_PRT:
             self.logfbank = praat_control.get_individual_logfbank(self.name, self.directory, self.current_generation)
             self.raw_fitness = fitness_functions.fitness_twodim_ssd(self.target_info['target_logfbank'], self.logfbank)
 
-        if self.voiced and self.target_info['cntk']:
-            self.write_filterbank_cntk()
+
+    def write_out_data(self):
+        
+        stats.write_individual_to_csv(dict(vars(self)), self.directory, self.current_generation)
 
 
+    def write_formants_scikit(self):
+
+        with open('labelled_formant_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.formants)))
 
 
+    def write_mfcc_scikit(self):
+
+        with open('labelled_mfcc_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.mfcc_average)))
+        
+        with open('labelled_fbank_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.fbank_average)))
+        
+        with open('labelled_logfbank_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.logfbank_average)))
 
 
 
