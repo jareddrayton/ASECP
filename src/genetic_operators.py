@@ -97,13 +97,11 @@ def fitness_proportional(population, keys):
     scaled_fitness = []
 
     for name in keys:
-        population[name].scaled_fitness = round(1.0 / (population[name].raw_fitness), 10)
-        scaled_fitness.append(population[name].raw_fitness)
+        population[name].scaled_fitness = round(1.0 / (population[name].raw_fitness), 100)
+        scaled_fitness.append(population[name].scaled_fitness)
 
     for name in keys:
         population[name].selection_probability = population[name].scaled_fitness / sum(scaled_fitness)
-    
-    #print(sum([population[name].selection_probability for name in keys]))
 
 
 #################################################################################################################
@@ -181,10 +179,9 @@ def tournament_sampling(population, keys):
 
 #################################################################################################################
 
-
 def one_point_crossover(population, keys):
     """ One Point Crossover """
-    
+
     # Call a sampling function that returns a pool of parents double the size of the population
     mating_pool = stochastic_universal_sampling(population, keys) 
     #mating_pool = roulette_wheel_sampling(population, keys)
@@ -192,7 +189,7 @@ def one_point_crossover(population, keys):
 
     # Shuffle the mating pool
     random.shuffle(mating_pool)
-    
+
     # split the mating pool into even length mother and father lists
     mothers = [mating_pool[x] for x in range(0, len(mating_pool), 2)]
     fathers = [mating_pool[x] for x in range(1, len(mating_pool), 2)]
