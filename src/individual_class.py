@@ -71,16 +71,15 @@ class Individual_PRT:
 
         if fitness_type == 'formant':
             self.evaluate_formant_fitness()
-        elif fitness_type == 'mfcc':
+        elif fitness_type == 'filterbank':
             self.evaluate_mfcc_fitness()
 
         if self.voiced and self.target_info['scikit']:
-            self.write_formants_scikit()
-            self.write_mfcc_scikit()
+            self.write_data_scikit()
 
 
     def evaluate_voice(self):
-        
+
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
 
         self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
@@ -91,7 +90,7 @@ class Individual_PRT:
     def evaluate_formants(self):
 
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
-        
+
         self.formants = praat_control.write_formant_table(file_path, self.name)
 
         if self.voiced == False:
@@ -139,29 +138,20 @@ class Individual_PRT:
 
     def evaluate_mfcc_fitness(self):
 
-        if self.target_info['filterbank_type'] == "mfcc_average":
-            self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_mfcc_average(self.target_info['target_mfcc_average'], self.mfcc_average, self.target_info['distance_metric'])
+        if self.target_info['filterbank_type'] == 'mfcc_average':
+            self.raw_fitness = fitness_functions.return_distance(self.target_info['target_mfcc_average'],
+                                                                 self.mfcc_average,
+                                                                 self.target_info['distance_metric'])
+
+        elif self.target_info['filterbank_type'] == "fbank_average":
+            self.raw_fitness = fitness_functions.return_distance(self.target_info['target_fbank_average'],
+                                                                 self.fbank_average,
+                                                                 self.target_info['distance_metric'])
 
         elif self.target_info['filterbank_type'] == "logfbank_average":
-            self.logfbank_average = praat_control.get_individual_logfbank_average(self.name, self.directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_logfbank_average(self.target_info['target_logfbank_average'], self.logfbank_average, self.target_info['distance_metric'])
-
-        elif self.target_info['filterbank_type'] == "mfcc_sad":
-            self.mfcc = praat_control.get_individual_mfcc(self.name, self.directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_sad(self.target_info['target_mfcc'], self.mfcc)
-
-        elif self.target_info['filterbank_type'] == "mfcc_ssd":
-            self.mfcc = praat_control.get_individual_mfcc(self.name, self.directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_ssd(self.target_info['target_mfcc'], self.mfcc)
-
-        elif self.target_info['filterbank_type'] == "logfbank_sad":
-            self.logfbank = praat_control.get_individual_logfbank(self.name, self.directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_sad(self.target_info['target_logfbank'], self.logfbank)
-
-        elif self.target_info['filterbank_type'] == "logfbank_ssd":
-            self.logfbank = praat_control.get_individual_logfbank(self.name, self.directory, self.current_generation)
-            self.raw_fitness = fitness_functions.fitness_twodim_ssd(self.target_info['target_logfbank'], self.logfbank)
+            self.raw_fitness = fitness_functions.return_distance(self.target_info['target_logfbank_average'],
+                                                                 self.logfbank_average,
+                                                                 self.target_info['distance_metric'])
 
 
     def write_out_data(self):
@@ -169,28 +159,24 @@ class Individual_PRT:
         stats.write_individual_to_csv(dict(vars(self)), self.directory, self.current_generation)
 
 
-    def write_formants_scikit(self):
+    def write_data_scikit(self):
 
-        with open('labelled_formant_data.txt', 'a') as self.cntk:
+        with open(self.directory / 'labelled_formant_data.txt', 'a') as self.cntk:
             self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.formants)))
 
-
-    def write_mfcc_scikit(self):
-
-        with open('labelled_mfcc_data.txt', 'a') as self.cntk:
+        with open(self.directory / 'labelled_mfcc_data.txt', 'a') as self.cntk:
             self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.mfcc_average)))
-        
-        with open('labelled_fbank_data.txt', 'a') as self.cntk:
+
+        with open(self.directory / 'labelled_fbank_data.txt', 'a') as self.cntk:
             self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.fbank_average)))
-        
-        with open('labelled_logfbank_data.txt', 'a') as self.cntk:
+
+        with open(self.directory / 'labelled_logfbank_data.txt', 'a') as self.cntk:
             self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.logfbank_average)))
 
 
 
 class Individual_VTL:
     def __init__(self, name, target_info, directory):
-
 
         self.name = name
 
@@ -203,6 +189,7 @@ class Individual_VTL:
         # Initialise fitness score variables
         self.raw_fitness = 0
         self.scaled_fitness = 0
+        self.absolute_fitness = 0
         self.selection_probability = 0
 
         # List for holding the real valued genotype values
@@ -217,7 +204,7 @@ class Individual_VTL:
 
     def create_synth_params(self):
         sample_rate = 44100
-        target_time = 1.0
+        target_time = float(self.target_info['target_length'])
         fold_type = 'Geometric glottis'
         step_size = 110  # assume 44100 sample rate.
         target_pressure = 10000
@@ -235,6 +222,7 @@ class Individual_VTL:
             f.write('#' + '\n')
             f.write(fold_type + '\n')
             f.write(str(number_of_states) + '\n')
+            
             for state in pressure:
                 glottis_params[1] = str(state)
                 f.write(' '.join(glottis_params) + '\n')
@@ -245,34 +233,114 @@ class Individual_VTL:
             for _ in range(number_of_states - 20):
                 f.write(' '.join(glottis_params) + '\n')
                 f.write(' '.join(map(str,self.values)) + '\n')
-    
+
+
+    def evaluate_fitness(self, fitness_type):
+        
+        self.evaluate_voice()
+        self.evaluate_formants()
+        self.evaluate_mfcc()
+
+        if fitness_type == 'formant':
+            self.evaluate_formant_fitness()
+        elif fitness_type == 'filterbank':
+            self.evaluate_mfcc_fitness()
+
+        if self.voiced and self.target_info['scikit']:
+            self.write_data_scikit()
+
+
+    def evaluate_voice(self):
+
+        file_path = self.directory / 'Generation{}'.format(self.current_generation)
+
+        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+        self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
+        self.voiced = self.mean_pitch != False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
+
+
     def evaluate_formants(self):
 
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
-        
+
         self.formants = praat_control.write_formant_table(file_path, self.name)
-        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
 
-        self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
-
-        self.voiced = self.mean_pitch != False
-
-        if self.mean_pitch == False or self.mean_pitch > 200 or self.frac_frames > 0.1 or self.voice_breaks > 0:
+        if self.voiced == False:
             self.formants = [4500 + x for x in self.target_info['target_formants']]
 
-        self.raw_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
+
+    def evaluate_formant_fitness(self):
+
+        self.raw_fitness = fitness_functions.evaluate_fitness(self.formants,
+                                                              self.target_info['target_formants'],
+                                                              self.target_info['formant_repr'],
+                                                              self.target_info['distance_metric'],
+                                                              self.target_info['weight_features'])
+
+
+        self.absolute_fitness = fitness_functions.evaluate_fitness(self.formants,
+                                                                   self.target_info['target_formants'],
+                                                                   'hz',
+                                                                   'SAD',
+                                                                   False)
+
+
+    def loudness_penalty(self):
+
+        # Extract loudness features
+        self.intensity = praat_control.get_individual_intensity(self.name, self.directory, self.current_generation, self.target_info['target_intensity'])
+        self.rms = praat_control.get_individual_RMS(self.name, self.directory, self.current_generation, self.target_info['target_rms'])
+
+        # Apply loudness co-efficents
+        if self.target_info['loudness_measure'] == 'rms':
+            self.raw_fitness = self.raw_fitness * self.rms
+        elif self.target_info['loudness_measure'] == 'intensity':
+            self.raw_fitness = self.raw_fitness * self.intensity
+        elif self.target_info['loudness_measure'] == 'both':
+            self.raw_fitness = self.raw_fitness * ((self.rms + self.intensity) / 2.0)
+        elif self.target_info['loudness_measure'] == 'none':
+            pass
+
+
+    def evaluate_mfcc(self):
+
+        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
+        self.fbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
+        self.logfbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
+
+    def evaluate_mfcc_fitness(self):
+
+        if self.target_info['filterbank_type'] == 'mfcc_average':
+            self.raw_fitness = fitness_functions.return_distance(self.target_info['target_mfcc_average'],
+                                                                 self.mfcc_average,
+                                                                 self.target_info['distance_metric'])
+
+        elif self.target_info['filterbank_type'] == "fbank_average":
+            self.raw_fitness = fitness_functions.return_distance(self.target_info['target_fbank_average'],
+                                                                 self.fbank_average,
+                                                                 self.target_info['distance_metric'])
+
+        elif self.target_info['filterbank_type'] == "logfbank_average":
+            self.raw_fitness = fitness_functions.return_distance(self.target_info['target_logfbank_average'],
+                                                                 self.logfbank_average,
+                                                                 self.target_info['distance_metric'])
+
+
+    def write_out_data(self):
         
-        self.absolute_fitness = fitness_functions.fitness_a1(self.formants[:3], self.target_info['target_formants'][:3], self.target_info['distance_metric'])
-
-        self.write_out_formants()
+        stats.write_individual_to_csv(dict(vars(self)), self.directory, self.current_generation)
 
 
-    def write_out_formants(self):
+    def write_data_scikit(self):
 
-        stats.write_formants(self.name,
-                             self.directory,
-                             self.current_generation,
-                             self.formants,
-                             self.raw_fitness,
-                             self.voiced,
-                             self.absolute_fitness)
+        with open(self.directory / 'labelled_formant_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.formants)))
+
+        with open(self.directory / 'labelled_mfcc_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.mfcc_average)))
+
+        with open(self.directory / 'labelled_fbank_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.fbank_average)))
+
+        with open(self.directory / 'labelled_logfbank_data.txt', 'a') as self.cntk:
+            self.cntk.write('{},{}\n'.format(','.join(str(x) for x in self.values), ','.join(str(x) for x in self.logfbank_average)))
