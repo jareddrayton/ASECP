@@ -24,7 +24,7 @@ def get_user_args():
 
     parser.add_argument("-sl", "--selection_type",
                         type=str,
-                        default='exponential',
+                        default='proportional',
                         help="use to specify GA selection_type type. Choose from 'linear', 'proportional', and 'exponential'",
                         metavar='')
 
@@ -32,6 +32,12 @@ def get_user_args():
                         type=str,
                         default="one_point",
                         help="type of crossover for combining genotypes. Choose from 'one_point' or 'uniform'",
+                        metavar='')
+
+    parser.add_argument("-mu", "--mutation_type",
+                        type=str,
+                        default="gaussian",
+                        help="type of muattion operator. Choose from 'gaussian' or 'uniform'",
                         metavar='')
 
     parser.add_argument("-mr", "--mutation_rate",
@@ -84,8 +90,14 @@ def get_user_args():
 
     parser.add_argument("-dm", "--distance_metric",
                         type=str,
-                        default='SSD',
+                        default='EUC',
                         help="Choose the type of distance distance_metrics",
+                        metavar='')
+
+    parser.add_argument("-w", "--weight_features",
+                        type=bool,
+                        default=True,
+                        help="Choose whether formant features are weighted.",
                         metavar='')
 
     parser.add_argument("-lm", "--loudness_measure",
@@ -102,7 +114,7 @@ def get_user_args():
 
     parser.add_argument("-id", "--identifier",
                         type=str,
-                        default='1',
+                        default='99',
                         help="used as random() seed",
                         metavar='')
 
@@ -114,14 +126,21 @@ def get_user_args():
 
     parser.add_argument("-sn", "--synthesiser",
                         type=str,
-                        default='VTL',
+                        default='PRT',
                         help="Choose what synthesiser to use",
                         metavar='')
 
-    parser.add_argument("-cntk", "--cntk",
+    parser.add_argument("-sci", "--scikit",
                         type=bool,
-                        default=False,
-                        help="write data to a csv file for use with the CNTK machine learning library",
+                        default=True,
+                        help="write data to a csv file for use with the scikit learn machine learning library",
                         metavar='')
+
+    parser.add_argument("-ov", "--overwrite",
+                        type=bool,
+                        default=True,
+                        help="Overwite existing data if it exists",
+                        metavar='')
+
 
     return parser.parse_args()
