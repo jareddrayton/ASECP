@@ -12,7 +12,7 @@ def get_user_args():
 
     parser.add_argument("-ps", "--population_size",
                         type=int,
-                        default=20,
+                        default=10,
                         help="sets the population size",
                         metavar='')
 
@@ -53,10 +53,8 @@ def get_user_args():
                         metavar='')
 
     parser.add_argument("-el", "--elitism",
-                        type=bool,
-                        default=True,
-                        help="Activate the elitism genetic operator",
-                        metavar='')
+                        action='store_true',
+                        help="Activate the elitism genetic operator")
 
     parser.add_argument("-es", "--elite_size",
                         type=int,
@@ -95,10 +93,8 @@ def get_user_args():
                         metavar='')
 
     parser.add_argument("-w", "--weight_features",
-                        type=bool,
-                        default=True,
-                        help="Choose whether formant features are weighted.",
-                        metavar='')
+                        action='store_true',
+                        help="Choose whether formant features are weighted")
 
     parser.add_argument("-lm", "--loudness_measure",
                         type=str,
@@ -131,16 +127,12 @@ def get_user_args():
                         metavar='')
 
     parser.add_argument("-sci", "--scikit",
-                        type=bool,
-                        default=True,
-                        help="write data to a csv file for use with the scikit learn machine learning library",
-                        metavar='')
+                        action='store_false',
+                        help="write data to a csv file for use with the scikit learn machine learning library")
 
     parser.add_argument("-ov", "--overwrite",
-                        type=bool,
-                        default=True,
-                        help="Overwite existing data if it exists",
-                        metavar='')
+                        action='store_true',
+                        help="Overwite existing data if it exists")
 
 
     return parser.parse_args()
