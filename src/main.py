@@ -8,6 +8,7 @@ import subprocess
 import time
 from operator import itemgetter
 
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -29,18 +30,20 @@ def get_target_info(target_dict):
     target_dict['target_rms'] = praat_control.get_target_RMS(target_dict['file_path'])
     target_dict['target_mfcc_average'] = praat_control.get_target_mfcc_average(target_dict['file_path'])
     target_dict['target_logfbank_average'] = praat_control.get_target_logfbank_average(target_dict['file_path'])
+    target_dict['target_fbank_average'] = praat_control.get_target_fbank_average(target_dict['file_path'])
     target_dict['target_mfcc'] = praat_control.get_target_mfcc(target_dict['file_path'])
     target_dict['target_logfbank'] = praat_control.get_target_logfbank(target_dict['file_path'])
 
 
 def main():
-    # Store time to measure the length of a single run
+
     start_time = time.time()
-    
+
     args = arguments.get_user_args()
     print(vars(args))
     target_dict = vars(args).copy()
     
+    #import pdb;pdb.set_trace()
     # The target sound to be matched
     target_dict['file_name'] = args.soundfile
 
@@ -51,13 +54,12 @@ def main():
     mutation_standard_dev = args.mutation_standard_dev
     selection_type = args.selection_type
     crossover_type = args.crossover_type
+    mutation_type = args.mutation_type
     elitism = args.elitism
     elite_size = args.elite_size
-    runs = args.runs 
 
     # Fitness function variables
     fitness_type = args.fitness_type
-    formant_range = args.formant_range
     formant_repr = args.formant_repr
     distance_metric = args.distance_metric
     filterbank_type = args.filterbank_type
@@ -86,13 +88,18 @@ def main():
     if fitness_type == 'formant':
         directory = root_data_directory / '{}{}.{}.id{}'.format(prefix, formant_repr, distance_metric, identifier)
     elif fitness_type == 'filterbank':
-        directory = root_data_directory / '{}{} {}'.format(prefix, filterbank_type, identifier)
+        directory = root_data_directory / '{}{}.id{}'.format(prefix, filterbank_type, identifier)
 
     # Makes the directory for all subsequent files
-    if directory.exists():
+    if directory.exists() and target_dict['overwrite']:
         shutil.rmtree(directory)
-    os.mkdir(directory)
-    
+        os.mkdir(directory)
+    elif directory.exists():
+        raise IOError
+    else:
+        os.mkdir(directory)
+
+
     target_dict['file_path_root'] = root_target_sounds_directory
     target_dict['file_path'] = root_target_sounds_directory / target_dict['file_name']
 
@@ -115,7 +122,7 @@ def main():
     elif target_dict['synthesiser'] == 'VTL':
         Individual = Individual_VTL
     
-    for current_generation_index in range(generation_size + 1):
+    for current_generation_index in tqdm(range(generation_size + 1), desc=prefix):
 
         # Create a directory for the current generation
         os.mkdir(directory / 'Generation{!s}'.format(current_generation_index))
@@ -171,11 +178,10 @@ def main():
 
 
         ###############################################################################################
-        # Have to write out data here to include selection probability.
+        # Have to write out data here to include correct selection probability.
         for name in keys:
-            population[name].write_out_data
+            population[name].write_out_data()
 
-        ###############################################################################################
         # do fitness statistics
         listfitness = []
 
@@ -201,7 +207,14 @@ def main():
 
         ##############################################################################################
         # Apply mutation to individuals
-        genetic_operators.gaussian_mutation(population, keys, mutation_rate, mutation_standard_dev)
+        if mutation_type == 'gaussian':
+            genetic_operators.gaussian_mutation(population, keys, mutation_rate, mutation_standard_dev)
+        elif mutation_type == 'uniform':
+            genetic_operators.uniform_mutation(population, keys, mutation_rate)
+        elif mutation_type == 'disabled':
+            pass
+        else:
+            raise IOError
 
         ##############################################################################################
         # Elitism
