@@ -21,8 +21,7 @@ def evaluate_fitness(formants, target_formants, formant_repr, metric, weight_fea
                                'mel': fitness_a2,
                                'cent': fitness_a3,
                                'bark': fitness_a4,
-                               'erb': fitness_a5,
-                               }
+                               'erb': fitness_a5}
 
     formants, target_formants = feature_representations[formant_repr](formants, target_formants)
 
