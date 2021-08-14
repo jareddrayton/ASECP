@@ -28,20 +28,20 @@ PRT_PARAMETER_DEFS = {'ALL':
                        ('Buccinator', -1.0, 1.0)],
 
                       'CONSTRAINED':
-                      [('Hyoglossus', -1.0, 1.0),
-                       ('Styloglossus', -1.0, 1.0),
-                       ('Genioglossus', -1.0, 1.0),
-                       ('UpperTongue', -1.0, 1.0),
-                       ('LowerTongue', -1.0, 1.0),
-                       ('TransverseTongue', -1.0, 1.0),
-                       ('VerticalTongue', -1.0, 1.0),
-                       ('Risorius', -1.0, 1.0),
-                       ('OrbicularisOris', -1.0, 1.0),
-                       ('TensorPalatini', -1.0, 1.0),
-                       ('Masseter', -1.0, 1.0),
-                       ('Mylohyoid', -1.0, 1.0),
-                       ('LateralPterygoid', -1.0, 1.0),
-                       ('Buccinator', -1.0, 1.0)]
+                      [('Hyoglossus', 0, 1.0),
+                       ('Styloglossus', 0, 1.0),
+                       ('Genioglossus', 0, 1.0),
+                       ('UpperTongue', 0, 1.0),
+                       ('LowerTongue', 0, 1.0),
+                       ('TransverseTongue', 0, 1.0),
+                       ('VerticalTongue', 0, 1.0),
+                       ('Risorius', 0, 1.0),
+                       ('OrbicularisOris', 0, 1.0),
+                       ('TensorPalatini', 0, 1.0),
+                       ('Masseter', 0, 1.0),
+                       ('Mylohyoid', 0, 1.0),
+                       ('LateralPterygoid', 0, 1.0),
+                       ('Buccinator', 0, 1.0)]
                       }
 
 VTL_PARAMETER_DEFS = {'ALL':
