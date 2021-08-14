@@ -9,8 +9,9 @@ import sys
 import numpy as np
 import pandas as pd
 import scipy.io.wavfile as wav
-import sklearn
 from python_speech_features import fbank, logfbank, mfcc
+
+import sklearn
 from sklearn.metrics import (confusion_matrix, explained_variance_score,
                              max_error, mean_absolute_error)
 from sklearn.model_selection import train_test_split
@@ -19,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 
 from CONSTANTS import PRT_PARAMETER_DEFS
 
-parameter_data = pd.read_csv('data_sets\\labelled_mfcc_pp_2400.txt')
+parameter_data = pd.read_csv('data_sets\\labelled_logfbank_pp_2400.txt')
 
 y = parameter_data.iloc[:, 0:19]
 X = parameter_data.iloc[:, 19:]
@@ -52,6 +53,10 @@ print(mean_absolute_error(y_test, predictions))
 # make praat run script and output audio file
 
 
+
+######################################################################
+# Extract features from input test sounds
+
 def get_individual_mfcc_average(sound_file):
 
     (rate, signal) = wav.read(sound_file)
@@ -77,16 +82,7 @@ def get_individual_logfbank_average(sound_file):
     return np.average(logfbank_features_individual, axis=0)
 
 
-def get_individual_mfcc(sound_file='ay.wav'):
-
-    (rate, signal) = wav.read(sound_file)
-    print(rate)
-    mfcc_features = mfcc(signal, rate, winlen=0.025, winstep=0.025, appendEnergy=False)
-
-    return mfcc_features
-
 ################################################################################
-
 
 def create_synth_params(name, values):
     sample_rate = 44100
@@ -120,6 +116,10 @@ def create_synth_params(name, values):
             f.write(' '.join(glottis_params) + '\n')
             f.write(' '.join(map(str, values)) + '\n')
 
+
+################################################################################
+# 
+
 def make_sound(name):
 
     root_vtl_directory = parent_dir / 'vocaltractlab'
@@ -140,6 +140,8 @@ def make_sound(name):
     audio_f = ctypes.c_char_p('name_vtl{}.wav'.format(name).encode())
     failure = VTL.vtlTractSequenceToAudio(tract, audio_f, None, None)
 
+################################################################################
+
 
 
 parent_dir = pathlib.Path.cwd().parent
@@ -149,9 +151,9 @@ sound_files = root_target_sounds_directory.glob('*44100.wav')
 #print(sound_files)
 
 for sound_file in sound_files:
-    test = get_individual_mfcc_average(sound_file)
+    #test = get_individual_mfcc_average(sound_file)
     #test = get_individual_fbank_average(sound_file)
-    #test = get_individual_logfbank_average(sound_file)
+    test = get_individual_logfbank_average(sound_file)
     
     test =  test.reshape(1, -1)
 
@@ -167,6 +169,3 @@ for sound_file in sound_files:
     create_synth_params(name, values)
     make_sound(name)
     time.sleep(3)
-
-
-
