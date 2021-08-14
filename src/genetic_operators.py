@@ -31,7 +31,7 @@ def elitism(population, keys, elite_size):
     keys_fitness = sorted(keys_fitness, key=itemgetter(1))
 
     # Unpack the list of tuples into seperate tuples
-    ranked, fitness = zip(*keys_fitness)
+    ranked, _ = zip(*keys_fitness)
     #print(keys_fitness)
 
     for i in range(elite_size):
@@ -53,7 +53,7 @@ def linear_ranking(population, keys):
     keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=True)
 
     # Unpack the list of tuples into seperate tuples
-    ranked, fitness = zip(*keys_fitness)
+    ranked, _ = zip(*keys_fitness)
   
     C = len(population) # Set the constant term to equal to the population size
 
@@ -76,7 +76,7 @@ def exponential_ranking(population, keys):
     #print(keys_fitness)
 
     # Unpack the list of tuples into seperate tuples
-    ranked, fitness = zip(*keys_fitness)
+    ranked, _ = zip(*keys_fitness)
   
     C = len(population) # Set the constant term to equal to the population size
 
@@ -113,7 +113,7 @@ def roulette_wheel_sampling(population, keys):
 
     mating_pool = []
 
-    for i in range(N):
+    for _ in range(N):
         roulette_spin = random.uniform(0, 1)
         currentcumulative = 0
         
@@ -160,7 +160,7 @@ def tournament_sampling(population, keys):
 
     mating_pool = []
     
-    for i in range(N):
+    for _ in range(N):
         # Select the individuals used in this tournament
         selection = random.sample(keys, tourn_size)
 
@@ -170,7 +170,7 @@ def tournament_sampling(population, keys):
         keys_fitness = sorted(keys_fitness, key=itemgetter(1), reverse=False)
 
         # Unpack the list of tuples into seperate tuples
-        ranked, fitness = zip(*keys_fitness)
+        ranked, _ = zip(*keys_fitness)
         
         mating_pool.append(ranked[0])
 
