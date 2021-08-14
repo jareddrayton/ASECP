@@ -67,4 +67,4 @@ The mutation rate and standard deviation for the gaussian distribution can be ov
 
 #### Batching Runs 
 
-script_maker
+Can use `script_maker.py` to batch runs. Run with `cmd.exe /k ..\batch_scripts\batch.bat`
