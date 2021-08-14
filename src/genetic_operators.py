@@ -272,7 +272,7 @@ def uniform_mutation(population, keys, mutation_rate):
         for i in range(len(population[name].values)):
             lower_bound = population[name].parameters[i][1]
             upper_bound = population[name].parameters[i][2]
-            
+
             # Proceed if mutation_rate is higher than a number taken from a uniform distrubtion
             if mutation_rate >= random.random():
 

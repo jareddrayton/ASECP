@@ -39,10 +39,9 @@ def worker(directory, CURRENT_GEN, i):
 
 def synthesise_artwords_threadpool(directory, CURRENT_GEN, populationsize):
 
-    ex = futures.ThreadPoolExecutor(max_workers=mp.cpu_count()-4)
+    ex = futures.ThreadPoolExecutor(max_workers=mp.cpu_count()-1)
     ex.map(worker, repeat(directory), repeat(CURRENT_GEN), [i for i in range(populationsize)])
     ex.shutdown()
-    #print("ThreadPoolCompleted")
 
 
 def synthesise_artwords_serial(currentgeneration, generationsize, directory):
@@ -298,7 +297,7 @@ def get_target_intensity(soundfile):
 def get_target_RMS(soundfile):
     t = soundfile
 
-    rate, data = wav.read(t, mmap=False)
+    _, data = wav.read(t, mmap=False)
 
     total = 0.0
 
@@ -324,6 +323,14 @@ def get_target_logfbank_average(soundfile):
     logfbank_features_target = logfbank(signal, rate, winlen=0.025, winstep=0.025)
 
     return np.average(logfbank_features_target, axis=0)
+
+
+def get_target_fbank_average(soundfile):
+    (rate, signal) = wav.read(soundfile)
+
+    fbank_features_target, _ = fbank(signal, rate, winlen=0.025, winstep=0.025)
+
+    return np.average(fbank_features_target, axis=0)
 
 
 def get_target_mfcc(soundfile):
@@ -408,7 +415,7 @@ def get_individual_intensity(name, directory, currentgeneration, targetintensity
 def get_individual_RMS(name, directory, currentgeneration, targetrms):
     t = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
 
-    rate, data = wav.read(t, mmap=False)
+    _, data = wav.read(t, mmap=False)
 
     total = 0.0
 
