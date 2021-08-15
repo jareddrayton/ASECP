@@ -1,6 +1,7 @@
 import glob
 import csv
 
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -26,6 +27,7 @@ def performance_graph(path, identifier):
     
     sns.set_theme()
     sns.lineplot(data=data)
+    plt.xticks(np.arange(0, 21, 2))
     plt.show()
 
 
@@ -47,6 +49,9 @@ def performance_graph_confidence_interval(path, identifier):
 
     sns.set_theme()
     sns.lineplot(data=data, x='generation', y='mean_fitness')
+    
+    sns.plt.xticks(np.arange(0, 21, 4))
+    #g.set_xticklabels(['0','5','10','15','20'])
     plt.show()
 
 
@@ -72,14 +77,12 @@ def performance_graph_standard_deviation(path, identifier):
 
 performance_graph('C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\thesis_data\\comparison_of_distance_metrics', 'Primary1.wav.PRT.Gen20.Pop100.Mut0.15.Sd0.15.hz.EUC')
 
-performance_graph_confidence_interval('C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\thesis_data\\comparison_of_distance_metrics', 'Primary1.wav.PRT.Gen20.Pop100.Mut0.15.Sd0.15.hz.EUC')
+performance_graph('C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\thesis_data\\comparison_of_distance_metrics', 'Primary1.wav.PRT.Gen20.Pop100.Mut0.15.Sd0.15.hz.SAD')
 
-performance_graph_standard_deviation('C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\thesis_data\\comparison_of_distance_metrics', 'Primary1.wav.PRT.Gen20.Pop100.Mut0.15.Sd0.15.hz.EUC')
+performance_graph('C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\thesis_data\\comparison_of_distance_metrics', 'Primary1.wav.PRT.Gen20.Pop100.Mut0.15.Sd0.15.hz.SSD')
+
+#performance_graph_confidence_interval('C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\thesis_data\\comparison_of_distance_metrics', 'Primary1.wav.PRT.Gen20.Pop100.Mut0.15.Sd0.15.hz.EUC')
+
+#performance_graph_standard_deviation('C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\thesis_data\\comparison_of_distance_metrics', 'Primary1.wav.PRT.Gen20.Pop100.Mut0.15.Sd0.15.hz.EUC')
 
 
-#boosh = pd.read_csv('Book1.csv', delimiter=',')
-#print(boosh)
-
-#sns.set_theme()
-#sns.lineplot(data=boosh, x='gen', y='meanfitness', ci='sd')
-#plt.show()
