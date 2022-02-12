@@ -28,9 +28,8 @@ class Parent_Individual:
         # List for holding the real valued genotype values
         self.values = []
 
-
     def evaluate_fitness(self, fitness_type):
-        
+
         self.evaluate_voice()
         self.evaluate_formants()
         self.evaluate_mfcc()
@@ -43,15 +42,13 @@ class Parent_Individual:
         if self.voiced and self.target_info['scikit']:
             self.write_data_scikit()
 
-
     def evaluate_voice(self):
 
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
 
         self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
         self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
-        self.voiced = self.mean_pitch != False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
-
+        self.voiced = self.mean_pitch is not False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
 
     def evaluate_formants(self):
 
@@ -59,9 +56,8 @@ class Parent_Individual:
 
         self.formants = praat_control.write_formant_table(file_path, self.name)
 
-        if self.voiced == False:
+        if self.voiced is False:
             self.formants = [4500 + x for x in self.target_info['target_formants']]
-
 
     def evaluate_formant_fitness(self):
 
@@ -71,13 +67,11 @@ class Parent_Individual:
                                                               self.target_info['distance_metric'],
                                                               self.target_info['weight_features'])
 
-
         self.absolute_fitness = fitness_functions.evaluate_fitness(self.formants,
                                                                    self.target_info['target_formants'],
                                                                    'hz',
                                                                    'SAD',
                                                                    False)
-
 
     def loudness_penalty(self):
 
@@ -95,9 +89,7 @@ class Parent_Individual:
         elif self.target_info['loudness_measure'] == 'none':
             pass
 
-
     def evaluate_mfcc(self):
-
         self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
         self.fbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
         self.logfbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
@@ -119,11 +111,8 @@ class Parent_Individual:
                                                                  self.logfbank_average,
                                                                  self.target_info['distance_metric'])
 
-
     def write_out_data(self):
-        
         stats.write_individual_to_csv(dict(vars(self)), self.directory, self.current_generation)
-
 
     def write_data_scikit(self):
 
@@ -150,7 +139,6 @@ class Individual_PRT(Parent_Individual):
         # Initialise the genotype with random values for the first generation
         if self.current_generation == 0:
             self.values = [round(random.uniform(y, z), 2) for _, y, z in self.parameters]
-
 
     def create_synth_params(self):
 
@@ -190,7 +178,6 @@ class Individual_VTL(Parent_Individual):
         if self.current_generation == 0:
             self.values = [round(random.uniform(y, z), 2) for _, y, z in self.parameters]
 
-
     def create_synth_params(self):
         sample_rate = int(self.target_info['target_sample_rate'])
         target_time = float(self.target_info['target_length'])
@@ -211,14 +198,14 @@ class Individual_VTL(Parent_Individual):
             f.write('#' + '\n')
             f.write(fold_type + '\n')
             f.write(str(number_of_states) + '\n')
-            
+
             for state in pressure:
                 glottis_params[1] = str(state)
                 f.write(' '.join(glottis_params) + '\n')
-                f.write(' '.join(map(str,self.values)) + '\n')
-            
+                f.write(' '.join(map(str, self.values)) + '\n')
+
             glottis_params[1] = str(target_pressure)
 
             for _ in range(number_of_states - 20):
                 f.write(' '.join(glottis_params) + '\n')
-                f.write(' '.join(map(str,self.values)) + '\n')
+                f.write(' '.join(map(str, self.values)) + '\n')

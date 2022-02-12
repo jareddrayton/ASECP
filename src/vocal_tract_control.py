@@ -2,12 +2,10 @@ import ctypes
 import sys
 import pathlib
 import multiprocessing as mp
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.io import wavfile
 
 from itertools import repeat
 from concurrent import futures
+
 
 def worker(directory, current_generation_index, i):
     parent_dir = pathlib.Path.cwd().parent

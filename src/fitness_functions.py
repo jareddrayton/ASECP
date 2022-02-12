@@ -1,21 +1,16 @@
 import math
 import pydistance
-import scipy.io.wavfile as wav
-import numpy as np
-
-from python_speech_features import mfcc
-from python_speech_features import delta
-from python_speech_features import logfbank
 
 from CONSTANTS import WEIGHTS
 
+
 def evaluate_fitness(formants, target_formants, formant_repr, metric, weight_features):
     """
-    
+
     RETURNS
     -------
     fitness: float
-    
+
     """
     feature_representations = {'hz': fitness_a1,
                                'mel': fitness_a2,
@@ -35,7 +30,7 @@ def evaluate_fitness(formants, target_formants, formant_repr, metric, weight_fea
 
 def apply_weights(x, y):
     no_of_weights = str(len(x))
-    
+
     coefficients = WEIGHTS[no_of_weights]
 
     for i, weight in enumerate(coefficients):

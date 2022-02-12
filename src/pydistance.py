@@ -3,10 +3,11 @@ in the math.NET project http://numerics.mathdotnet.com/Distance.html """
 
 import math
 
+
 def SAD(x, y):
     """ Sum of the Absolute Difference
     :input x: a one dimensional list containing integers or floats.
-    :input y: a one dimensional list containing integers or floats. 
+    :input y: a one dimensional list containing integers or floats.
 
     :returns: the sum of the absolute differences of each element
     """
@@ -21,10 +22,10 @@ def SAD(x, y):
     return sum(total)
 
 
-def SSD(x,y):
+def SSD(x, y):
     """ Sum of the Squared Difference
     :input x: a one dimensional list.
-    :input y: a one dimensional list. 
+    :input y: a one dimensional list.
 
     :returns: the sum of the absolute differences of each element
     """
@@ -37,10 +38,10 @@ def SSD(x,y):
     return sum(total)
 
 
-def MAE(x,y):
+def MAE(x, y):
     """ Mean-Absolute Error
     :input x: a one dimensional list containing integers or floats.
-    :input y: a one dimensional list containing integers or floats. 
+    :input y: a one dimensional list containing integers or floats.
 
     :returns: the sum of the absolute differences of each element
     """
@@ -55,10 +56,10 @@ def MAE(x,y):
     return sum(total) // len(x)
 
 
-def MSE(x,y):
+def MSE(x, y):
     """ Mean-Squared Error Distance
     :input x: a one dimensional list.
-    :input y: a one dimensional list. 
+    :input y: a one dimensional list.
 
     :returns: the sum of the absolute differences of each element
     """
@@ -71,7 +72,7 @@ def MSE(x,y):
     return sum(total) // len(x)
 
 
-def EUC(x,y):
+def EUC(x, y):
     """ Euclidean distance
 
     :returns: the sum of the absolute differences of each element
@@ -84,7 +85,8 @@ def EUC(x,y):
 
     return math.sqrt(sum(total))
 
-def CAN(x,y):
+
+def CAN(x, y):
     """ Canberra Distance
 
     :

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 def write_individual_to_csv(class_dict, directory, currentgeneration):
     csv_data = []
-    
+
     csv_data.append(class_dict['name'])
     csv_data.append(class_dict['raw_fitness'])
     csv_data.append(class_dict['scaled_fitness'])
@@ -33,7 +33,7 @@ def statistics(average_fitness, minimum_fitness, top_individual, directory):
     with open('{}/Minimum.txt'.format(directory), 'w') as f:
         for item in minimum_fitness:
             f.write('{!s}\n'.format(item))
-    
+
     with open('{}/Best.txt'.format(directory), 'w') as f:
         for item in top_individual:
             f.write('{!s}\n'.format(item))

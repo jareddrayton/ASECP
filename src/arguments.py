@@ -25,7 +25,7 @@ def get_user_args():
     parser.add_argument("-sl", "--selection_type",
                         type=str,
                         default='proportional',
-                        help="use to specify GA selection_type type. Choose from 'linear', 'proportional', and 'exponential'",
+                        help="use to specify GA selection_type type. Either 'linear', 'proportional', or 'exponential'",
                         metavar='')
 
     parser.add_argument("-cr", "--crossover_type",
@@ -133,6 +133,5 @@ def get_user_args():
     parser.add_argument("-ov", "--overwrite",
                         action='store_true',
                         help="Overwite existing data if it exists")
-
 
     return parser.parse_args()

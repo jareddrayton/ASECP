@@ -1,19 +1,14 @@
-import csv
-import json
+"""Main ASECP module for running the Genetic Algorithm"""
+
 import os
 import pathlib
-import random
 import shutil
-import subprocess
 import time
 from operator import itemgetter
 
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-import numpy as np
 
 import arguments
-import fitness_functions
 import genetic_operators
 import praat_control
 import stats
@@ -25,7 +20,8 @@ def get_target_info(target_dict):
 
     target_dict['target_length'] = praat_control.get_time(target_dict['file_path'])
     target_dict['target_sample_rate'] = praat_control.get_sample_rate(target_dict['file_path'])
-    target_dict['target_formants'] = praat_control.write_target_formant_table(target_dict['file_path_root'], target_dict['file_name'])
+    target_dict['target_formants'] = praat_control.write_target_formant_table(
+        target_dict['file_path_root'], target_dict['file_name'])
     target_dict['target_intensity'] = praat_control.get_target_intensity(target_dict['file_path'])
     target_dict['target_rms'] = praat_control.get_target_RMS(target_dict['file_path'])
     target_dict['target_mfcc_average'] = praat_control.get_target_mfcc_average(target_dict['file_path'])
@@ -42,8 +38,7 @@ def main():
     args = arguments.get_user_args()
     print(vars(args))
     target_dict = vars(args).copy()
-    
-    #import pdb;pdb.set_trace()
+
     # The target sound to be matched
     target_dict['file_name'] = args.soundfile
 
@@ -65,11 +60,6 @@ def main():
     filterbank_type = args.filterbank_type
     identifier = args.identifier
 
-    # If True, the identifier variable is used as a seed for random number generation
-    """
-    if True:
-        random.seed(2000)
-    """
     # Creates the directory string
     prefix = '{}.{}.Gen{}.Pop{}.Mut{}.Sd{}.'.format(target_dict['file_name'],
                                                     target_dict['synthesiser'],
@@ -99,7 +89,6 @@ def main():
     else:
         os.mkdir(directory)
 
-
     target_dict['file_path_root'] = root_target_sounds_directory
     target_dict['file_path'] = root_target_sounds_directory / target_dict['file_name']
 
@@ -121,7 +110,7 @@ def main():
         Individual = Individual_PRT
     elif target_dict['synthesiser'] == 'VTL':
         Individual = Individual_VTL
-    
+
     for current_generation_index in tqdm(range(generation_size + 1), desc=prefix):
 
         # Create a directory for the current generation
@@ -149,11 +138,10 @@ def main():
         for name in keys:
             population[name].evaluate_fitness(target_dict['fitness_type'])
 
-
         ###############################################################################################
         # Calculate the percentage of voiced sounds in the generation
         # Should be able to move this to stats module now that this data is written out.
-        
+
         voiced_total = 0.0
 
         for name in keys:
@@ -176,7 +164,6 @@ def main():
         elif selection_type == 'exponential':
             genetic_operators.exponential_ranking(population, keys)
 
-
         ###############################################################################################
         # Have to write out data here to include correct selection probability.
         for name in keys:
@@ -189,8 +176,9 @@ def main():
 
         for name in keys:
             listfitness.append(population[name].raw_fitness)
-            ordered.append((population[name].name, population[name].raw_fitness, population[name].selection_probability))
-        
+            ordered.append(
+                (population[name].name, population[name].raw_fitness, population[name].selection_probability))
+
         ordered = sorted(ordered, key=itemgetter(1))
 
         top_individual.append(ordered[0][0])
@@ -218,7 +206,7 @@ def main():
 
         ##############################################################################################
         # Elitism
-        if elitism == True:
+        if elitism:
             for i in range(elite_size):
                 population[keys[i]].values = elites[i]
 
