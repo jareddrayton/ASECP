@@ -12,7 +12,8 @@ import arguments
 import genetic_operators
 import praat_control
 import stats
-import vocal_tract_control
+import synthesize_vtl
+import synthesize_praat
 from individual_class import Individual_PRT, Individual_VTL
 
 
@@ -85,7 +86,7 @@ def main():
         shutil.rmtree(directory)
         os.mkdir(directory)
     elif directory.exists():
-        raise IOError
+        raise IOError('Directory for this experiment already exists.')
     else:
         os.mkdir(directory)
 
@@ -130,9 +131,9 @@ def main():
 
         # Synthesise Individual sounds using the config files
         if target_dict['synthesiser'] == 'PRT':
-            praat_control.synthesise_artwords_threadpool(directory, current_generation_index, population_size)
+            synthesize_praat.synthesise_artwords_threadpool(directory, current_generation_index, population_size)
         elif target_dict['synthesiser'] == 'VTL':
-            vocal_tract_control.synthesise_tracts_threadpool(directory, current_generation_index, population_size)
+            synthesize_vtl.synthesise_tracts_processpool(directory, current_generation_index, population_size)
 
         # Calculate fitness scores by calling the evaluate_formants method
         for name in keys:
