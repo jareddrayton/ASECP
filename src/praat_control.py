@@ -148,7 +148,7 @@ def write_formant_table(file_path, name, sound_type='Individual'):
 
     with open(praat_script, 'w') as f:
         f.write('Read from file: "{}"\n'.format(audio_file))
-        f.write('To Formant (sl): 0, 5, 4500, 0.025, 50\n')
+        f.write('nocheck To Formant (sl): 0, 5, 4500, 0.025, 50\n')
         f.write('Down to Table: "no", "no", 6, "no", 3, "yes", 1, "no"\n')
         f.write('Save as comma-separated file: "{}"\n'.format(formant_table))
 
@@ -165,7 +165,7 @@ def write_target_formant_table(file_path, file_name):
 
     with open(praat_script, 'w') as f:
         f.write('Read from file: "{}"\n'.format(audio_file))
-        f.write('To Formant (sl): 0, 5, 4500, 0.025, 50\n')
+        f.write('nowarn To Formant (sl): 0, 5, 4500, 0.025, 50\n')
         f.write('Down to Table: "no", "no", 6, "no", 3, "yes", 1, "no"\n')
         f.write('Save as comma-separated file: "{}"\n'.format(formant_table))
 
@@ -219,7 +219,7 @@ def run_praat_command(praat_script, purge=False):
     subprocess.call(['./praat',
                      '--run',
                      '--ansi',
-                     praat_script], stdout=subprocess.DEVNULL)
+                     praat_script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     if purge:
         os.remove(praat_script)

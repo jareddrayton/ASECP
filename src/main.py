@@ -2,6 +2,7 @@
 
 import os
 import pathlib
+import random
 import shutil
 import time
 from operator import itemgetter
@@ -12,8 +13,8 @@ import arguments
 import genetic_operators
 import praat_control
 import stats
-import synthesize_vtl
 import synthesize_praat
+import synthesize_vtl
 from individual_class import Individual_PRT, Individual_VTL
 
 
@@ -39,6 +40,8 @@ def main():
     args = arguments.get_user_args()
     print(vars(args))
     target_dict = vars(args).copy()
+
+    random.seed(2000)
 
     # The target sound to be matched
     target_dict['file_name'] = args.soundfile
@@ -86,7 +89,7 @@ def main():
         shutil.rmtree(directory)
         os.mkdir(directory)
     elif directory.exists():
-        raise IOError('Directory for this experiment already exists.')
+        raise IOError('A directory for this experiment already exists.')
     else:
         os.mkdir(directory)
 

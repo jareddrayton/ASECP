@@ -1,10 +1,9 @@
 import ctypes
-import sys
-import pathlib
 import multiprocessing as mp
-
-from itertools import repeat
+import pathlib
+import sys
 from concurrent import futures
+from itertools import repeat
 
 
 def worker(directory, current_generation_index, i):
@@ -36,4 +35,4 @@ def synthesise_tracts_processpool(directory, current_generation_index, populatio
 
 
 if __name__ == '__main__':
-    synthesise_tracts_threadpool()
+    synthesise_tracts_processpool()

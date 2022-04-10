@@ -1,21 +1,8 @@
 import multiprocessing as mp
 import subprocess
 import sys
-import time
 from concurrent import futures
 from itertools import repeat
-
-
-def synthesise_artwords_parallel(currentgeneration, generationsize, directory):
-    """ Loops through all Praat script in a directory and opens them in the cmd line as separate processes"""
-
-    for i in range(generationsize):
-        p = subprocess.Popen(['./praat',
-                              '--run',
-                              '{}/Generation{!s}/Individual{!s}.praat'.format(directory, currentgeneration, i)])
-
-    p.wait()
-    time.sleep(3)
 
 
 def worker(directory, current_generation, individual_id):

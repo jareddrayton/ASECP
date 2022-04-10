@@ -2,42 +2,6 @@ import csv, math
 import matplotlib.pyplot as plt
 from matplotlib import animation
 
-###################################################################################################
-###################################################################################################
-#Performance Graphs
-
-def performance_graph():
-    """ Generate a performance Graph of a run """
-    # 
-
-    pass
-
-
-def performance_box_plot():
-    #https://matplotlib.org/examples/statistics/boxplot_vs_violin_demo.html
-
-
-    pass
-
-def performance_violin_plot():
-    #https://matplotlib.org/examples/statistics/boxplot_vs_violin_demo.html
-
-    pass
-
-
-def performance_graph_animated():
-    """ Generate an animated performance graph """
-
-    pass
-
-def performance_graph_with_SR():
-
-    pass
-
-###################################################################################################
-###################################################################################################
-# F1 F2 Plots
-
 
 def read_all_csv(metric, ff, vowel, color):
         
@@ -244,7 +208,3 @@ for ff in ffs:
         #formant_all_plot(metric,ff)
         for vowel in vowels:
             all(metric, ff, vowel)
-
-###################################################################################################
-###################################################################################################
-# Informal listening tests
