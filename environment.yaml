@@ -1,0 +1,16 @@
+name: asecp_dev
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - matplotlib
+  - scikit-learn
+  - seaborn
+  - pandas
+  - tqdm
+  - flake8
+  - pytest
+  - scipy
+  - pip:
+    - python_speech_features
