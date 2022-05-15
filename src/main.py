@@ -22,15 +22,15 @@ def get_target_info(target_dict):
 
     target_dict['target_length'] = praat_control.get_time(target_dict['file_path'])
     target_dict['target_sample_rate'] = praat_control.get_sample_rate(target_dict['file_path'])
-    target_dict['target_formants'] = praat_control.write_target_formant_table(
-        target_dict['file_path_root'], target_dict['file_name'])
+    target_dict['target_formants'] = praat_control.write_target_formant_table(target_dict['file_path_root'], target_dict['file_name'])
     target_dict['target_intensity'] = praat_control.get_target_intensity(target_dict['file_path'])
-    target_dict['target_rms'] = praat_control.get_target_RMS(target_dict['file_path'])
-    target_dict['target_mfcc_average'] = praat_control.get_target_mfcc_average(target_dict['file_path'])
-    target_dict['target_logfbank_average'] = praat_control.get_target_logfbank_average(target_dict['file_path'])
-    target_dict['target_fbank_average'] = praat_control.get_target_fbank_average(target_dict['file_path'])
-    target_dict['target_mfcc'] = praat_control.get_target_mfcc(target_dict['file_path'])
-    target_dict['target_logfbank'] = praat_control.get_target_logfbank(target_dict['file_path'])
+    target_dict['target_rms'] = praat_control.get_target_rms(target_dict['file_path'])
+    target_dict['target_mfcc_average'] = praat_control.get_mfcc_average(target_dict['file_path'])
+    target_dict['target_fbank_average'] = praat_control.get_fbank_average(target_dict['file_path'])
+    target_dict['target_logfbank_average'] = praat_control.get_logfbank_average(target_dict['file_path'])
+    target_dict['target_mfcc'] = praat_control.get_mfcc(target_dict['file_path'])
+    target_dict['target_logfbank'] = praat_control.get_fbank(target_dict['file_path'])
+    target_dict['target_logfbank'] = praat_control.get_logfbank(target_dict['file_path'])
 
 
 def main():
@@ -75,7 +75,7 @@ def main():
     parent_dir = pathlib.Path.cwd().parent
 
     root_data_directory = parent_dir / 'data'
-    root_praat_directory = parent_dir / 'praat'
+    praat_filepath = parent_dir / 'praat'
     root_vtl_directory = parent_dir / 'vocaltractlab'
     root_target_sounds_directory = parent_dir / 'target_sounds'
 

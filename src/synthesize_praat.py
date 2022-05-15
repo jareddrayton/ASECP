@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import pathlib
 import subprocess
 import sys
 from concurrent import futures
@@ -7,15 +8,17 @@ from itertools import repeat
 
 def worker(directory, current_generation, individual_id):
 
+    praat_path = pathlib.Path.cwd().parent / 'synthesisers' / 'praat' / 'praat'
+
     praat_script_path = '{}/Generation{!s}/Individual{!s}.praat'.format(directory, current_generation, individual_id)
 
     if sys.platform.startswith('win32'):
-        subprocess.call(['./praat',
+        subprocess.call([praat_path,
                          '--run',
                          '--ansi',
                          praat_script_path], stdout=subprocess.DEVNULL)
     else:
-        subprocess.call(['./praat',
+        subprocess.call([praat_path,
                          '--run',
                          praat_script_path], stdout=subprocess.DEVNULL)
 

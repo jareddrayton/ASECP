@@ -7,9 +7,8 @@ from itertools import repeat
 
 
 def worker(directory, current_generation_index, i):
-    parent_dir = pathlib.Path.cwd().parent
 
-    root_vtl_directory = parent_dir / 'vocaltractlab'
+    root_vtl_directory = pathlib.Path.cwd().parent / 'synthesisers' / 'vocaltractlab'
 
     if sys.platform == 'win32':
         VTL = ctypes.cdll.LoadLibrary(str(root_vtl_directory / 'VocalTractLabApi.dll'))

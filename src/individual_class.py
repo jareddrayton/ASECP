@@ -46,7 +46,7 @@ class Parent_Individual:
 
         file_path = self.directory / 'Generation{}'.format(self.current_generation)
 
-        self.voice_report = praat_control.voice_report(file_path, self.target_info['target_length'], self.name)
+        self.voice_report = praat_control.get_voice_report(file_path, self.target_info['target_length'], self.name)
         self.mean_pitch, self.frac_frames, self.voice_breaks = self.voice_report
         self.voiced = self.mean_pitch is not False and self.voice_breaks == 0 and self.frac_frames < 0.1 and self.mean_pitch < 175
 
@@ -77,7 +77,7 @@ class Parent_Individual:
 
         # Extract loudness features
         self.intensity = praat_control.get_individual_intensity(self.name, self.directory, self.current_generation, self.target_info['target_intensity'])
-        self.rms = praat_control.get_individual_RMS(self.name, self.directory, self.current_generation, self.target_info['target_rms'])
+        self.rms = praat_control.get_individual_rms(self.name, self.directory, self.current_generation, self.target_info['target_rms'])
 
         # Apply loudness co-efficents
         if self.target_info['loudness_measure'] == 'rms':
@@ -90,9 +90,11 @@ class Parent_Individual:
             pass
 
     def evaluate_mfcc(self):
-        self.mfcc_average = praat_control.get_individual_mfcc_average(self.name, self.directory, self.current_generation)
-        self.fbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
-        self.logfbank_average = praat_control.get_individual_fbank_average(self.name, self.directory, self.current_generation)
+
+        wav_filepath = "{}/Generation{}/Individual{}.wav".format(self.directory, self.current_generation, self.name)
+        self.mfcc_average = praat_control.get_mfcc_average(wav_filepath)
+        self.fbank_average = praat_control.get_fbank_average(wav_filepath)
+        self.logfbank_average = praat_control.get_logfbank_average(wav_filepath)
 
     def evaluate_mfcc_fitness(self):
 

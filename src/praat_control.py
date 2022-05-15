@@ -1,6 +1,7 @@
 import csv
 import math
 import os
+import pathlib
 import subprocess
 
 import numpy as np
@@ -10,11 +11,11 @@ from python_speech_features import fbank, logfbank, mfcc
 
 def get_time(soundfile):
     """
-    Return the length of a given audio file in seconds.
+    Returns the length of a given audio file in seconds.
 
     PARAMETERS
     ----------
-    soundfile : pathlib Obj
+    soundfile : pathlib Object
         A pathlib object representing the absolute file path of the audio file
 
     RETURNS
@@ -23,17 +24,18 @@ def get_time(soundfile):
         A string containing the length of the given audio file
     """
 
-    with open('AnalyseTargetSound.praat', 'w') as script:
+    script_name = 'AnalyseTargetSound.praat'
+
+    with open(script_name, 'w') as script:
         script.write('Read from file: "{}"\n'.format(soundfile))
         script.write('time = Get total duration\n')
         script.write('writeFileLine: "time.txt", time\n')
 
-    subprocess.call(['./praat', '--ansi', '--run', 'AnalyseTargetSound.praat'], stdout=subprocess.DEVNULL)
+    run_praat_command(script_name, True)
 
     with open('time.txt', 'r') as timetxt:
         time = timetxt.readline().strip()
 
-    os.remove('AnalyseTargetSound.praat')
     os.remove('time.txt')
 
     return time
@@ -44,59 +46,6 @@ def get_sample_rate(soundfile):
     (rate, _) = wav.read(soundfile)
 
     return rate
-
-
-def get_target_formants(TargetLength, soundfile, NO_FORMANTS):
-    """ Extract Pitch and Formants of the Target Sound"""
-
-    script = open("GetPitch.praat", 'w')
-    script.write('Read from file: "{!s}"\r\n'.format(soundfile))
-    script.write('To Pitch: {!s}, 75, 600\r\n'.format(TargetLength))
-    script.write('Get mean: 0, 0, "Hertz"\r\n')
-    script.write('appendFile ("pitch.txt", info$ ())')
-    script.close()
-
-    subprocess.call(['./praat', '--ansi', '--run', 'GetPitch.praat'], stdout=subprocess.DEVNULL)
-    os.remove('GetPitch.praat')
-
-    script = open("GetFormants.praat", 'w')
-    script.write('Read from file: "{!s}"\r\n'.format(soundfile))
-    script.write('To Formant (sl): 0, 5, 5000, {!s}, 50\r\n'.format(TargetLength))
-    script.write('List: "no", "yes", 6, "no", 3, "no", 3, "no"\r\n')
-    script.write('appendFile ("formants.txt", info$ ())')
-    script.close()
-
-    subprocess.call(['./praat', '--ansi', '--run', 'GetFormants.praat'], stdout=subprocess.DEVNULL)
-    os.remove('GetFormants.praat')
-
-    with open("pitch.txt", "r") as pitch:
-
-        pitch = pitch.readline().strip()
-
-    pitch = pitch[0:7]
-    pitch = float(pitch)
-
-    os.remove('pitch.txt')
-
-    with open("formants.txt", "r") as formants:
-
-        lines = formants.readlines()
-        values = lines[1].split("\t")
-
-    os.remove('formants.txt')
-
-    for i in range(len(values)):
-
-        values[i] = values[i].strip()
-
-        if values[i] == "--undefined--":
-            values[i] = 0
-
-    values[0] = pitch
-
-    values = list(map(float, values))
-
-    return values[1:NO_FORMANTS+1]
 
 
 def get_formants(file_path):
@@ -142,7 +91,8 @@ def get_formants(file_path):
 
 def write_formant_table(file_path, name, sound_type='Individual'):
 
-    praat_script = file_path / 'WriteFormantTable{}{}.praat'.format(sound_type, name)
+    praat_script = file_path / \
+        'WriteFormantTable{}{}.praat'.format(sound_type, name)
     audio_file = file_path / '{}{}.wav'.format(sound_type, name)
     formant_table = file_path / '{}{}.Table'.format(sound_type, name)
 
@@ -174,7 +124,7 @@ def write_target_formant_table(file_path, file_name):
     return get_formants(formant_table)
 
 
-def voice_report(file_path, length, name='', sound_type='Individual'):
+def get_voice_report(file_path, length, name='', sound_type='Individual'):
 
     praat_script = file_path / 's{}{}.praat'.format(sound_type, name)
     audio_file = file_path / '{}{}.wav'.format(sound_type, name)
@@ -215,26 +165,17 @@ def voice_report(file_path, length, name='', sound_type='Individual'):
     return voice_report
 
 
-def run_praat_command(praat_script, purge=False):
-    subprocess.call(['./praat',
-                     '--run',
-                     '--ansi',
-                     praat_script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-    if purge:
-        os.remove(praat_script)
-
-
 def get_target_intensity(soundfile):
-    script = open("GetIntensity.praat", 'w')
-    script.write('Read from file: "{!s}"\r\n'.format(soundfile))
-    script.write('To Intensity: 100, 0, "yes"\r\n')
-    script.write('Get standard deviation: 0, 0\r\n')
-    script.write('appendFile ("intensity.txt", info$ ())')
-    script.close()
 
-    subprocess.call(['./praat', '--ansi', '--run', 'GetIntensity.praat'], stdout=subprocess.DEVNULL)
-    os.remove('GetIntensity.praat')
+    script_name = "GetIntensity.praat"
+
+    with open(script_name, 'w') as script:
+        script.write('Read from file: "{!s}"\r\n'.format(soundfile))
+        script.write('To Intensity: 100, 0, "yes"\r\n')
+        script.write('Get standard deviation: 0, 0\r\n')
+        script.write('appendFile ("intensity.txt", info$ ())')
+
+    run_praat_command(script_name, True)
 
     with open("intensity.txt", "r") as f:
         intensity = f.readline()
@@ -245,105 +186,6 @@ def get_target_intensity(soundfile):
     os.remove('intensity.txt')
 
     return intensity
-
-
-def get_target_RMS(soundfile):
-    t = soundfile
-
-    _, data = wav.read(t, mmap=False)
-
-    total = 0.0
-
-    for i in range(len(data)):
-        total += data[i] ** 2
-
-    total = total / len(data)
-
-    return math.sqrt(total)
-
-
-def get_target_mfcc_average(soundfile):
-    (rate, signal) = wav.read(soundfile)
-
-    mfcc_features_target = mfcc(signal, rate, winlen=0.025, winstep=0.025)
-
-    return np.average(mfcc_features_target, axis=0)
-
-
-def get_target_logfbank_average(soundfile):
-    (rate, signal) = wav.read(soundfile)
-
-    logfbank_features_target = logfbank(signal, rate, winlen=0.025, winstep=0.025)
-
-    return np.average(logfbank_features_target, axis=0)
-
-
-def get_target_fbank_average(soundfile):
-    (rate, signal) = wav.read(soundfile)
-
-    fbank_features_target, _ = fbank(signal, rate, winlen=0.025, winstep=0.025)
-
-    return np.average(fbank_features_target, axis=0)
-
-
-def get_target_mfcc(soundfile):
-    (rate, signal) = wav.read(soundfile)
-
-    return mfcc(signal, rate, winlen=0.025, winstep=0.025)
-
-
-def get_target_logfbank(soundfile):
-    (rate, signal) = wav.read(soundfile)
-
-    return logfbank(signal, rate, winlen=0.025, winstep=0.025)
-
-
-def get_individual_pitch(name, directory, currentgeneration):
-
-    with open("{}/Generation{!s}/pitch{!s}.txt".format(directory, currentgeneration, name), "r") as pitch:
-        # Sets the canpitch variable to a list containing the first line of the file and strips white space.
-        candpitch = pitch.readline().strip()
-        candpitch = candpitch.strip('Hz')
-        candpitch = candpitch.strip()
-
-    os.remove("{}/Generation{!s}/pitch{!s}.txt".format(directory, currentgeneration, name))
-
-    if candpitch.islower():
-        return False
-    else:
-        return True
-
-
-def get_individual_formants(name, directory, currentgeneration, samplerate):
-    """ Opens the pitch.txt file generated by PRAAT
-
-    returns: a list of the first five formant frequencies
-    """
-
-    # Opens text file with formant information as the var .formants
-    with open("{}/Generation{!s}/formants{!s}.txt".format(directory, currentgeneration, name), "r") as formants:
-        # Splits the lines of the text file into items of a list in .lines
-        lines = formants.readlines()
-
-    # Assigns the second item from .lines to candformants
-    candformants = lines[1].split("\t")
-
-    # print('candformants', candformants)
-
-    # Strips whitespace and checks if a formant is undefined and sets this to half the sample rate
-    for i in range(len(candformants)):
-        candformants[i] = candformants[i].strip()
-        if candformants[i].islower():
-            candformants[i] = str(samplerate/2)
-
-    # Converts the list of strings to a list of floats
-    candformants = list(map(float, candformants))
-
-    # print('candformants', candformants)
-
-    os.remove("{}/Generation{!s}/formants{!s}.txt".format(directory, currentgeneration, name))
-
-    return candformants[1:6]
 
 
 def get_individual_intensity(name, directory, currentgeneration, targetintensity):
@@ -359,15 +201,32 @@ def get_individual_intensity(name, directory, currentgeneration, targetintensity
         intensity = intensity.strip("dB")
         intensity = float(intensity)
 
-    os.remove("{}/Generation{!s}/intensity{!s}.txt".format(directory, currentgeneration, name))
+    os.remove("{}/Generation{!s}/intensity{!s}.txt".format(directory,
+              currentgeneration, name))
 
     intensity = abs((targetintensity / intensity) - 1) + 1
 
     return round(intensity, 2)
 
 
-def get_individual_RMS(name, directory, currentgeneration, targetrms):
-    t = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
+def get_target_rms(soundfile):
+    t = soundfile
+
+    _, data = wav.read(t, mmap=False)
+
+    total = 0.0
+
+    for i in range(len(data)):
+        total += data[i] ** 2
+
+    total = total / len(data)
+
+    return math.sqrt(total)
+
+
+def get_individual_rms(name, directory, currentgeneration, targetrms):
+    t = "{}/Generation{!s}/Individual{!s}.wav".format(
+        directory, currentgeneration, name)
 
     _, data = wav.read(t, mmap=False)
 
@@ -384,51 +243,58 @@ def get_individual_RMS(name, directory, currentgeneration, targetrms):
     return round(rms, 2)
 
 
-################################################################################################
-
-def get_individual_mfcc_average(name, directory, currentgeneration):
-    soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
-
-    (rate, signal) = wav.read(soundfile)
-
-    mfcc_features = mfcc(signal, rate, winlen=0.025, winstep=0.025, appendEnergy=False)
-
-    return np.average(mfcc_features, axis=0)
-
-
-def get_individual_fbank_average(name, directory, currentgeneration):
-    soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
-
-    (rate, signal) = wav.read(soundfile)
-
-    logfbank_features_individual, _ = fbank(signal, rate, winlen=0.025, winstep=0.025)
-
-    return np.average(logfbank_features_individual, axis=0)
-
-
-def get_individual_logfbank_average(name, directory, currentgeneration):
-    soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
-
-    (rate, signal) = wav.read(soundfile)
-
-    logfbank_features_individual = logfbank(signal, rate, winlen=0.025, winstep=0.025)
-
-    return np.average(logfbank_features_individual, axis=0)
-
-################################################################################################
-
-
-def get_individual_mfcc(name, directory, currentgeneration):
-    soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
-
+def get_mfcc(soundfile):
     (rate, signal) = wav.read(soundfile)
 
     return mfcc(signal, rate, winlen=0.025, winstep=0.025)
 
 
-def get_individual_logfbank(name, directory, currentgeneration):
-    soundfile = "{}/Generation{!s}/Individual{!s}.wav".format(directory, currentgeneration, name)
+def get_mfcc_average(soundfile):
+    rate, signal = wav.read(soundfile)
 
-    (rate, signal) = wav.read(soundfile)
+    mfcc_features = mfcc(signal, rate, winlen=0.025, winstep=0.025)
+
+    return np.average(mfcc_features, axis=0)
+
+
+def get_fbank(soundfile):
+    rate, signal = wav.read(soundfile)
+
+    fbank_features, _ = fbank(signal, rate, winlen=0.025, winstep=0.025)
+
+    return fbank_features
+
+
+def get_fbank_average(soundfile):
+    rate, signal = wav.read(soundfile)
+
+    fbank_features, _ = fbank(signal, rate, winlen=0.025, winstep=0.025)
+
+    return np.average(fbank_features, axis=0)
+
+
+def get_logfbank(soundfile):
+    rate, signal = wav.read(soundfile)
 
     return logfbank(signal, rate, winlen=0.025, winstep=0.025)
+
+
+def get_logfbank_average(soundfile):
+    rate, signal = wav.read(soundfile)
+
+    logfbank_features = logfbank(signal, rate, winlen=0.025, winstep=0.025)
+
+    return np.average(logfbank_features, axis=0)
+
+
+def run_praat_command(praat_script, purge=False):
+
+    praat_path = pathlib.Path.cwd().parent / 'synthesisers' / 'praat' / 'praat'
+
+    subprocess.call([praat_path,
+                     '--run',
+                     '--ansi',
+                     praat_script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    if purge:
+        os.remove(praat_script)
