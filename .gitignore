@@ -64,6 +64,7 @@ Temporary Items
 *.Table
 *.VoiceReport
 *.html
+*.ps1
 
 # Python files
 *.pyc
