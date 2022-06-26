@@ -64,7 +64,7 @@ def write_artword(identifier, start_values):
         # Set sample rate and synthesise audio
         artword.write('select Artword Individual_{}\n'.format(identifier))
         artword.write('plus Speaker Robovox\n')
-        artword.write('To Sound... {} 25    0 0 0    0 0 0   0 0 0\n'.format(22500))
+        artword.write('To Sound... {} 25    0 0 0    0 0 0   0 0 0\n'.format(10025))
         artword.write('''nowarn do ("Save as WAV file...", "Individual_{}.wav")\n'''.format(identifier))
 
 
@@ -75,8 +75,9 @@ def run_praat(praat_path, script_name):
                      script_name], stdout=subprocess.DEVNULL)
 
 
-def synthesise_words(praat_path, praat_type, iterations=25):
-
+def synthesise_words(praat_path, praat_type, iterations=8):
+    import time
+    a = time.time()
     for i in range(0, iterations):
         name = f'Individual_{i}_{praat_type}'
         write_artword(f"{i}_Y", values)
@@ -91,6 +92,8 @@ def synthesise_words(praat_path, praat_type, iterations=25):
         data["praat_type"].append(praat_type)
         os.remove(f'Individual_{i}_Y.wav')
         os.remove(f'Individual_{i}_Y.praat')
+    b = time.time()
+    print(b-a)
 
 
 random.seed(1023)
