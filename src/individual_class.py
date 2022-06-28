@@ -1,6 +1,8 @@
 import random
 
 import numpy as np
+import fastdtw
+from scipy.spatial.distance import cosine
 
 import fitness_functions
 import praat_control
@@ -38,6 +40,8 @@ class Parent_Individual:
             self.evaluate_formant_fitness()
         elif fitness_type == 'filterbank':
             self.evaluate_mfcc_fitness()
+        elif fitness_type == 'mfcc_dtw':
+            self.evaluate_mfcc_dtw_fitness()
 
         if self.voiced and self.target_info['scikit']:
             self.write_data_scikit()
@@ -92,9 +96,10 @@ class Parent_Individual:
     def evaluate_mfcc(self):
 
         wav_filepath = "{}/Generation{}/Individual{}.wav".format(self.directory, self.current_generation, self.name)
-        self.mfcc_average = praat_control.get_mfcc_average(wav_filepath)
-        self.fbank_average = praat_control.get_fbank_average(wav_filepath)
-        self.logfbank_average = praat_control.get_logfbank_average(wav_filepath)
+        self.mfcc = praat_control.get_mfcc(wav_filepath)
+        # self.mfcc_average = praat_control.get_mfcc_average(wav_filepath)
+        # self.fbank_average = praat_control.get_fbank_average(wav_filepath)
+        # self.logfbank_average = praat_control.get_logfbank_average(wav_filepath)
 
     def evaluate_mfcc_fitness(self):
 
@@ -112,6 +117,10 @@ class Parent_Individual:
             self.raw_fitness = fitness_functions.return_distance(self.target_info['target_logfbank_average'],
                                                                  self.logfbank_average,
                                                                  self.target_info['distance_metric'])
+
+    def evaluate_mfcc_dtw_fitness(self):
+        distance, path = fastdtw.fastdtw(self.target_info['target_mfcc'], self.mfcc, dist=cosine)
+        self.raw_fitness = distance
 
     def write_out_data(self):
         stats.write_individual_to_csv(dict(vars(self)), self.directory, self.current_generation)

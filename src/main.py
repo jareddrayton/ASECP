@@ -29,7 +29,7 @@ def get_target_info(target_dict):
     target_dict['target_fbank_average'] = praat_control.get_fbank_average(target_dict['file_path'])
     target_dict['target_logfbank_average'] = praat_control.get_logfbank_average(target_dict['file_path'])
     target_dict['target_mfcc'] = praat_control.get_mfcc(target_dict['file_path'])
-    target_dict['target_logfbank'] = praat_control.get_fbank(target_dict['file_path'])
+    target_dict['target_fbank'] = praat_control.get_fbank(target_dict['file_path'])
     target_dict['target_logfbank'] = praat_control.get_logfbank(target_dict['file_path'])
 
 
@@ -40,8 +40,6 @@ def main():
     args = arguments.get_user_args()
     print(vars(args))
     target_dict = vars(args).copy()
-
-    random.seed(2000)
 
     # The target sound to be matched
     target_dict['file_name'] = args.soundfile
@@ -55,7 +53,6 @@ def main():
     crossover_type = args.crossover_type
     mutation_type = args.mutation_type
     elitism = args.elitism
-    elite_size = args.elite_size
 
     # Fitness function variables
     fitness_type = args.fitness_type
@@ -83,6 +80,8 @@ def main():
         directory = root_data_directory / '{}{}.{}.id{}'.format(prefix, formant_repr, distance_metric, identifier)
     elif fitness_type == 'filterbank':
         directory = root_data_directory / '{}{}.id{}'.format(prefix, filterbank_type, identifier)
+    elif fitness_type == 'mfcc_dtw':
+        directory = root_data_directory / '{}{}.id{}'.format(prefix, fitness_type, identifier)
 
     # Makes the directory for all subsequent files
     if directory.exists() and target_dict['overwrite']:
@@ -157,7 +156,7 @@ def main():
         ###############################################################################################
         # Store Elite Candidates
 
-        elites = genetic_operators.elitism(population, keys, elite_size)
+        elites = genetic_operators.elitism(population, keys, elitism)
 
         ###############################################################################################
         # Selection Probabilities used with Roulette Wheel or Stochastic Universal Sampling
@@ -211,10 +210,11 @@ def main():
         ##############################################################################################
         # Elitism
         if elitism:
-            for i in range(elite_size):
+            for i in range(elitism):
                 population[keys[i]].values = elites[i]
 
-    stats.performance_graph(average_fitness, minimum_fitness, generation_size, directory)
+    # stats.performance_graph(average_fitness, minimum_fitness, generation_size, directory)
+    stats.performance_graph_sea(minimum_fitness, directory)
     stats.config_dump(directory, start_time, args)
     stats.statistics(average_fitness, minimum_fitness, top_individual, directory)
     stats.csv_file(average_fitness, minimum_fitness, voiced_percentage, directory)

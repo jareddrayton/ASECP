@@ -8,7 +8,7 @@ from itertools import repeat
 
 def worker(directory, current_generation, individual_id):
 
-    praat_path = pathlib.Path.cwd().parent / 'synthesisers' / 'praat' / 'praat'
+    praat_path = pathlib.Path.cwd().parent / 'synthesisers' / 'praat_deterministic' / 'praat'
 
     praat_script_path = '{}/Generation{!s}/Individual{!s}.praat'.format(directory, current_generation, individual_id)
 

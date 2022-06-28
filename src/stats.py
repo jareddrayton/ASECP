@@ -3,6 +3,8 @@ import json
 import time
 
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 
 
 def write_individual_to_csv(class_dict, directory, currentgeneration):
@@ -56,6 +58,16 @@ def performance_graph(average_fitness, minimum_fitness, generation_size, directo
     plt.ylabel('Fitness')
     plt.legend()
     plt.savefig("{}/Performance Graph".format(directory))
+
+
+def performance_graph_sea(minimum_fitness, directory):
+    sns.set_theme(style="whitegrid")
+
+    data = {"Minimum": minimum_fitness}
+    data = pd.DataFrame(data)
+    sns.lineplot(data=data, palette="dark")
+    sns.despine(left=True)
+    plt.savefig("{}/Performance Graph.pdf".format(directory))
 
 
 def csv_file(average_fitness, minimum_fitness, voiced_percentage, directory):

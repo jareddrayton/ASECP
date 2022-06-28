@@ -3,10 +3,15 @@ import math
 import os
 import pathlib
 import subprocess
+import warnings
 
 import numpy as np
 import scipy.io.wavfile as wav
-from python_speech_features import fbank, logfbank, mfcc
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=Warning)
+    from python_speech_features import fbank, logfbank, mfcc
 
 
 def get_time(soundfile):
@@ -115,7 +120,7 @@ def write_target_formant_table(file_path, file_name):
 
     with open(praat_script, 'w') as f:
         f.write('Read from file: "{}"\n'.format(audio_file))
-        f.write('nowarn To Formant (sl): 0, 5, 4500, 0.025, 50\n')
+        f.write('nowarn To Formant (sl): 0, 5, 4750, 0.025, 50\n')
         f.write('Down to Table: "no", "no", 6, "no", 3, "yes", 1, "no"\n')
         f.write('Save as comma-separated file: "{}"\n'.format(formant_table))
 
@@ -246,13 +251,13 @@ def get_individual_rms(name, directory, currentgeneration, targetrms):
 def get_mfcc(soundfile):
     (rate, signal) = wav.read(soundfile)
 
-    return mfcc(signal, rate, winlen=0.025, winstep=0.025)
+    return mfcc(signal, rate, appendEnergy=False)
 
 
 def get_mfcc_average(soundfile):
     rate, signal = wav.read(soundfile)
 
-    mfcc_features = mfcc(signal, rate, winlen=0.025, winstep=0.025)
+    mfcc_features = mfcc(signal, rate, appendEnergy=False)
 
     return np.average(mfcc_features, axis=0)
 
