@@ -194,7 +194,7 @@ class Individual_VTL(Parent_Individual):
         target_time = float(self.target_info['target_length'])
         fold_type = 'Geometric glottis'
         step_size = int((sample_rate / 1000) * 2.5)
-        target_pressure = 8000
+        target_pressure = 10000
         number_of_states = int((sample_rate * target_time) // step_size)
         pressure = np.geomspace(1, target_pressure, num=20)
         glottis_params = ['101.594', '0', '0.0102', '0.02035', '0.05', '1.22204', '1', '0.05', '0', '25', '-10']

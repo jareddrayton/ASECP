@@ -13,8 +13,7 @@ from praat_control import run_praat_command
 glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\target_sounds\\*.wav'
 target_sounds = glob.glob(glob_string)
 
-ceiling = 4750
-
+ceiling = 5000
 
 def table_to_long_form_df(table_name, algo):
     table = pd.read_csv(table_name, delimiter='\t')
@@ -22,7 +21,6 @@ def table_to_long_form_df(table_name, algo):
     table = table.replace(to_replace="--undefined--",)
     table['algorithm'] = algo
     return table
-
 
 for target_sound in target_sounds:
     sound_name = os.path.basename(target_sound).split('.')[0]

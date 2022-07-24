@@ -18,7 +18,7 @@ for path in glob.glob(input_folder):
 
     formants = write_target_formant_table(pathlib.Path(os.path.dirname(path)), os.path.basename(path))
 
-    formants = [str(round(x)) for x in formants]
+    formants = [str(round(x)) if x else None for x in formants]
     print(formants)
     empty_dict[os.path.basename(path)] = formants
 
