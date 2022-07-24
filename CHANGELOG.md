@@ -1,13 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/), and [Keep a Changelog](http://keepachangelog.com/en/0.3.0/)
+This project adheres to [Semantic Versioning](http://semver.org/), and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
-## [Unreleased]
-### [Added]
-- Voiced/Unvoiced variable attribute.
-- Added Intensity Coeffcient variable to Class Individual
-- Added RMS Coeffcient variable to Class Individual
-- Added Canberra Distance metric
+## [0.2.0] - 2022-07-24
+### Changed
+- How formants are calculated by averaging a subset of values.
 
-### [Changed]
-- Refactored functions in fitnessfunction.py
+### Fixed
+- A discrepancy in formant frequency ceiling height value between the target and individual analysis functions.
