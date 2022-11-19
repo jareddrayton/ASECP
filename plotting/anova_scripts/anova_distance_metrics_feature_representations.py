@@ -16,7 +16,7 @@ glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\distance_metric_featu
 paths = glob.glob(glob_string)
 
 columns = ['vowel', 'run', 'dm', 'fr', 'f1', 'f2', 'f3']
-
+type = "cen"
 # A list to store each dictioniary that represents a row.
 store_rows = []
 
@@ -42,7 +42,10 @@ for path in paths:
                 best_individual_data = row
 
     formants_ind = [float(x.strip()) for x in best_individual_data[5:8]]
-    formants_abs = list(map(lambda x, y: abs(x-y), formants_ind, target_vowel_data[vowel]))
+    if type == "abs":
+        formants_abs = list(map(lambda x, y: abs(x-y), formants_ind, target_vowel_data[vowel]))
+    elif type == "cen":
+        formants_abs = list(map(lambda x, y: x-y, formants_ind, target_vowel_data[vowel]))
     row_data_formatted = [vowel, identifier, dm, fr] + formants_abs
 
     row_data = dict(zip(columns, row_data_formatted))
@@ -57,7 +60,7 @@ def create_plots(new_df):
         sns.set_theme(style="whitegrid")
         sns.set(font_scale=1.75)
         g = sns.catplot(x="dm", y=formant, hue="fr", col="vowel",
-                        capsize=.2, palette="YlGnBu_d", height=12, aspect=0.4,
+                        errwidth=5.0, capsize=0.3, palette="YlGnBu_d", height=12, aspect=0.4,
                         kind="point", data=new_df, dodge=False)
         g.despine(left=True)
 

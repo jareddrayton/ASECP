@@ -52,10 +52,11 @@ def simple_plot(data, log_yaxis=False):
     """
     sns.set_theme()
 
-    plot = sns.lineplot(data=data)
+    plot = sns.lineplot(data=data, legend=False)
 
     if log_yaxis:
         plot.set_yscale("log")
 
     plt.xticks(np.arange(0, 21, 2))
     plt.show()
+

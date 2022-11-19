@@ -17,7 +17,7 @@ def performance_graph_confidence_interval(rootdir, experiment, key):
         with open(f'{f}\\Stats.csv', newline='') as csvfile:
             spamreader = csv.reader(csvfile, delimiter=' ')
             for g, row in enumerate(spamreader):
-                test.append([f'run_{i}', int(g), float(row[2]), key])
+                test.append([f'run_{i}', int(g), float(row[0]), key])
 
         i += 1
 
@@ -32,7 +32,7 @@ def simple_plot(frames):
     print(result)
 
     sns.set_theme()
-    sns.lineplot(data=result, x='generation', y='mean_fitness', hue='key', ci=95)
+    sns.lineplot(data=result, x='generation', y='mean_fitness', hue='key', ci='sd')
     #plt.set(yscale='log')
     sns.set_style("ticks")
     plt.xticks(np.arange(0, 21, 2))

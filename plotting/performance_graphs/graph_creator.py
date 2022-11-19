@@ -12,7 +12,7 @@ print(args.json)
 with open(args.json, 'r') as graph_spec:
     graph_dict = json.load(graph_spec)
 
-print([type(x) for x in graph_dict['experiments']])
+# print([type(x) for x in graph_dict['experiments']])
 
 if graph_dict['graph_type'] == 'single':
     data = performance_graph_single.performance_graph(**graph_dict['experiment'])
