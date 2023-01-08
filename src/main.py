@@ -2,7 +2,6 @@
 
 import os
 import pathlib
-import random
 import shutil
 import time
 from operator import itemgetter
@@ -71,9 +70,10 @@ def main():
 
     parent_dir = pathlib.Path.cwd().parent
 
-    root_data_directory = parent_dir / 'data'
-    praat_filepath = parent_dir / 'praat'
-    root_vtl_directory = parent_dir / 'vocaltractlab'
+    if args.sub_directory:
+        root_data_directory = parent_dir / 'thesis_data' / args.sub_directory
+    else:
+        root_data_directory = parent_dir / 'thesis_data'
     root_target_sounds_directory = parent_dir / 'target_sounds'
 
     if fitness_type == 'formant':
@@ -90,7 +90,7 @@ def main():
     elif directory.exists():
         raise IOError('A directory for this experiment already exists.')
     else:
-        os.mkdir(directory)
+        os.makedirs(directory)
 
     target_dict['file_path_root'] = root_target_sounds_directory
     target_dict['file_path'] = root_target_sounds_directory / target_dict['file_name']

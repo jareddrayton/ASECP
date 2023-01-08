@@ -10,6 +10,13 @@ def get_user_args():
                         help="Target sound file name.",
                         metavar='')
 
+    parser.add_argument("--sub_directory",
+                        type=str,
+                        required=False,
+                        default=None,
+                        help="Specify optional parent subdirectory for experiment.",
+                        metavar='')
+
     parser.add_argument("-ps", "--population_size",
                         type=int,
                         required=True,
