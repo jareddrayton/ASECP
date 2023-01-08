@@ -1,0 +1,1 @@
+python main.py --sub_directory chapter_4\change_in_standard_deviation -sf Primary1.wav -sn PRT -ps 150 -gs 10 -el 2 -mr 0.1 -sd 0.2 -sl exponential -fr cent -dm SAD -id 1
