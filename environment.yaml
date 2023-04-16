@@ -2,7 +2,7 @@ name: asecp_dev
 channels:
   - conda-forge
 dependencies:
-  - python=3.10
+  - python=3.11
   - numpy
   - matplotlib
   - scikit-learn
@@ -14,3 +14,4 @@ dependencies:
   - scipy
   - pip:
     - python_speech_features
+    - spafe
