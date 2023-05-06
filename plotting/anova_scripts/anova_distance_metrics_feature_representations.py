@@ -8,15 +8,11 @@ import seaborn as sns
 
 from CONSTANTS import target_vowel_data
 
-# target_vowel_data = {'Primary1.wav': [277, 1947, 2629],
-#                      'Primary4.wav': [639, 1145, 2195],
-#                      'Primary8.wav': [335, 936, 2200]}
-
-glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\distance_metric_feature_representation\\Primary*'
+glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\thesis_data\\chapter_5_i\\distance_metric_feature_representation\\Primary*'
 paths = glob.glob(glob_string)
 
 columns = ['vowel', 'run', 'dm', 'fr', 'f1', 'f2', 'f3']
-type = "cen"
+type = "abs"
 # A list to store each dictioniary that represents a row.
 store_rows = []
 

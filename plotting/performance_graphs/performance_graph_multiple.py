@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 
 
-def performance_graph_confidence_interval(rootdir, experiment, key):
+def performance_graph_confidence_interval(rootdir, experiment, key, metric):
     """
     Makes a simple performance graph for a particular experiment with each individual run plotted.
     """
@@ -17,8 +17,7 @@ def performance_graph_confidence_interval(rootdir, experiment, key):
         with open(f'{f}\\Stats.csv', newline='') as csvfile:
             spamreader = csv.reader(csvfile, delimiter=' ')
             for g, row in enumerate(spamreader):
-                test.append([f'run_{i}', int(g), float(row[0]), key])
-
+                test.append([f'run_{i}', int(g), float(row[metric]), key])
         i += 1
 
     data = pd.DataFrame(test, columns=['run', 'generation', 'mean_fitness', 'key'])
@@ -26,16 +25,16 @@ def performance_graph_confidence_interval(rootdir, experiment, key):
     return data
 
 
-def simple_plot(frames):
+def simple_plot(frames, x_label, y_label):
     result = pd.concat(frames, ignore_index=True)
 
     print(result)
 
     sns.set_theme()
-    sns.lineplot(data=result, x='generation', y='mean_fitness', hue='key', ci='sd')
+    sns.lineplot(data=result, x=x_label, y=y_label, hue='key') #, ci='sd')
     #plt.set(yscale='log')
     sns.set_style("ticks")
     plt.xticks(np.arange(0, 21, 2))
-    #plt.ylim(0, 10000)
+    plt.ylim(0, 1)
     plt.xlim(0, 20)
     plt.show()

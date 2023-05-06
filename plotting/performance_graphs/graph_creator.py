@@ -19,5 +19,5 @@ if graph_dict['graph_type'] == 'single':
     performance_graph_single.simple_plot(data, **graph_dict['graph_style'])
 
 elif graph_dict['graph_type'] == 'multiple':
-    frames = [performance_graph_multiple.performance_graph_confidence_interval(**x) for x in graph_dict['experiments']]
+    frames = [performance_graph_multiple.performance_graph_confidence_interval(metric=graph_dict['metric'], **x) for x in graph_dict['experiments']]
     performance_graph_multiple.simple_plot(frames)

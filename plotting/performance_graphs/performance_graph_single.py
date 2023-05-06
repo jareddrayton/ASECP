@@ -59,4 +59,3 @@ def simple_plot(data, log_yaxis=False):
 
     plt.xticks(np.arange(0, 21, 2))
     plt.show()
-

@@ -8,7 +8,7 @@ import seaborn as sns
 
 from CONSTANTS import target_vowel_data
 
-glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\multi_model_comparison_phase_i\\Primary*'
+glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\thesis_data\\chapter_5_i\\multi_model_comparison\\Primary*'
 paths = glob.glob(glob_string)
 
 columns = ['vowel', 'run', 'synthesiser', 'f1', 'f2', 'f3']
@@ -48,11 +48,33 @@ for path in paths:
 new_df = pd.DataFrame.from_records(store_rows)
 
 
-sns.set_theme(style="whitegrid")
-sns.set(font_scale=1.75)
-g = sns.catplot(x="vowel", y='f3',  hue="synthesiser",
-                capsize=0.8, palette="YlGnBu_d",
-                kind="point", data=new_df, join=False, dodge=True, height=10, aspect=2.0)
-g.despine(left=True)
+def create_plots(new_df):
+    formants = ["f1", "f2", "f3"]
+    for formant in formants:
+        sns.set_theme(style="whitegrid")
+        sns.set(font_scale=1.75, rc={"lines.linewidth": 3.4})
+        g = sns.catplot(x="vowel", y=formant,  hue="synthesiser",
+                        capsize=0.8, palette="YlGnBu_d",
+                        kind="point", data=new_df, join=False, dodge=True, height=10, aspect=2.0, s=15)
+        g.despine(left=True)
 
-plt.show()
+        plt.show()
+
+
+create_plots(new_df)
+
+
+# def create_plots(new_df):
+#     formants = ["f1", "f2", "f3"]
+#     for formant in formants:
+#         sns.set_theme(style="whitegrid")
+#         sns.set(font_scale=3.0)
+#         g = sns.catplot(x="vowel", y=formant, hue="fr", col="vowel",
+#                         errwidth=5.0, capsize=0.3, palette="YlGnBu_d", height=12, aspect=0.4,
+#                         kind="point", data=new_df, dodge=False)
+#         g.despine(left=True)
+
+#     plt.show()
+
+
+# create_plots(new_df)

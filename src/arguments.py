@@ -14,7 +14,7 @@ def get_user_args():
                         type=str,
                         required=False,
                         default=None,
-                        help="Specify optional parent subdirectory for experiment.",
+                        help="Specify optional parent subdirectory for experiment].",
                         metavar='')
 
     parser.add_argument("-ps", "--population_size",
