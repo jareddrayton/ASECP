@@ -6,14 +6,16 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-target_vowel_data = {'Primary1.wav': [277, 1947, 2629],
-                     'Primary4.wav': [639, 1145, 2195],
-                     'Primary8.wav': [335, 936, 2200]}
+from CONSTANTS import target_vowel_data
 
-glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\no_elitism\\Primary*'
+# target_vowel_data = {'Primary1.wav': [277, 1947, 2629],
+#                      'Primary4.wav': [639, 1145, 2195],
+#                      'Primary8.wav': [335, 936, 2200]}
+
+glob_string = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\thesis_data\\chapter_5_i\\distance_metric_feature_representation\\Primary*.wav.PRT.Gen20.Pop150.Mut0.1.Sd0.2.cent.SAD*'
 paths = glob.glob(glob_string)
 
-glob_string2 = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\data\\distance_metric_feature_representation\\Primary*.wav.PRT.Gen20.Pop150.Mut0.1.Sd0.2.cent.EUC*'
+glob_string2 = 'C:\\Users\\Jazz\\VSCODE\\Repo\\ASECP\\thesis_data\\chapter_5_ii\\no_elitism\\Primary*.wav.PRT.Gen20.Pop150.Mut0.1.Sd0.2.cent.SAD*'
 paths2 = glob.glob(glob_string2)
 
 paths += paths2
@@ -59,7 +61,7 @@ new_df = pd.DataFrame.from_records(store_rows)
 sns.set_theme(style="whitegrid")
 sns.set(font_scale=1.75)
 g = sns.catplot(x="vowel", y='frequency',  hue="el", col="formant",
-                capsize=.2, palette="YlGnBu_d", height=20, aspect=0.4,
+                capsize=.2, palette="YlGnBu_d", height=20, aspect=0.4, errwidth=5.0,
                 kind="point", data=new_df, dodge=False)
 g.despine(left=True)
 
