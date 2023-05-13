@@ -25,16 +25,22 @@ def performance_graph_confidence_interval(rootdir, experiment, key, metric):
     return data
 
 
-def simple_plot(frames, x_label, y_label):
+def simple_plot(frames, x_label, y_label, log_yaxis):
+
     result = pd.concat(frames, ignore_index=True)
 
     print(result)
 
     sns.set_theme()
-    sns.lineplot(data=result, x=x_label, y=y_label, hue='key') #, ci='sd')
-    #plt.set(yscale='log')
+    sns.set(font_scale=1.50)
+    new = sns.lineplot(data=result, x=x_label, y=y_label, hue='key')
+    if log_yaxis:
+        plt.set(yscale='log')
+        new.set_yscale("log")
     sns.set_style("ticks")
-    plt.xticks(np.arange(0, 21, 2))
-    plt.ylim(0, 1)
-    plt.xlim(0, 20)
+    plt.xlabel("Generation")
+    plt.ylabel("Best Fitness")
+    plt.xticks(np.arange(0, 41, 4))
+    # plt.ylim(0, 1)
+    plt.xlim(0, 40)
     plt.show()
