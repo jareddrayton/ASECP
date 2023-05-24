@@ -57,5 +57,5 @@ def simple_plot(data, log_yaxis=False):
     if log_yaxis:
         plot.set_yscale("log")
 
-    plt.xticks(np.arange(0, 21, 2))
+    plt.xticks(np.arange(0, 40, 2))
     plt.show()

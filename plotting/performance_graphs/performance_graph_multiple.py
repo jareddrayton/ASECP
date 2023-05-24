@@ -35,12 +35,12 @@ def simple_plot(frames, x_label, y_label, log_yaxis):
     sns.set(font_scale=1.50)
     new = sns.lineplot(data=result, x=x_label, y=y_label, hue='key')
     if log_yaxis:
-        plt.set(yscale='log')
+        # plt.set(yscale='log')+
         new.set_yscale("log")
     sns.set_style("ticks")
     plt.xlabel("Generation")
     plt.ylabel("Best Fitness")
     plt.xticks(np.arange(0, 41, 4))
-    # plt.ylim(0, 1)
+    # plt.ylim(0, 1000)
     plt.xlim(0, 40)
     plt.show()
