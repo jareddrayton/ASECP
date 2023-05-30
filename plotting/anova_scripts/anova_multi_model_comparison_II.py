@@ -16,6 +16,7 @@ columns = ['vowel', 'run', 'mk', 'f1', 'f2', 'f3']
 # A list to store each dictioniary that represents a row.
 store_rows = []
 
+
 def add_rows(glob_string, mk):
     paths = glob.glob(glob_string)
     for path in paths:
@@ -67,19 +68,3 @@ def create_plots(new_df):
 
 
 create_plots(new_df)
-
-
-# def create_plots(new_df):
-#     formants = ["f1", "f2", "f3"]
-#     for formant in formants:
-#         sns.set_theme(style="whitegrid")
-#         sns.set(font_scale=3.0)
-#         g = sns.catplot(x="vowel", y=formant, hue="fr", col="vowel",
-#                         errwidth=5.0, capsize=0.3, palette="YlGnBu_d", height=12, aspect=0.4,
-#                         kind="point", data=new_df, dodge=False)
-#         g.despine(left=True)
-
-#     plt.show()
-
-
-# create_plots(new_df)
